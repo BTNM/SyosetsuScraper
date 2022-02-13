@@ -1,66 +1,66 @@
 import scrapy
 
 
+#run scrapy shell to test scrapy extract which content
+#scrapy shell "https://ncode.syosetu.com/n3436hb/2/"
+#scrapy shell "https://ncode.syosetu.com/n9669bk/13/"
+#Need to move inside the project directory where scrapy.cfg file exists to run the spider
+# cd SyosetsuScraper/src/scraper , cd scraper
+# scrapy crawl syosetsu -o test2.json
+# scrapy crawl syosetsu -o testjl.jl
+
 class SyosetsuSpider(scrapy.Spider):
     name = "syosetsu"
     start_urls = [
-        'https://ncode.syosetu.com/n3436hb/1/',
-        #'https://ncode.syosetu.com/n3436hb/2/',
-        #'http://quotes.toscrape.com/page/1/',
-        #'http://quotes.toscrape.com/page/2/',
+        #'https://ncode.syosetu.com/n3436hb/1/',
+        'https://ncode.syosetu.com/n8802bq/1/',
     ]
-    #run scrapy shell to test scrapy extract which content
-    #scrapy shell "https://ncode.syosetu.com/n3436hb/1/"
-    #Need to move inside the project directory where scrapy.cfg file exists to run the spider
-    # cd SyosetsuScraper/src/scraper,
-
 
     def parse(self, response):
-        #text_file = open("sample.txt", "w")
-        #volume_title_text = response.xpath('//p[@class="chapter_title"]/text()').get()
-        #n = text_file.write(volume_title_text)
-        #text_file.close()
+        yield {
+            'novel_title': response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get(),
+            'volum_title': response.xpath('//p[@class="chapter_title"]/text()').get(),
+            'chapter_number': response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0],
+            'chapter_title': response.xpath('//p[@class="novel_subtitle"]/text()').get(),
+            'chapter_preword': response.xpath('//div[@id="novel_color"]/div[@id="novel_p"]/p/text()').getall(),
+            'chapter_text': "".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall()),
+            'chapter_afterword': response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall()
+        }
 
-        for t in response.xpath('//p[@class="chapter_title"]'):
-            yield {
-                'title': t.get()
-            }
+        next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
+        if next_page is not None:
+            next_page = response.urljoin(next_page)
+            yield scrapy.Request(next_page, callback=self.parse)
 
-        #filename = "test_chapter.txt"
-        #with open(filename, 'wb') as output:
-         ##   output.write(volume_title_text)
-
-
-    def parse_5(self, response):
-        for quote in response.css('div.quote'):
-            yield {
-                'text': quote.css('span.text::text').get(),
-                'author': quote.css('small.author::text').get(),
-                'tags': quote.css('div.tags a.tag::text').getall(),
-            }
-
-
-    def parse4(self, response):
-        page = response.url.split("/")[-2]
-        filename = f'chapter_test-{page}.txt'
-        with open(filename, 'wb') as f:
-            f.write(response.body)
-
-
-    def novel_title_description(self, response):
-
-        pass
 
 
     def parse2(self, response):
+        #character introduction - 登場人物紹介
+
+        #get next page hreft
+        # response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
+        # response.css('div.novel_bn a::attr(href)')[1].get()
+
+        #head data
+        response.xpath('//head/title/text()').get()
+        response.xpath('//head/meta[@property="og:title"]/@content').get()
+
+        #get attributes content
+        response.xpath('//head/meta[@property="og:description"]/@content').get()
+        response.xpath('//head/meta/@title')
+
+
         #main text content
         response.xpath('//*[(@id = "novel_honbun")]').get()
+        response.xpath('//p[@class="chapter_title"]/text()').get()
 
         #xpath to the novel main text content #response.xpath('//body/div[@id="container"]/div[@id="novel_contents"]/div[@id="novel_color"]/div[@id="novel_honbun"]/p')
+        title = response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get()
         volume_title_text = response.xpath('//p[@class="chapter_title"]/text()').get()
         novel_chapter_numbers = response.xpath('//div[@id="novel_no"]/text()').get()
         first_chapter_number, last_chapter_number = response.xpath('//div[@id="novel_no"]/text()').get().split("/")
 
+        chapter_title = response.xpath('//p[@class="novel_subtitle"]/text()').get()
         chapter_text = response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall()
         #chapter_foreword_text =
         chapter_afterword_text = response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall()
@@ -69,32 +69,22 @@ class SyosetsuSpider(scrapy.Spider):
         chapter = "".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall())
 
 
-    def parse3(self, response):
-        chapter_title = response.css('.novel_subtitle::text').get()
+    # def parse4(self, response):
+    #
+    #     page = response.url.split("/")[-2]
+    #     filename = f'chapter_test-{page}.txt'
+    #     with open(filename, 'wb') as f:
+    #         f.write(response.body)
 
-        #response.xpath("//*[starts-with(name(), 'h')]/following-sibling::p[1]/text()").getall()
-        #//*[(@id = "L7")] | //*[(@id = "L8")] | //*[(@id = "L6")] | //*[(@id = "L5")] | //*[(@id = "L4")] | //*[(@id = "L2")] | //*[(@id = "L1")]
-
-        #parse syosetsu css object from main page
-        novel_title_xpath = response.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "novel_title", " " ))]/text()').get()
-        novel_title_css = response.css("p.novel_title::text").get()
-
-        novel_description = response.css('#novel_ex::text').get()
-        chapter_title = response.css('.chapter_title::text').get()
-
-        href = response.css('dl.novel_sublist2 a::attr(href)').get()
-        #[a.attrib['href'] for a in response.css('a')]
-
-        chapter_title = response.css('.novel_subtitle::text').get()
-
-        first_line = response.xpath('//p[@id="L1"]/text()').get()
-
-        first, end = response.xpath('//div[@id="novel_no"]/text()').get().split('/')
-
-        # response.xpath("//*[starts-with(name(), 'h')]/following-sibling::p[1]/text()").getall()
-        # //*[(@id = "L7")] | //*[(@id = "L8")] | //*[(@id = "L6")] | //*[(@id = "L5")] | //*[(@id = "L4")] | //*[(@id = "L2")] | //*[(@id = "L1")]
-
-        pass
+    # def parse3(self, response):
+    #     chapter_title = response.css('.novel_subtitle::text').get()
+    #
+    #     novel_title_css = response.css("p.novel_title::text").get()
+    #     novel_description = response.css('#novel_ex::text').get()
+    #     chapter_title = response.css('.chapter_title::text').get()
+    #     chapter_title = response.css('.novel_subtitle::text').get()
+    #
+    #     pass
 
 
     def save_text_to_file(self, chapter_text):
