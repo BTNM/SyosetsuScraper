@@ -17,8 +17,8 @@ if __name__ == '__main__':
     #relative path, current working directory - os.getcwd()
     #os.listdir('C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test.jl')
 
-    novel_name_jsonlines = 'C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test.jl'
+    novel_name_jsonlines_path = 'C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test.jl'
     textfiles_output_path = "G:\LN Raw Text Files"
 
-    read_jsonlines_file(novel_name_jsonlines, textfiles_output_path)
+    read_jsonlines_file(novel_name_jsonlines_path, textfiles_output_path)
 

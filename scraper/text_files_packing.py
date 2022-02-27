@@ -31,12 +31,19 @@ def read_jsonlines_file(novel_jsonlines, directory_path):
             if chapter.get("chapter_afterword"):
                 main_text += chapter.get("chapter_afterword") + "\n"
 
+            #Every 10 chapter save novel title, last chapter number to the text file output
             if int(chapter.get("chapter_number")) % 10 == 0:
                 end_chapter_number = chapter.get("chapter_number")
                 novel_title = chapter.get("novel_title")
-                file_title = novel_title+ " " + start_chapter_number + "-" + end_chapter_number + ".txt"
+                start_end_chapter_number = start_chapter_number + "-" + end_chapter_number
+                file_title = novel_title + " " + start_end_chapter_number + ".txt"
 
+                #add start end chapter prefiks to main text
+                main_text = start_end_chapter_number + " " + main_text
+
+                #create directory for the novel if doesn't exist
                 create_novel_directory(novel_title, directory_path)
+                #output the main text to txt file in the directory
                 save_text_to_file(file_title, main_text, directory_path, novel_title)
                 main_text = ""
 
