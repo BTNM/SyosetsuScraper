@@ -1,4 +1,8 @@
 import scrapy
+from scrapy.crawler import CrawlerRunner
+from twisted.internet import reactor
+from scrapy.settings import Settings
+
 
 #run scrapy shell to test scrapy extract which content
 #scrapy shell "https://ncode.syosetu.com/n3436hb/2/"
@@ -11,8 +15,8 @@ import scrapy
 class SyosetsuSpider(scrapy.Spider):
     name = "syosetsu"
     start_urls = [
-        'https://ncode.syosetu.com/n3436hb/1/',
-        #'https://ncode.syosetu.com/n8802bq/1/',
+        'https://ncode.syosetu.com/n5529cy/1/',
+        #'https://ncode.syosetu.com/n3436hb/1/',
     ]
 
     def parse(self, response):
@@ -32,7 +36,6 @@ class SyosetsuSpider(scrapy.Spider):
         if next_page is not None:
             next_page = response.urljoin(next_page)
             yield scrapy.Request(next_page, callback=self.parse)
-
 
 
     def parse2(self, response):
@@ -71,3 +74,16 @@ class SyosetsuSpider(scrapy.Spider):
         #
 
 
+def run_crawl_spider(settings, url: str):
+    """
+    Run spider crawl on given url, output into a jsonlines file
+    """
+    setting = settings
+    runner = CrawlerRunner(setting)
+    SyosetsuSpider.start_urls = [url]
+
+    d = runner.crawl(SyosetsuSpider)
+    d.addBoth(lambda _: reactor.stop())
+    print("Start spider crawl")
+    reactor.run() # the script will block here until the crawling is finished
+    print("Spider Crawl Finished")

@@ -21,7 +21,8 @@ def read_jsonlines_file(novel_jsonlines, directory_path):
         for chapter in jsonlinesReader.iter(type=dict, skip_invalid=True):
             #save start and end chapter num to add to file text name
             if int(chapter.get("chapter_number")) % 10 == 1:
-                main_text += chapter.get("volum_title") + "\n"
+                if chapter.get("volum_title"):
+                    main_text += chapter.get("volum_title") + "\n"
                 start_chapter_number = chapter.get("chapter_number")
 
             main_text += chapter.get("chapter_title") + "\n"
@@ -36,10 +37,10 @@ def read_jsonlines_file(novel_jsonlines, directory_path):
                 end_chapter_number = chapter.get("chapter_number")
                 novel_title = chapter.get("novel_title")
                 start_end_chapter_number = start_chapter_number + "-" + end_chapter_number
-                file_title = novel_title + " " + start_end_chapter_number + ".txt"
+                file_title = start_end_chapter_number + " " + novel_title + ".txt"
 
                 #add start end chapter prefiks to main text
-                main_text = start_end_chapter_number + " " + main_text
+                main_text = str(start_end_chapter_number) + " " + main_text
 
                 #create directory for the novel if doesn't exist
                 create_novel_directory(novel_title, directory_path)
