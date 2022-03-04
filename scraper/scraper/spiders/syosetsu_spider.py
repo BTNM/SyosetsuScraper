@@ -2,6 +2,7 @@ import scrapy
 from scrapy.crawler import CrawlerRunner
 from twisted.internet import reactor
 from scrapy.settings import Settings
+from timeit import default_timer as timer
 
 
 #run scrapy shell to test scrapy extract which content
@@ -84,6 +85,12 @@ def run_crawl_spider(settings, url: str):
 
     d = runner.crawl(SyosetsuSpider)
     d.addBoth(lambda _: reactor.stop())
-    print("Start spider crawl")
+    start_crawl = timer()
+    print("Start spider crawl: {}".format(start_crawl))
     reactor.run() # the script will block here until the crawling is finished
-    print("Spider Crawl Finished")
+
+    end_crawl = timer()
+    print("Spider Crawl Finished seconds: {}".format(end_crawl))
+
+    duration_sec = end_crawl - start_crawl
+    print("Crawl Novel took minutes: {}".format(duration_sec/60))

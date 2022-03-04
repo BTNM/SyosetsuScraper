@@ -6,14 +6,8 @@ import os
     read_jsonlines_file() takes in a jsonfiles novel name dictionary,
     loops through all the dict object, split and unpack them in 10 chapters and write into text files  
 """
-def read_jsonlines_file(novel_jsonlines, directory_path):
+def read_jsonlines_file(novel_jsonlines, directory_path, novel_name):
     #['novel_title', 'volum_title', 'chapter_number', 'chapter_title', 'chapter_preword', 'chapter_text', 'chapter_afterword']
-
-    #with jsonlines.open('test12.jl', "r") as readline:
-        #first = readline
-        #novel_info = first.read()
-        #main_text += novel_info.get("novel_title") + "\n"
-        #main_text += novel_info.get("volum_title") + "\n"
 
     main_text = ""
     #open <<filename>> jsonlines in read mode
@@ -37,28 +31,29 @@ def read_jsonlines_file(novel_jsonlines, directory_path):
                 end_chapter_number = chapter.get("chapter_number")
                 novel_title = chapter.get("novel_title")
                 start_end_chapter_number = start_chapter_number + "-" + end_chapter_number
-                file_title = start_end_chapter_number + " " + novel_title + ".txt"
+                filename = start_end_chapter_number + " " + novel_title + ".txt"
 
                 #add start end chapter prefiks to main text
                 main_text = str(start_end_chapter_number) + " " + main_text
 
                 #create directory for the novel if doesn't exist
-                create_novel_directory(novel_title, directory_path)
+                #create_novel_directory(novel_title, directory_path)
+                create_novel_directory(directory_path, novel_name)
                 #output the main text to txt file in the directory
-                save_text_to_file(file_title, main_text, directory_path, novel_title)
+                save_text_to_file(directory_path, novel_name, filename, main_text)
                 main_text = ""
 
 
-def create_novel_directory(novel_title, directory_path):
-    # textfiles_output_path = "G:\LN Raw Text Files"
-    directory = os.path.join(directory_path, novel_title)
+def create_novel_directory(directory_path, novel_name):
+    # directory_path = "G:\LN Raw Text Files"
+    directory = os.path.normpath(os.path.join(directory_path, novel_name))
 
     if not os.path.exists(directory):
         os.mkdir(directory)
 
 
-def save_text_to_file(file_title, chapter_text, directory_path, novel_title):
-    file_path = os.path.join(directory_path, novel_title, file_title)
+def save_text_to_file(directory_path, novel_name, filename, chapter_text):
+    file_path = os.path.join(directory_path, novel_name, filename)
 
     text_file = open(file_path, "w", encoding="utf-8")
     n = text_file.write(chapter_text)

@@ -1,5 +1,6 @@
 from scraper.scraper.spiders.syosetsu_spider import *
 from scrapy.settings import Settings
+import os
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -37,17 +38,20 @@ if __name__ == '__main__':
     #print_hi('PyCharm')
     #relative path, current working directory - os.getcwd()
     #os.listdir('C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test.jl')
-    url = 'https://ncode.syosetu.com/n1313ff/1/'
-    filename = "test_output"
+    #url = 'https://ncode.syosetu.com/n6613ck/1/'
+    url = 'https://ncode.syosetu.com/n9814fq/1/'
+    #novel_name = "I Reincarnated as a Noble Girl Villainess But Why Did It Turn Out This Way?"
+    novel_name = "The Villainous Daughter’s Butler ~I Raised Her to be Very Cute~"
 
-    settings = get_settings(filename, url)
+
+    settings = get_settings(novel_name, url)
     run_crawl_spider(settings, url)
 
     #novel_name_jsonlines_path = 'C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test_output.jl'
-    novel_name_jsonlines_path = 'C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\test_output.jl'
-    textfiles_output_path = "G:\LN Raw Text Files"
+    novel_name_jsonlines_path = "C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name)
+    directory_output_path = os.path.normpath("G:\LN Raw Text Files")
 
-    read_jsonlines_file(novel_name_jsonlines_path, textfiles_output_path)
+    read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name)
 
 
 
