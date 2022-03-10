@@ -31,10 +31,16 @@ def read_jsonlines_file(novel_jsonlines, directory_path, novel_name):
                 end_chapter_number = chapter.get("chapter_number")
                 novel_title = chapter.get("novel_title")
                 start_end_chapter_number = start_chapter_number + "-" + end_chapter_number
+
+                novel_description = chapter.get("novel_description")
+                if novel_description:
+                    novel_title_description = novel_title + "\n" + novel_description
+                else:
+                    novel_title_description = ""
                 filename = start_end_chapter_number + " " + novel_title + ".txt"
 
-                #add start end chapter prefiks to main text
-                main_text = str(start_end_chapter_number) + " " + main_text
+                #add start end chapter prefiks, novel title and description to main text
+                main_text = str(start_end_chapter_number) + " " + novel_title_description + "\n" + main_text
 
                 #create directory for the novel if doesn't exist
                 #create_novel_directory(novel_title, directory_path)
@@ -46,7 +52,7 @@ def read_jsonlines_file(novel_jsonlines, directory_path, novel_name):
 
 def create_novel_directory(directory_path, novel_name):
     # directory_path = "G:\LN Raw Text Files"
-    directory = os.path.normpath(os.path.join(directory_path, novel_name))
+    directory = os.path.join(directory_path, novel_name)
 
     if not os.path.exists(directory):
         os.mkdir(directory)

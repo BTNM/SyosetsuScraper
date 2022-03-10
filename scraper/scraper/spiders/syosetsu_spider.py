@@ -4,25 +4,41 @@ from twisted.internet import reactor
 from scrapy.settings import Settings
 from timeit import default_timer as timer
 
-
 #run scrapy shell to test scrapy extract which content
-#scrapy shell "https://ncode.syosetu.com/n3436hb/2/"
-#scrapy shell "https://ncode.syosetu.com/n9669bk/13/"
+#scrapy shell "https://ncode.syosetu.com/n1313ff/"
 #Need to move inside the project directory where scrapy.cfg file exists to run the spider
 # cd SyosetsuScraper/src/scraper , cd scraper
 # scrapy crawl syosetsu -o test2.json
 # scrapy crawl syosetsu -o testjl.jl
 
+novel_description = []
+
 class SyosetsuSpider(scrapy.Spider):
     name = "syosetsu"
     start_urls = [
-        'https://ncode.syosetu.com/n5529cy/1/',
+        'https://ncode.syosetu.com/n1313ff/',
         #'https://ncode.syosetu.com/n3436hb/1/',
     ]
 
+    # Parse novel main page first before parsing chapter content
     def parse(self, response):
+        main_page = response.xpath('//div[@class="index_box"]')
+        if main_page is not None:
+            #novel_title = response.xpath('//p[@class="novel_title"]/text()').get()
+            # first_link = response.xpath('//div[@class="index_box"]/dl[@class="novel_sublist2"]/dd[@class="subtitle"]/a/@href')[0]
+            global novel_description
+            novel_description = "\n".join(response.xpath('//div[@id="novel_ex"]/text()').getall())
+            chapter_link = response.xpath('//dl[@class="novel_sublist2"]/dd[@class="subtitle"]/a/@href')[0].get()
+
+            start_page = response.urljoin(chapter_link)
+            yield scrapy.Request(start_page, callback=self.parse_chapters)
+
+    # Loop parsing all chapter content
+    def parse_chapters(self, response):
+        global novel_description
         yield {
             'novel_title': response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get(),
+            'novel_description': novel_description,
             'volum_title': response.xpath('//p[@class="chapter_title"]/text()').get(),
             'chapter_number': response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0],
             'chapter_title': response.xpath('//p[@class="novel_subtitle"]/text()').get(),
@@ -31,15 +47,13 @@ class SyosetsuSpider(scrapy.Spider):
             'chapter_afterword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall())
         }
 
-        chapter_num = response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0]
         next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
-        #if next_page is not None and int(chapter_num) < 12:
         if next_page is not None:
             next_page = response.urljoin(next_page)
-            yield scrapy.Request(next_page, callback=self.parse)
+            yield scrapy.Request(next_page, callback=self.parse_chapters)
 
 
-    def parse2(self, response):
+    def parse_test(self, response):
         #character introduction - 登場人物紹介
 
         #get next page hreft
@@ -74,7 +88,6 @@ class SyosetsuSpider(scrapy.Spider):
         #   chapter_title = response.css('.novel_subtitle::text').get()
         #
 
-
 def run_crawl_spider(settings, url: str):
     """
     Run spider crawl on given url, output into a jsonlines file
@@ -93,4 +106,4 @@ def run_crawl_spider(settings, url: str):
     print("Spider Crawl Finished seconds: {}".format(end_crawl))
 
     duration_sec = end_crawl - start_crawl
-    print("Crawl Novel took minutes: {}".format(duration_sec/60))
+    print("Spider Crawl Novel took minutes: {}".format(duration_sec/60))
