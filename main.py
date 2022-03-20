@@ -24,9 +24,10 @@ custom_settings = {
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     #relative path, current working directory - os.getcwd()
-    #os.listdir('C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test.jl')
-    url = 'https://ncode.syosetu.com/n1313ff/'
-    novel_name = "I’m Not Even an Otome Game Mob Character"
+    url = 'https://ncode.syosetu.com/n9814fq/'
+    novel_name = "The Villainous Daughter’s Butler ~I Raised Her to be Very Cute~"
+    #url = 'https://ncode.syosetu.com/n8611bv/'
+    #novel_name = "From Common Job Class to the Strongest in the World"
 
     settings = get_settings(novel_name, url)
     run_crawl_spider(settings, url)

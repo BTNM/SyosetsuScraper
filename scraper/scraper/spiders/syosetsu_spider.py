@@ -5,7 +5,7 @@ from scrapy.settings import Settings
 from timeit import default_timer as timer
 
 #run scrapy shell to test scrapy extract which content
-#scrapy shell "https://ncode.syosetu.com/n1313ff/"
+#scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
 #Need to move inside the project directory where scrapy.cfg file exists to run the spider
 # cd SyosetsuScraper/src/scraper , cd scraper
 # scrapy crawl syosetsu -o test2.json
@@ -40,6 +40,7 @@ class SyosetsuSpider(scrapy.Spider):
             'novel_title': response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get(),
             'novel_description': novel_description,
             'volum_title': response.xpath('//p[@class="chapter_title"]/text()').get(),
+            'chapter_start_end': response.xpath('//div[@id="novel_no"]/text()').get(),
             'chapter_number': response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0],
             'chapter_title': response.xpath('//p[@class="novel_subtitle"]/text()').get(),
             'chapter_preword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_p"]/p/text()').getall()),
