@@ -105,6 +105,7 @@ def chapter_title_skip_check(chapter):
             if int(chapter.get("chapter_number")) % 10 == chapter_start_rest:
                 chapter_start_rest += 1
                 chapter_end_rest += 1
+
             return True
     return False
 
