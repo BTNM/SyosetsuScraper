@@ -29,19 +29,28 @@ def remove_jl_file(novel_name):
         os.remove(novel)
 
 
+def illegal_char_in_name(foldername):
+    invalid = '<>:"/\|?*'
+    for char in invalid:
+        if char in foldername:
+            return char
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # relative path, current working directory - os.getcwd()
-    # url = 'https://ncode.syosetu.com/n3581fh/'
-    # novel_name = "I Woke Up Piloting the Strongest Starship, so I Became a Space Mercenary"
-    #url = 'https://ncode.syosetu.com/n8920ex/'
-    #novel_name = "Tearmoon Empire Story"
-    url = 'https://ncode.syosetu.com/n1313ff/'
-    novel_name = "I’m Not Even an Otome Game Mob Character"
-    # url = 'https://ncode.syosetu.com/n6621fl/'
-    # novel_name = "The Undead King of the Palace of Darkness"
-    # url = 'https://ncode.syosetu.com/n3729en/'
-    # novel_name = "Beware of that adventurer, He is the magic king ruler of the strongest subordinates"
+    #url = 'https://ncode.syosetu.com/n4811fg/'
+    #novel_name = "TRPG Player Aims For The Strongest Build In Another World"
+    #url = 'https://ncode.syosetu.com/n2834dj/'
+    #novel_name = "The Reincarnated Boy’s Growth Log ~The Harder I Work The Stronger I Can Become"
+    url = 'https://ncode.syosetu.com/n2267be/'
+    novel_name = "Re Zero - Restarting Life from Zero in Another World"
+
+    # add illegal character in novel name
+    check = illegal_char_in_name(novel_name)
+    if check:
+        print("Illegal character in novel name:", check)
+        exit()
 
     # add settings and run web crawler spider
     settings = get_settings(novel_name, url)
@@ -51,7 +60,13 @@ if __name__ == '__main__':
     # novel_name_jsonlines_path = 'C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test_output.jl'
     novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
     directory_output_path = os.path.normpath("G:\LN Raw Text Files")
-    read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name)
+    output_chapter_size = 4
+    read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name, output_chapter_size)
 
     # remove the jl file after finished reading the jl file
     remove_jl_file(novel_name)
+
+
+# Press the green button in the gutter to run the script.
+#if __name__ == '__main__':
+ #   print("Hello XYPython")
