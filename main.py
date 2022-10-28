@@ -39,12 +39,33 @@ def illegal_char_in_name(foldername):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # relative path, current working directory - os.getcwd()
-    #url = 'https://ncode.syosetu.com/n4811fg/'
-    #novel_name = "TRPG Player Aims For The Strongest Build In Another World"
-    #url = 'https://ncode.syosetu.com/n2834dj/'
-    #novel_name = "The Reincarnated Boy’s Growth Log ~The Harder I Work The Stronger I Can Become"
-    url = 'https://ncode.syosetu.com/n2267be/'
-    novel_name = "Re Zero - Restarting Life from Zero in Another World"
+    # update the crawler to feed in a dict of novelname and url, or 2 strings
+
+    #url = 'https://ncode.syosetu.com/n6006cw/'
+    #novel_name = "Reincarnated as a Sword"
+    #url = 'https://ncode.syosetu.com/n6240cp/'
+    #novel_name = "The Other World Con Artist's Management Techniques"
+    #url = 'https://ncode.syosetu.com/n4006fe/'
+    #novel_name = "I'll Become a Villainess That Will Go Down in History"
+    url = 'https://ncode.syosetu.com/n2710db/'
+    novel_name = "Food Travel in the Other World with Ridiculous Ability"
+    #url = ''
+    #novel_name = ""
+
+    novel_list = [
+        {
+        "url": "",
+        "novel_name": ""
+        },
+        {
+            "url": "",
+            "novel_name": ""
+        },
+        {
+            "url": "",
+            "novel_name": ""
+        },
+    ]
 
     # add illegal character in novel name
     check = illegal_char_in_name(novel_name)
@@ -60,11 +81,15 @@ if __name__ == '__main__':
     # novel_name_jsonlines_path = 'C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test_output.jl'
     novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
     directory_output_path = os.path.normpath("G:\LN Raw Text Files")
-    output_chapter_size = 4
-    read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name, output_chapter_size)
+    output_chapter_size = 10
 
-    # remove the jl file after finished reading the jl file
-    remove_jl_file(novel_name)
+    try:
+        read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name, output_chapter_size)
+    except:
+        print("Something went wrong with the read_jsonLines_file")
+    else:
+        # remove the jl file after finished reading the jl file
+        remove_jl_file(novel_name)
 
 
 # Press the green button in the gutter to run the script.

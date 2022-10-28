@@ -51,7 +51,7 @@ def read_jsonlines_file(novel_jsonlines, directory_path, novel_name, output_chap
                 else:
                     novel_title_description = ""
                 # create name for output text files with chapter start end and limited novel title
-                filename = start_end_chapter_number + " " + novel_title[0:100] + ".txt"
+                filename = start_end_chapter_number + " " + novel_title[0:30] + ".txt"
 
                 #add start end chapter prefiks, novel title and description to main text
                 if int(start_chapter_number) < output_chapter_length:

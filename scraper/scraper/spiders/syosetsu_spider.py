@@ -22,6 +22,7 @@ class SyosetsuSpider(scrapy.Spider):
 
     # Parse novel main page first before parsing chapter content
     def parse(self, response):
+        print("Start crawl main page: {}".format(timer()))
         main_page = response.xpath('//div[@class="index_box"]')
         if main_page is not None:
             #novel_title = response.xpath('//p[@class="novel_title"]/text()').get()
@@ -47,7 +48,7 @@ class SyosetsuSpider(scrapy.Spider):
             'chapter_text': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall()),
             'chapter_afterword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall())
         }
-
+        print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], timer()))
         next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
         if next_page is not None:
             next_page = response.urljoin(next_page)
@@ -104,7 +105,4 @@ def run_crawl_spider(settings, url: str):
     reactor.run() # the script will block here until the crawling is finished
 
     end_crawl = timer()
-    print("Spider Crawl Finished seconds: {}".format(end_crawl))
-
-    duration_sec = end_crawl - start_crawl
-    print("Spider Crawl Novel took minutes: {}".format(duration_sec/60))
+    print("Spider Crawl Novel took seconds {} or minutes: {}".format(end_crawl, (end_crawl - start_crawl)/60))
