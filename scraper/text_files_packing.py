@@ -2,8 +2,8 @@ import jsonlines
 import os
 
 
-chapter_start_rest = 1
-chapter_end_rest = 0
+chapter_start_number_rest = 1
+chapter_end_number_rest = 0
 
 """
     read_jsonlines_file() takes in a jsonfiles novel name dictionary,
@@ -13,8 +13,8 @@ def read_jsonlines_file(novel_jsonlines, directory_path, novel_name, output_chap
     #['novel_title', 'volum_title', 'chapter_number', 'chapter_title', 'chapter_preword', 'chapter_text', 'chapter_afterword']
 
     main_text = ""
-    global chapter_start_rest
-    global chapter_end_rest
+    global chapter_start_number_rest
+    global chapter_end_number_rest
     start_chapter_number = 1
     #open <<filename>> jsonlines in read mode
     with jsonlines.open(novel_jsonlines, "r") as jsonlinesReader:
@@ -24,7 +24,7 @@ def read_jsonlines_file(novel_jsonlines, directory_path, novel_name, output_chap
                 continue
 
             #save start and end chapter num to add to file text name
-            if int(chapter.get("chapter_number")) % output_chapter_length == chapter_start_rest:
+            if int(chapter.get("chapter_number")) % output_chapter_length == chapter_start_number_rest:
                 if chapter.get("volum_title"):
                     main_text += chapter.get("volum_title") + "\n"
                 start_chapter_number = chapter.get("chapter_number")
@@ -39,8 +39,8 @@ def read_jsonlines_file(novel_jsonlines, directory_path, novel_name, output_chap
 
             #get novel last chapter number
             chapter_last_num = chapter.get("chapter_start_end").split("/")[1]
-            #Every 10 chapter save novel title, last chapter number to the text file output
-            if int(chapter.get("chapter_number")) % output_chapter_length == chapter_end_rest or chapter.get("chapter_number") == chapter_last_num:
+            #Every 10 chapter save novel title, last chapter number to the text file output or rest chapter txt
+            if int(chapter.get("chapter_number")) % output_chapter_length == chapter_end_number_rest or chapter.get("chapter_number") == chapter_last_num:
                 end_chapter_number = chapter.get("chapter_number")
                 novel_title = chapter.get("novel_title")
                 start_end_chapter_number = start_chapter_number + "-" + end_chapter_number
@@ -63,6 +63,7 @@ def read_jsonlines_file(novel_jsonlines, directory_path, novel_name, output_chap
                 create_novel_directory(directory_path, novel_name)
                 #output the main text to txt file in the directory
                 save_text_to_file(directory_path, novel_name, filename, main_text)
+                #After output main txt with content from start and end chapter num, refrech main_text
                 main_text = ""
 
 
@@ -100,14 +101,14 @@ def chapter_title_skip_check(chapter):
     :return: True if chapter includes the given words else False
     """
     skip_content_titles = ["人物紹介", "登場人物"]
-    global chapter_start_rest
-    global chapter_end_rest
+    global chapter_start_number_rest
+    global chapter_end_number_rest
     for title_check in skip_content_titles:
         if title_check in chapter.get("chapter_title"):
             # Increase chapter rest number when modulo rest is equal to the rest for start chapter, else only return true
-            if int(chapter.get("chapter_number")) % 10 == chapter_start_rest:
-                chapter_start_rest += 1
-                chapter_end_rest += 1
+            if int(chapter.get("chapter_number")) % 10 == chapter_start_number_rest:
+                chapter_start_number_rest += 1
+                chapter_end_number_rest += 1
 
             return True
     return False
