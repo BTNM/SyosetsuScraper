@@ -94,6 +94,14 @@ if __name__ == '__main__':
         #     "url": "https://ncode.syosetu.com/n6006cw/",
         #     "novel_name": "Reincarnated as a Sword"
         # },
+        # {
+        #     "url": "https://ncode.syosetu.com/n9105fz/",
+        #     "novel_name": "Saint of Black Kite - The Banished Healer Masters Dark Magic with Abundant Magical Power"
+        # },
+        # {
+        #     "url": "https://ncode.syosetu.com/n7594ct/",
+        #     "novel_name": "10 Years NEET"
+        # },
     ]
 
     output_chapter_size = 10
