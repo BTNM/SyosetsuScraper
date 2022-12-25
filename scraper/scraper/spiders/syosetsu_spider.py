@@ -1,7 +1,9 @@
 import scrapy
 from scrapy.crawler import CrawlerRunner
-from twisted.internet import reactor
+from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
+from twisted.internet import reactor
+from scrapy.utils.project import get_project_settings
 from timeit import default_timer as timer
 
 #run scrapy shell to test scrapy extract which content
@@ -33,6 +35,7 @@ class SyosetsuSpider(scrapy.Spider):
 
             start_page = response.urljoin(chapter_link)
             yield scrapy.Request(start_page, callback=self.parse_chapters)
+            #pass novel_name in the meta as a param meta={'novel_name': 'novel_name_eng'}
 
     # Loop parsing all chapter content
     def parse_chapters(self, response):
@@ -90,11 +93,31 @@ class SyosetsuSpider(scrapy.Spider):
         #   chapter_title = response.css('.novel_subtitle::text').get()
         #
 
-def run_crawl_spider(settings, url: str):
+
+custom_settings = {
+    'FEED_URI': 'spider1' + '.jl',
+    'FEED_FORMAT': 'jsonlines',
+    'FEED_EXPORTERS': {
+        'jsonlines': 'scrapy.exporters.JsonLinesItemExporter',
+    },
+    'FEED_EXPORT_ENCODING': 'utf-8',
+}
+
+
+def get_settings(filename_text: str, url: str):
+    setting = Settings()
+    # settings.set('FEED_URI', 'file.txt')
+    filename_text = filename_text + ".jl"
+    setting.set('FEED_URI', filename_text)
+    setting.set('FEED_FORMAT', 'jsonlines')
+    return setting
+
+
+def run_crawler_runner_spider(novel_name, url: str):
     """
-    Run spider crawl on given url, output into a jsonlines file
+    Run spider crawl on given url, output into a jsonlines file, with the older feed format
     """
-    setting = settings
+    setting = get_settings(novel_name, url)
     runner = CrawlerRunner(setting)
     SyosetsuSpider.start_urls = [url]
 
@@ -105,4 +128,30 @@ def run_crawl_spider(settings, url: str):
     reactor.run() # the script will block here until the crawling is finished
 
     end_crawl = timer()
-    print("Spider Crawl Novel took seconds {} or minutes: {}".format(end_crawl, (end_crawl - start_crawl)/60))
+    print("Spider Crawl Novel took seconds: {} / minutes: {}".format(end_crawl, (end_crawl - start_crawl)/60))
+
+
+def run_crawler_process_spider(novel_name: str, url: str):
+    """
+    Run spider crawl on given url, output into a jsonlines file
+    :param novel_name:
+    :param url:
+    :return:
+    """
+    novel_name = novel_name + '.jl'
+    process = CrawlerProcess(settings={
+        "FEEDS": {
+            novel_name: {"format": "jsonlines", 'encoding': 'utf8'},
+        },
+    })
+    SyosetsuSpider.start_urls = [url]
+
+    #process = CrawlerProcess(get_project_settings())
+    start_crawl = timer()
+    print("Start spider crawl: {}".format(start_crawl))
+
+    process.crawl(SyosetsuSpider)
+    process.start()
+
+    end_crawl = timer()
+    print("Spider Crawl Novel took seconds: {} / minutes: {}".format(end_crawl, (end_crawl - start_crawl) / 60))

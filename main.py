@@ -1,26 +1,6 @@
 from scraper.scraper.spiders.syosetsu_spider import *
-from scrapy.settings import Settings
 from scraper.text_files_packing import *
 import os
-
-
-def get_settings(filename_text: str, url: str):
-    setting = Settings()
-    # settings.set('FEED_URI', 'file.txt')
-    filename_text = filename_text + ".jl"
-    setting.set('FEED_URI', filename_text)
-    setting.set('FEED_FORMAT', 'jsonlines')
-    return setting
-
-
-custom_settings = {
-    'FEED_URI': 'spider1' + '.jl',
-    'FEED_FORMAT': 'jsonlines',
-    'FEED_EXPORTERS': {
-        'jsonlines': 'scrapy.exporters.JsonLinesItemExporter',
-    },
-    'FEED_EXPORT_ENCODING': 'utf-8',
-}
 
 
 def remove_jl_file(novel_name):
@@ -45,9 +25,10 @@ def novel_scrape_run(novel_name: str, url: str, output_chapter_size: int):
         print("Illegal character in novel name:", check)
         exit()
 
-    # add settings and run web crawler spider
-    settings = get_settings(novel_name, url)
-    run_crawl_spider(settings, url)
+    #run web crawler spider
+    #run_crawl_spider(novel_name, url)
+
+    run_crawler_process_spider(novel_name, url)
 
     # read the jl file and output the split text files
     # novel_name_jsonlines_path = 'C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test_output.jl'
@@ -55,7 +36,8 @@ def novel_scrape_run(novel_name: str, url: str, output_chapter_size: int):
     directory_output_path = os.path.normpath("G:\LN Raw Text Files")
 
     try:
-        read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name, output_chapter_size)
+        print("read jsonline file and output txt files")
+        #read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name, output_chapter_size)
     except:
         print("Something went wrong with the read_jsonLines_file")
     else:
@@ -68,8 +50,8 @@ if __name__ == '__main__':
     # relative path, current working directory - os.getcwd()
     # update the crawler to feed in a dict of novelname and url, or 2 strings
 
-    url = 'https://ncode.syosetu.com/n2710db/'
-    novel_name = "Food Travel in the Other World with Ridiculous Ability"
+    #url = 'https://ncode.syosetu.com/n2710db/'
+    #novel_name = "Food Travel in the Other World with Ridiculous Ability"
     #url = ''
     #novel_name = ""
 
@@ -77,10 +59,6 @@ if __name__ == '__main__':
         # {
         #     "url": "https://ncode.syosetu.com/n1980en/",
         #     "novel_name": "Frontier Lord Starts Out With a Population of 0"
-        # },
-        # {
-        #     "url": "https://ncode.syosetu.com/n2494fq/",
-        #     "novel_name": "Disciple of Immortal"
         # },
         {
             "url": "https://ncode.syosetu.com/n8162dq/",
@@ -95,12 +73,8 @@ if __name__ == '__main__':
         #     "novel_name": "Reincarnated as a Sword"
         # },
         # {
-        #     "url": "https://ncode.syosetu.com/n9105fz/",
-        #     "novel_name": "Saint of Black Kite - The Banished Healer Masters Dark Magic with Abundant Magical Power"
-        # },
-        # {
-        #     "url": "https://ncode.syosetu.com/n7594ct/",
-        #     "novel_name": "10 Years NEET"
+        #     "url": "https://ncode.syosetu.com/n5529cy/",
+        #     "novel_name": "Saving 80,000 Gold in an Another World for Retirement"
         # },
     ]
 
@@ -108,6 +82,7 @@ if __name__ == '__main__':
     for dictionary in novel_list:
         novel_scrape_run(dictionary["novel_name"], dictionary["url"], output_chapter_size)
 
+
 # Press the green button in the gutter to run the script.
 #if __name__ == '__main__':
- #   print("Hello XYPython")
+#   print("Hello XYPython")
