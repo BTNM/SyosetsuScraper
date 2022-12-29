@@ -37,12 +37,13 @@ def novel_scrape_run(novel_name: str, url: str, output_chapter_size: int):
 
     try:
         print("read jsonline file and output txt files")
-        #read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name, output_chapter_size)
+        read_jsonlines_file(novel_name_jsonlines_path, directory_output_path, novel_name, output_chapter_size)
     except:
         print("Something went wrong with the read_jsonLines_file")
     else:
         # remove the jl file after finished reading the jl file
-        remove_jl_file(novel_name)
+        #remove_jl_file(novel_name)
+        pass
 
 
 # Press the green button in the gutter to run the script.
@@ -60,9 +61,13 @@ if __name__ == '__main__':
         #     "url": "https://ncode.syosetu.com/n1980en/",
         #     "novel_name": "Frontier Lord Starts Out With a Population of 0"
         # },
+        # {
+        #     "url": "https://ncode.syosetu.com/n8162dq/",
+        #     "novel_name": "Homeless Tensei ~Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu~"
+        # },
         {
-            "url": "https://ncode.syosetu.com/n8162dq/",
-            "novel_name": "Homeless Tensei ~Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu~"
+            "url": "https://ncode.syosetu.com/n4750dy/",
+            "novel_name": "Ascendance of a Bookworm - Extra Story"
         },
         # {
         #     "url": "https://ncode.syosetu.com/n4698cv/",

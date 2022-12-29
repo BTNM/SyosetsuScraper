@@ -3,8 +3,10 @@ from scrapy.crawler import CrawlerRunner
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 from twisted.internet import reactor
+from scraper.scraper.items import NovelItem
 from scrapy.utils.project import get_project_settings
 from timeit import default_timer as timer
+#from timer import Timer
 
 #run scrapy shell to test scrapy extract which content
 #scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -40,17 +42,32 @@ class SyosetsuSpider(scrapy.Spider):
     # Loop parsing all chapter content
     def parse_chapters(self, response):
         global novel_description
-        yield {
-            'novel_title': response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get(),
-            'novel_description': novel_description,
-            'volum_title': response.xpath('//p[@class="chapter_title"]/text()').get(),
-            'chapter_start_end': response.xpath('//div[@id="novel_no"]/text()').get(),
-            'chapter_number': response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0],
-            'chapter_title': response.xpath('//p[@class="novel_subtitle"]/text()').get(),
-            'chapter_preword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_p"]/p/text()').getall()),
-            'chapter_text': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall()),
-            'chapter_afterword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall())
-        }
+        novel_item = NovelItem()
+
+
+        novel_item["novel_title"] = response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get()
+        novel_item["novel_description"] = novel_description
+        novel_item["volume_title"] = response.xpath('//p[@class="chapter_title"]/text()').get()
+        novel_item["chapter_start_end"] = response.xpath('//div[@id="novel_no"]/text()').get()
+        novel_item["chapter_number"] = response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0]
+        novel_item["chapter_title"] = response.xpath('//p[@class="novel_subtitle"]/text()').get()
+        novel_item["chapter_foreword"] = "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_p"]/p/text()').getall())
+        novel_item["chapter_text"] = "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall())
+        novel_item["chapter_afterword"] = "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall())
+
+        # yield {
+        #     'novel_title': response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get(),
+        #     'novel_description': novel_description,
+        #     'volum_title': response.xpath('//p[@class="chapter_title"]/text()').get(),
+        #     'chapter_start_end': response.xpath('//div[@id="novel_no"]/text()').get(),
+        #     'chapter_number': response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0],
+        #     'chapter_title': response.xpath('//p[@class="novel_subtitle"]/text()').get(),
+        #     'chapter_preword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_p"]/p/text()').getall()),
+        #     'chapter_text': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall()),
+        #     'chapter_afterword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall())
+        # }
+        yield novel_item
+
         print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], timer()))
         next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
         if next_page is not None:

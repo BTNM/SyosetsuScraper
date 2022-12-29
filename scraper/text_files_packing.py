@@ -9,15 +9,15 @@ chapter_end_number_rest = 0
     read_jsonlines_file() takes in a jsonfiles novel name dictionary,
     loops through all the dict object, split and unpack them in 10 chapters and write into text files  
 """
-def read_jsonlines_file(novel_jsonlines, directory_path, novel_name, output_chapter_length):
-    #['novel_title', 'volum_title', 'chapter_number', 'chapter_title', 'chapter_preword', 'chapter_text', 'chapter_afterword']
+def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output_chapter_length):
+    #['novel_title', 'volume_title', 'chapter_number', 'chapter_title', 'chapter_foreword', 'chapter_text', 'chapter_afterword']
 
     main_text = ""
     global chapter_start_number_rest
     global chapter_end_number_rest
     start_chapter_number = 1
     #open <<filename>> jsonlines in read mode
-    with jsonlines.open(novel_jsonlines, "r") as jsonlinesReader:
+    with jsonlines.open(novel_jsonlines_path, "r") as jsonlinesReader:
         for chapter in jsonlinesReader.iter(type=dict, skip_invalid=True):
             # Skip chapter content if chapter title in the skip list
             if chapter_title_skip_check(chapter):
@@ -25,14 +25,14 @@ def read_jsonlines_file(novel_jsonlines, directory_path, novel_name, output_chap
 
             #save start and end chapter num to add to file text name
             if int(chapter.get("chapter_number")) % output_chapter_length == chapter_start_number_rest:
-                if chapter.get("volum_title"):
+                if chapter.get("volume_title"):
                     main_text += chapter.get("volum_title") + "\n"
                 start_chapter_number = chapter.get("chapter_number")
 
-            #add chapter title to main output text and preword and afterword if exist
+            #add chapter title to main output text and foreword and afterword if exist
             main_text += chapter.get("chapter_title") + "\n"
-            if chapter.get("chapter_preword"):
-                main_text += chapter.get("chapter_preword") + "\n"
+            if chapter.get("chapter_foreword"):
+                main_text += chapter.get("chapter_foreword") + "\n"
             main_text += chapter.get("chapter_text") + "\n"
             if chapter.get("chapter_afterword"):
                 main_text += chapter.get("chapter_afterword") + "\n"
