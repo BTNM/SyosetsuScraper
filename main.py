@@ -3,19 +3,6 @@ from scraper.text_files_packing import *
 import os
 
 
-def remove_jl_file(novel_name):
-    novel = "{}.jl".format(novel_name)
-    if os.path.exists(novel):
-        os.remove(novel)
-
-
-def illegal_char_in_name(foldername):
-    invalid = '<>:"/\|?*'
-    for char in invalid:
-        if char in foldername:
-            return char
-
-
 def novel_scrape_run(novel_name: str, url: str, output_chapter_size: int):
     #global check, settings
 
@@ -42,8 +29,21 @@ def novel_scrape_run(novel_name: str, url: str, output_chapter_size: int):
         print("Something went wrong with the read_jsonLines_file")
     else:
         # remove the jl file after finished reading the jl file
-        #remove_jl_file(novel_name)
-        pass
+        remove_jl_file(novel_name)
+        #pass
+
+
+def remove_jl_file(novel_name):
+    novel = "{}.jl".format(novel_name)
+    if os.path.exists(novel):
+        os.remove(novel)
+
+
+def illegal_char_in_name(foldername):
+    invalid = '<>:"/\|?*'
+    for char in invalid:
+        if char in foldername:
+            return char
 
 
 # Press the green button in the gutter to run the script.
@@ -53,8 +53,6 @@ if __name__ == '__main__':
 
     #url = 'https://ncode.syosetu.com/n2710db/'
     #novel_name = "Food Travel in the Other World with Ridiculous Ability"
-    #url = ''
-    #novel_name = ""
 
     novel_list = [
         # {
@@ -83,7 +81,7 @@ if __name__ == '__main__':
         # },
     ]
 
-    output_chapter_size = 10
+    output_chapter_size = 3
     for dictionary in novel_list:
         novel_scrape_run(dictionary["novel_name"], dictionary["url"], output_chapter_size)
 

@@ -5,8 +5,9 @@ from scrapy.settings import Settings
 from twisted.internet import reactor
 from scraper.scraper.items import NovelItem
 from scrapy.utils.project import get_project_settings
-from timeit import default_timer as timer
-#from timer import Timer
+from timeit import default_timer
+import timer
+import time
 
 #run scrapy shell to test scrapy extract which content
 #scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -26,7 +27,7 @@ class SyosetsuSpider(scrapy.Spider):
 
     # Parse novel main page first before parsing chapter content
     def parse(self, response):
-        print("Start crawl main page: {}".format(timer()))
+        #print("Start crawl main page: {}".format(default_timer()))
         main_page = response.xpath('//div[@class="index_box"]')
         if main_page is not None:
             #novel_title = response.xpath('//p[@class="novel_title"]/text()').get()
@@ -42,8 +43,8 @@ class SyosetsuSpider(scrapy.Spider):
     # Loop parsing all chapter content
     def parse_chapters(self, response):
         global novel_description
+        start_timer = default_timer()
         novel_item = NovelItem()
-
 
         novel_item["novel_title"] = response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get()
         novel_item["novel_description"] = novel_description
@@ -55,20 +56,10 @@ class SyosetsuSpider(scrapy.Spider):
         novel_item["chapter_text"] = "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall())
         novel_item["chapter_afterword"] = "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall())
 
-        # yield {
-        #     'novel_title': response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get(),
-        #     'novel_description': novel_description,
-        #     'volum_title': response.xpath('//p[@class="chapter_title"]/text()').get(),
-        #     'chapter_start_end': response.xpath('//div[@id="novel_no"]/text()').get(),
-        #     'chapter_number': response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0],
-        #     'chapter_title': response.xpath('//p[@class="novel_subtitle"]/text()').get(),
-        #     'chapter_preword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_p"]/p/text()').getall()),
-        #     'chapter_text': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall()),
-        #     'chapter_afterword': "\n".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall())
-        # }
         yield novel_item
 
-        print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], timer()))
+        end_timer = default_timer()
+        print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], (end_timer-start_timer)))
         next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
         if next_page is not None:
             next_page = response.urljoin(next_page)
@@ -77,38 +68,17 @@ class SyosetsuSpider(scrapy.Spider):
 
     def parse_test(self, response):
         #character introduction - 登場人物紹介
-
         #get next page hreft
         # response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
 
-        #head data
-        response.xpath('//head/title/text()').get()
-        response.xpath('//head/meta[@property="og:title"]/@content').get()
-        #get attributes content
-        response.xpath('//head/meta[@property="og:description"]/@content').get()
-        response.xpath('//head/meta/@title')
         #main text content
         response.xpath('//*[(@id = "novel_honbun")]').get()
         response.xpath('//p[@class="chapter_title"]/text()').get()
         #xpath to the novel main text content #response.xpath('//body/div[@id="container"]/div[@id="novel_contents"]/div[@id="novel_color"]/div[@id="novel_honbun"]/p')
-        title = response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get()
-        volume_title_text = response.xpath('//p[@class="chapter_title"]/text()').get()
-        novel_chapter_numbers = response.xpath('//div[@id="novel_no"]/text()').get()
         first_chapter_number, last_chapter_number = response.xpath('//div[@id="novel_no"]/text()').get().split("/")
-        chapter_title = response.xpath('//p[@class="novel_subtitle"]/text()').get()
         chapter_text = response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall()
-        chapter_preword_text = response.xpath('//div[@id="novel_color"]/div[@id="novel_p"]/p/text()').getall()
-        chapter_afterword_text = response.xpath('//div[@id="novel_color"]/div[@id="novel_a"]/p/text()').getall()
         #concat all the text into 1 string
         chapter = "".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall())
-        #css style path
-        #   chapter_title = response.css('.novel_subtitle::text').get()
-        #
-        #   novel_title_css = response.css("p.novel_title::text").get()
-        #   novel_description = response.css('#novel_ex::text').get()
-        #   chapter_title = response.css('.chapter_title::text').get()
-        #   chapter_title = response.css('.novel_subtitle::text').get()
-        #
 
 
 custom_settings = {
@@ -140,11 +110,11 @@ def run_crawler_runner_spider(novel_name, url: str):
 
     d = runner.crawl(SyosetsuSpider)
     d.addBoth(lambda _: reactor.stop())
-    start_crawl = timer()
+    start_crawl = default_timer()
     print("Start spider crawl: {}".format(start_crawl))
     reactor.run() # the script will block here until the crawling is finished
 
-    end_crawl = timer()
+    end_crawl = default_timer()
     print("Spider Crawl Novel took seconds: {} / minutes: {}".format(end_crawl, (end_crawl - start_crawl)/60))
 
 
@@ -164,11 +134,13 @@ def run_crawler_process_spider(novel_name: str, url: str):
     SyosetsuSpider.start_urls = [url]
 
     #process = CrawlerProcess(get_project_settings())
-    start_crawl = timer()
+    #start_crawl = default_timer()
+    start_crawl = time.time()
     print("Start spider crawl: {}".format(start_crawl))
 
     process.crawl(SyosetsuSpider)
     process.start()
 
-    end_crawl = timer()
-    print("Spider Crawl Novel took seconds: {} / minutes: {}".format(end_crawl, (end_crawl - start_crawl) / 60))
+    #end_crawl = default_timer()
+    end_crawl = time.time()
+    print("Spider Crawl Novel took seconds: {} / minutes: {}".format((end_crawl - start_crawl), (end_crawl - start_crawl) / 60))
