@@ -19,7 +19,8 @@ def novel_scrape_run(novel_name: str, url: str, output_chapter_size: int):
 
     # read the jl file and output the split text files
     # novel_name_jsonlines_path = 'C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\scraper\\test_output.jl'
-    novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
+    #novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
+    novel_name_jsonlines_path = os.path.normpath("G:\\Visual Studio Code Projects\SyosetsuScraper\\{}.jl".format(novel_name))
     directory_output_path = os.path.normpath("G:\LN Raw Text Files")
 
     try:
