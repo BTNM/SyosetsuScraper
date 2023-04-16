@@ -80,41 +80,6 @@ class SyosetsuSpider(scrapy.Spider):
         chapter = "".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall())
 
 
-custom_settings = {
-    'FEED_URI': 'spider1' + '.jl',
-    'FEED_FORMAT': 'jsonlines',
-    'FEED_EXPORTERS': {
-        'jsonlines': 'scrapy.exporters.JsonLinesItemExporter',
-    },
-    'FEED_EXPORT_ENCODING': 'utf-8',
-}
-
-
-def get_settings(filename_text: str, url: str):
-    setting = Settings()
-    # settings.set('FEED_URI', 'file.txt')
-    filename_text = filename_text + ".jl"
-    setting.set('FEED_URI', filename_text)
-    setting.set('FEED_FORMAT', 'jsonlines')
-    return setting
-
-
-def run_crawler_runner_spider(novel_name, url: str):
-    """
-    Run spider crawl on given url, output into a jsonlines file, with the older feed format
-    """
-    setting = get_settings(novel_name, url)
-    runner = CrawlerRunner(setting)
-    SyosetsuSpider.start_urls = [url]
-
-    d = runner.crawl(SyosetsuSpider)
-    d.addBoth(lambda _: reactor.stop())
-    start_crawl = default_timer()
-    print("Start spider crawl: {}".format(start_crawl))
-    reactor.run() # the script will block here until the crawling is finished
-
-    end_crawl = default_timer()
-    print("Spider Crawl Novel took seconds: {} / minutes: {}".format(end_crawl, (end_crawl - start_crawl)/60))
 
 
 def run_crawler_process_spider(novel_name: str, url: str):
@@ -124,10 +89,9 @@ def run_crawler_process_spider(novel_name: str, url: str):
     :param url:
     :return:
     """
-    novel_name = novel_name + '.jl'
     process = CrawlerProcess(settings={
         "FEEDS": {
-            novel_name: {"format": "jsonlines", 'encoding': 'utf8'},
+            novel_name+ '.jl': {"format": "jsonlines", 'encoding': 'utf8'},
         },
     })
     SyosetsuSpider.start_urls = [url]
@@ -149,7 +113,7 @@ def run_spider(novelname, url):
     # Create a new CrawlerProcess object with project settings and the desired output file settings
     settings = {
         "FEEDS": {
-            novelname: {"format": "jsonlines", 'encoding': 'utf8'},
+            novelname+".jl": {"format": "jsonlines", 'encoding': 'utf8'},
         },
     }
     process = CrawlerProcess(settings)
