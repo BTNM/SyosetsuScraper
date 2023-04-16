@@ -82,12 +82,9 @@ class SyosetsuSpider(scrapy.Spider):
 
 
 
-def run_crawler_process_spider(novel_name: str, url: str):
+def run_single_crawler_spider(novel_name: str, url: str):
     """
     Run spider crawl on given url, output into a jsonlines file
-    :param novel_name:
-    :param url:
-    :return:
     """
     process = CrawlerProcess(settings={
         "FEEDS": {
@@ -96,7 +93,6 @@ def run_crawler_process_spider(novel_name: str, url: str):
     })
     SyosetsuSpider.start_urls = [url]
 
-    #process = CrawlerProcess(get_project_settings())
     #start_crawl = default_timer()
     start_crawl = time.time()
     print("Start spider crawl: {}".format(start_crawl))
@@ -109,7 +105,7 @@ def run_crawler_process_spider(novel_name: str, url: str):
     print("Spider Crawl Novel took seconds: {} / minutes: {}".format((end_crawl - start_crawl), (end_crawl - start_crawl) / 60))
 
 
-def run_spider(novelname, url):
+def run_spider_crawl(novelname, url):
     # Create a new CrawlerProcess object with project settings and the desired output file settings
     settings = {
         "FEEDS": {
@@ -122,10 +118,10 @@ def run_spider(novelname, url):
     # Start the process and wait for it to finish
     process.start()
 
-def run_crawler_process_spider2(novels_urls, output_chapter_size):
+def run_multi_process_crawler(novels_urls, output_chapter_size):
     for novelname, url in novels_urls:
         # creates a new crawlerprocess object for each spider and runs it in a seperate process with multiprocessing
-        multiprocess = Process(target=run_spider, args=(novelname, url))
+        multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
         # start spider process
         multiprocess.start()
         # called after starting each process to wait for it to finish before proceeding to the next iteration

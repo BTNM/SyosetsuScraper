@@ -6,7 +6,7 @@ import os
 
 def novel_scrape_run(novels_urls: list, output_chapter_size: int):
     # crawl the given syosetsu webpages
-    #run_crawler_process_spider2(novels_urls, output_chapter_size)
+    #run_multi_process_crawler(novels_urls, output_chapter_size)
     
     directory_output_path = os.path.normpath("G:\LN Raw Text Files")
     for novel_name, url in novels_urls:
