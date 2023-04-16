@@ -118,6 +118,7 @@ def run_spider_crawl(novelname, url):
     # Start the process and wait for it to finish
     process.start()
 
+
 def run_multi_process_crawler(novels_urls, output_chapter_size):
     for novelname, url in novels_urls:
         # creates a new crawlerprocess object for each spider and runs it in a seperate process with multiprocessing
@@ -126,3 +127,4 @@ def run_multi_process_crawler(novels_urls, output_chapter_size):
         multiprocess.start()
         # called after starting each process to wait for it to finish before proceeding to the next iteration
         multiprocess.join()
+        

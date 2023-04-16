@@ -5,7 +5,7 @@ import os
 chapter_start_number_rest = 1
 chapter_end_number_rest = 0
 
-def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output_chapter_length):
+def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output_chapter_length=10):
     """
     read_jsonlines_file() takes in a jsonfiles novel name dictionary,
     loops through all the dict object, split and unpack them in 10 chapters and write into text files  

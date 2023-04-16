@@ -4,12 +4,12 @@ import scraper.text_files_packing as packing
 import os
 
 
-def novel_scrape_run(novels_urls: list, output_chapter_size: int):
+def novel_crawler(novels_urls: list):
     # crawl the given syosetsu webpages
-    #run_multi_process_crawler(novels_urls, output_chapter_size)
+    run_multi_process_crawler(novels_urls, output_chapter_size)
     
     directory_output_path = os.path.normpath("G:\LN Raw Text Files")
-    for novel_name, url in novels_urls:
+    for novel_name, url, output_chapter_size  in novels_urls:
         #novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
         novel_jsonlines_path = os.path.normpath("G:\Visual Studio Code Projects\SyosetsuScraper\{}.jl".format(novel_name))
         
@@ -42,8 +42,8 @@ if __name__ == '__main__':
     # Feed the novel name and url to spider and crawl the webpages
 
     novels_urls = [
-        ("Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/"),
-        ("Ascendance of a Bookworm", "https://ncode.syosetu.com/n4750dy/"),
+        ("Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3),
+        ("Ascendance of a Bookworm", "https://ncode.syosetu.com/n4750dy/", 10),
         #("Homeless Tensei ~Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu", "https://ncode.syosetu.com/n8162dq/"),
     ]
     # novels_urls = [
@@ -58,14 +58,14 @@ if __name__ == '__main__':
 
 
     # check illegal character in novel name
-    for novel_name, url in novels_urls:
+    for novel_name, url, output_chapter_size in novels_urls:
         check = illegal_char_in_name(novel_name)
         if check:
             print(f"Illegal character in {novel_name}: {check}")
             exit()
 
     output_chapter_size = 3
-    novel_scrape_run(novels_urls, output_chapter_size)
+    novel_crawler(novels_urls)
 
 
 # Press the green button in the gutter to run the script.
