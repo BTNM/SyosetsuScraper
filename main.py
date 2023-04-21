@@ -37,13 +37,17 @@ def illegal_char_in_name(foldername):
             return char
 
 
+def chapter_output_range(range: int=10):
+    return range
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Feed the novel name and url to spider and crawl the webpages
 
     novels_urls = [
-        ("Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3),
-        ("Ascendance of a Bookworm", "https://ncode.syosetu.com/n4750dy/", 10),
+        ("Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", chapter_output_range(3)),
+        ("Ascendance of a Bookworm", "https://ncode.syosetu.com/n4750dy/", chapter_output_range()),
         #("Homeless Tensei ~Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu", "https://ncode.syosetu.com/n8162dq/"),
     ]
     # novels_urls = [
