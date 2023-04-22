@@ -111,16 +111,18 @@ def run_spider_crawl(novelname, url):
         "FEEDS": {
             novelname+".jl": {"format": "jsonlines", 'encoding': 'utf8'},
         },
+        # reduce the amount of logging output
+        'LOG_LEVEL': 'INFO',
     }
-    process = CrawlerProcess(settings)
+    process = CrawlerProcess(settings=settings)
     # Run the spider with the current URL and output file settings
     process.crawl(SyosetsuSpider, start_urls=[url])
     # Start the process and wait for it to finish
     process.start()
 
 
-def run_multi_process_crawler(novels_urls, output_chapter_size):
-    for novelname, url in novels_urls:
+def run_multi_process_crawler(novels_urls):
+    for novelname, url, output_range in novels_urls:
         # creates a new crawlerprocess object for each spider and runs it in a seperate process with multiprocessing
         multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
         # start spider process

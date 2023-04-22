@@ -1,0 +1,7 @@
+#pychache
+__pychache__
+*.pyc
+
+#jupyter notebook
+*.ipynb
+

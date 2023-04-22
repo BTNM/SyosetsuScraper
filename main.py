@@ -6,7 +6,7 @@ import os
 
 def novel_crawler(novels_urls: list):
     # crawl the given syosetsu webpages
-    run_multi_process_crawler(novels_urls, output_chapter_size)
+    run_multi_process_crawler(novels_urls)
     
     directory_output_path = os.path.normpath("G:\LN Raw Text Files")
     for novel_name, url, output_chapter_size  in novels_urls:
@@ -14,14 +14,14 @@ def novel_crawler(novels_urls: list):
         novel_jsonlines_path = os.path.normpath("G:\Visual Studio Code Projects\SyosetsuScraper\{}.jl".format(novel_name))
         
         try:
-            print("read jsonline file and output txt files")
+            print("Run read jsonline file and output txt files")
             packing.read_jsonlines_file(novel_jsonlines_path, directory_output_path, novel_name, output_chapter_size)
         except:
             print("Something went wrong with the read_jsonLines_file")
         else:
             # remove the jl file after finished reading the jl file
-            print("remove jsonlines files")
-            #remove_jl_file(novel_name)
+            print("Remove jsonlines files")
+            remove_jl_file(novel_name)
         
 
 def remove_jl_file(novel_name):
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # Feed the novel name and url to spider and crawl the webpages
 
     novels_urls = [
-        ("Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", chapter_output_range(3)),
+        #("Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", chapter_output_range(3)),
         ("Ascendance of a Bookworm", "https://ncode.syosetu.com/n4750dy/", chapter_output_range()),
         #("Homeless Tensei ~Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu", "https://ncode.syosetu.com/n8162dq/"),
     ]
