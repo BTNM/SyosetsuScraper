@@ -47,19 +47,16 @@ if __name__ == '__main__':
 
     novels_urls = [
         #("Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", chapter_output_range(3)),
-        ("Ascendance of a Bookworm", "https://ncode.syosetu.com/n4750dy/", chapter_output_range()),
-        #("Homeless Tensei ~Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu", "https://ncode.syosetu.com/n8162dq/"),
+        #("My Next Life as a Villainess - All Routes Lead to Doom!", "https://ncode.syosetu.com/n5040ce/", chapter_output_range()),
+        #("Homeless Tensei ~Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu", "https://ncode.syosetu.com/n8162dq/", chapter_output_range()),
+        ("The Magical Revolution of the Reincarnated Princess and the Genius Young Lady", "https://ncode.syosetu.com/n8558fh/", chapter_output_range(5)),
+        #("Silent Witch", "https://ncode.syosetu.com/n5194gp/", chapter_output_range()),
+        #("Food Travel in the Other World with Ridiculous Ability", "https://ncode.syosetu.com/n2710db/", chapter_output_range()),
+        #("Frontier Lord Starts Out With a Population of 0", "https://ncode.syosetu.com/n1980en/", chapter_output_range()),
+        #("Reincarnated as a Dragon’s Egg", "https://ncode.syosetu.com/n4698cv/", chapter_output_range()),
+        #("Reincarnated as a Sword", "https://ncode.syosetu.com/n6006cw/", chapter_output_range()),
+        #("Saving 80,000 Gold in an Another World for Retirement", "https://ncode.syosetu.com/n5529cy/", chapter_output_range()),
     ]
-    # novels_urls = [
-    #     ("Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/"),
-    #     ("Homeless Tensei - Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu", "https://ncode.syosetu.com/n8162dq/"),
-    #     ("Food Travel in the Other World with Ridiculous Ability", "https://ncode.syosetu.com/n2710db/"),
-    #     ("Frontier Lord Starts Out With a Population of 0", "https://ncode.syosetu.com/n1980en/"),
-    #     ("Reincarnated as a Dragon’s Egg", "https://ncode.syosetu.com/n4698cv/"),
-    #     ("Reincarnated as a Sword", "https://ncode.syosetu.com/n6006cw/"),
-    #     ("Saving 80,000 Gold in an Another World for Retirement", "https://ncode.syosetu.com/n5529cy/"),
-    # ]
-
 
     # check illegal character in novel name
     for novel_name, url, output_chapter_size in novels_urls:

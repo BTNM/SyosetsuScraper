@@ -42,7 +42,7 @@ class SyosetsuSpider(scrapy.Spider):
     def parse_chapters(self, response):
         # Loop parsing all chapter content
         global novel_description
-        start_timer = default_timer()
+        #start_timer = default_timer()
         novel_item = NovelItem()
 
         novel_item["novel_title"] = response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get()
@@ -57,8 +57,8 @@ class SyosetsuSpider(scrapy.Spider):
 
         yield novel_item
 
-        end_timer = default_timer()
-        print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], (end_timer-start_timer)))
+        #end_timer = default_timer()
+        #print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], (end_timer-start_timer)))
         next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
         if next_page is not None:
             next_page = response.urljoin(next_page)
@@ -78,8 +78,6 @@ class SyosetsuSpider(scrapy.Spider):
         chapter_text = response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall()
         #concat all the text into 1 string
         chapter = "".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall())
-
-
 
 
 def run_single_crawler_spider(novel_name: str, url: str):
