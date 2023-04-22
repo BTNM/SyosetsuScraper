@@ -5,31 +5,37 @@ import os
 chapter_start_number_rest = 1
 chapter_end_number_rest = 0
 
-def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output_chapter_length=10):
+
+def read_jsonlines_file(
+    novel_jsonlines_path, directory_path, novel_name, output_chapter_length=10
+):
     """
     read_jsonlines_file() takes in a jsonfiles novel name dictionary,
-    loops through all the dict object, split and unpack them in 10 chapters and write into text files  
+    loops through all the dict object, split and unpack them in 10 chapters and write into text files
     """
-    #['novel_title', 'volume_title', 'chapter_number', 'chapter_title', 'chapter_foreword', 'chapter_text', 'chapter_afterword']
+    # ['novel_title', 'volume_title', 'chapter_number', 'chapter_title', 'chapter_foreword', 'chapter_text', 'chapter_afterword']
 
     main_text = ""
     global chapter_start_number_rest
     global chapter_end_number_rest
     start_chapter_number = 1
-    #open <<filename>> jsonlines in read mode
+    # open <<filename>> jsonlines in read mode
     with jsonlines.open(novel_jsonlines_path, "r") as jsonlinesReader:
         for chapter in jsonlinesReader.iter(type=dict, skip_invalid=True):
             # Skip chapter content if chapter title in the skip list
             if chapter_title_skip_check(chapter):
                 continue
 
-            #save start and end chapter num to add to file text name
-            if int(chapter.get("chapter_number")) % output_chapter_length == chapter_start_number_rest:
+            # save start and end chapter num to add to file text name
+            if (
+                int(chapter.get("chapter_number")) % output_chapter_length
+                == chapter_start_number_rest
+            ):
                 if chapter.get("volume_title"):
                     main_text += chapter.get("volume_title") + "\n"
                 start_chapter_number = chapter.get("chapter_number")
 
-            #add chapter title to main output text and foreword and afterword if exist
+            # add chapter title to main output text and foreword and afterword if exist
             main_text += chapter.get("chapter_title") + "\n"
             if chapter.get("chapter_foreword"):
                 main_text += chapter.get("chapter_foreword") + "\n"
@@ -37,13 +43,19 @@ def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output
             if chapter.get("chapter_afterword"):
                 main_text += chapter.get("chapter_afterword") + "\n"
 
-            #get novel last chapter number
+            # get novel last chapter number
             chapter_last_num = chapter.get("chapter_start_end").split("/")[1]
-            #Every 10 chapter save novel title, last chapter number to the text file output or rest chapter txt
-            if int(chapter.get("chapter_number")) % output_chapter_length == chapter_end_number_rest or chapter.get("chapter_number") == chapter_last_num:
+            # Every 10 chapter save novel title, last chapter number to the text file output or rest chapter txt
+            if (
+                int(chapter.get("chapter_number")) % output_chapter_length
+                == chapter_end_number_rest
+                or chapter.get("chapter_number") == chapter_last_num
+            ):
                 end_chapter_number = chapter.get("chapter_number")
                 novel_title = chapter.get("novel_title")
-                start_end_chapter_number = start_chapter_number + "-" + end_chapter_number
+                start_end_chapter_number = (
+                    start_chapter_number + "-" + end_chapter_number
+                )
 
                 novel_description = chapter.get("novel_description")
                 if novel_description:
@@ -53,19 +65,25 @@ def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output
                 # create name for output text files with chapter start end and limited novel title
                 filename = start_end_chapter_number + " " + novel_title[0:30] + ".txt"
 
-                #add start end chapter prefiks, novel title and description to main text
+                # add start end chapter prefiks, novel title and description to main text
                 if int(start_chapter_number) < output_chapter_length:
-                    main_text = str(start_end_chapter_number) + " " + novel_title_description + "\n" + main_text
+                    main_text = (
+                        str(start_end_chapter_number)
+                        + " "
+                        + novel_title_description
+                        + "\n"
+                        + main_text
+                    )
                 else:
                     main_text = str(start_end_chapter_number) + " " + main_text
 
-                #create directory for the novel if doesn't exist
+                # create directory for the novel if doesn't exist
                 create_novel_directory(directory_path, novel_name)
-                #output the main text to txt file in the directory
+                # output the main text to txt file in the directory
                 save_text_to_file(directory_path, novel_name, filename, main_text)
-                #After output main txt with content from start and end chapter num, refrech main_text
+                # After output main txt with content from start and end chapter num, refrech main_text
                 main_text = ""
-        
+
         jsonlinesReader.close()
 
 
@@ -114,4 +132,3 @@ def chapter_title_skip_check(chapter):
 
             return True
     return False
-
