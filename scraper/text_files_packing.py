@@ -5,11 +5,11 @@ import os
 chapter_start_number_rest = 1
 chapter_end_number_rest = 0
 
-"""
+def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output_chapter_length=10):
+    """
     read_jsonlines_file() takes in a jsonfiles novel name dictionary,
     loops through all the dict object, split and unpack them in 10 chapters and write into text files  
-"""
-def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output_chapter_length):
+    """
     #['novel_title', 'volume_title', 'chapter_number', 'chapter_title', 'chapter_foreword', 'chapter_text', 'chapter_afterword']
 
     main_text = ""
@@ -26,7 +26,7 @@ def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output
             #save start and end chapter num to add to file text name
             if int(chapter.get("chapter_number")) % output_chapter_length == chapter_start_number_rest:
                 if chapter.get("volume_title"):
-                    main_text += chapter.get("volum_title") + "\n"
+                    main_text += chapter.get("volume_title") + "\n"
                 start_chapter_number = chapter.get("chapter_number")
 
             #add chapter title to main output text and foreword and afterword if exist
@@ -65,6 +65,8 @@ def read_jsonlines_file(novel_jsonlines_path, directory_path, novel_name, output
                 save_text_to_file(directory_path, novel_name, filename, main_text)
                 #After output main txt with content from start and end chapter num, refrech main_text
                 main_text = ""
+        
+        jsonlinesReader.close()
 
 
 def create_novel_directory(directory_path, novel_name):

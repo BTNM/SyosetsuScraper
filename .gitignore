@@ -1,0 +1,14 @@
+# Ignore compiled Python files
+*.pyc
+__pycache__/
+
+#jupyter notebook
+*.ipynb
+
+# Ignore any IDE or editor-specific files
+.vscode/
+
+# Ignore any compiled or built files
+dist/
+build/
+*.egg-info/

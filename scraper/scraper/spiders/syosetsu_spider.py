@@ -1,6 +1,7 @@
 import scrapy
 from scrapy.crawler import CrawlerRunner
 from scrapy.crawler import CrawlerProcess
+from multiprocessing import Process
 from scrapy.settings import Settings
 from twisted.internet import reactor
 from scraper.scraper.items import NovelItem
@@ -30,20 +31,18 @@ class SyosetsuSpider(scrapy.Spider):
         #print("Start crawl main page: {}".format(default_timer()))
         main_page = response.xpath('//div[@class="index_box"]')
         if main_page is not None:
-            #novel_title = response.xpath('//p[@class="novel_title"]/text()').get()
-            # first_link = response.xpath('//div[@class="index_box"]/dl[@class="novel_sublist2"]/dd[@class="subtitle"]/a/@href')[0]
             global novel_description
             novel_description = "\n".join(response.xpath('//div[@id="novel_ex"]/text()').getall())
             chapter_link = response.xpath('//dl[@class="novel_sublist2"]/dd[@class="subtitle"]/a/@href')[0].get()
 
             start_page = response.urljoin(chapter_link)
             yield scrapy.Request(start_page, callback=self.parse_chapters)
-            #pass novel_name in the meta as a param meta={'novel_name': 'novel_name_eng'}
 
-    # Loop parsing all chapter content
+    
     def parse_chapters(self, response):
+        # Loop parsing all chapter content
         global novel_description
-        start_timer = default_timer()
+        #start_timer = default_timer()
         novel_item = NovelItem()
 
         novel_item["novel_title"] = response.xpath('//div[@class="contents1"]/a[@class="margin_r20"]/text()').get()
@@ -58,8 +57,8 @@ class SyosetsuSpider(scrapy.Spider):
 
         yield novel_item
 
-        end_timer = default_timer()
-        print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], (end_timer-start_timer)))
+        #end_timer = default_timer()
+        #print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], (end_timer-start_timer)))
         next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
         if next_page is not None:
             next_page = response.urljoin(next_page)
@@ -81,59 +80,17 @@ class SyosetsuSpider(scrapy.Spider):
         chapter = "".join(response.xpath('//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()').getall())
 
 
-custom_settings = {
-    'FEED_URI': 'spider1' + '.jl',
-    'FEED_FORMAT': 'jsonlines',
-    'FEED_EXPORTERS': {
-        'jsonlines': 'scrapy.exporters.JsonLinesItemExporter',
-    },
-    'FEED_EXPORT_ENCODING': 'utf-8',
-}
-
-
-def get_settings(filename_text: str, url: str):
-    setting = Settings()
-    # settings.set('FEED_URI', 'file.txt')
-    filename_text = filename_text + ".jl"
-    setting.set('FEED_URI', filename_text)
-    setting.set('FEED_FORMAT', 'jsonlines')
-    return setting
-
-
-def run_crawler_runner_spider(novel_name, url: str):
-    """
-    Run spider crawl on given url, output into a jsonlines file, with the older feed format
-    """
-    setting = get_settings(novel_name, url)
-    runner = CrawlerRunner(setting)
-    SyosetsuSpider.start_urls = [url]
-
-    d = runner.crawl(SyosetsuSpider)
-    d.addBoth(lambda _: reactor.stop())
-    start_crawl = default_timer()
-    print("Start spider crawl: {}".format(start_crawl))
-    reactor.run() # the script will block here until the crawling is finished
-
-    end_crawl = default_timer()
-    print("Spider Crawl Novel took seconds: {} / minutes: {}".format(end_crawl, (end_crawl - start_crawl)/60))
-
-
-def run_crawler_process_spider(novel_name: str, url: str):
+def run_single_crawler_spider(novel_name: str, url: str):
     """
     Run spider crawl on given url, output into a jsonlines file
-    :param novel_name:
-    :param url:
-    :return:
     """
-    novel_name = novel_name + '.jl'
     process = CrawlerProcess(settings={
         "FEEDS": {
-            novel_name: {"format": "jsonlines", 'encoding': 'utf8'},
+            novel_name+ '.jl': {"format": "jsonlines", 'encoding': 'utf8'},
         },
     })
     SyosetsuSpider.start_urls = [url]
 
-    #process = CrawlerProcess(get_project_settings())
     #start_crawl = default_timer()
     start_crawl = time.time()
     print("Start spider crawl: {}".format(start_crawl))
@@ -144,3 +101,30 @@ def run_crawler_process_spider(novel_name: str, url: str):
     #end_crawl = default_timer()
     end_crawl = time.time()
     print("Spider Crawl Novel took seconds: {} / minutes: {}".format((end_crawl - start_crawl), (end_crawl - start_crawl) / 60))
+
+
+def run_spider_crawl(novelname, url):
+    # Create a new CrawlerProcess object with project settings and the desired output file settings
+    settings = {
+        "FEEDS": {
+            novelname+".jl": {"format": "jsonlines", 'encoding': 'utf8'},
+        },
+        # reduce the amount of logging output
+        'LOG_LEVEL': 'INFO',
+    }
+    process = CrawlerProcess(settings=settings)
+    # Run the spider with the current URL and output file settings
+    process.crawl(SyosetsuSpider, start_urls=[url])
+    # Start the process and wait for it to finish
+    process.start()
+
+
+def run_multi_process_crawler(novels_urls):
+    for novelname, url, output_range in novels_urls:
+        # creates a new crawlerprocess object for each spider and runs it in a seperate process with multiprocessing
+        multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
+        # start spider process
+        multiprocess.start()
+        # called after starting each process to wait for it to finish before proceeding to the next iteration
+        multiprocess.join()
+        
