@@ -4,7 +4,7 @@ from scrapy.crawler import CrawlerProcess
 from multiprocessing import Process
 from scrapy.settings import Settings
 from twisted.internet import reactor
-from scraper.scraper.items import NovelItem
+from src.scraper.items import NovelItem
 from scrapy.utils.project import get_project_settings
 from timeit import default_timer
 import timer
