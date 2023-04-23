@@ -7,11 +7,20 @@ chapter_end_number_rest = 0
 
 
 def read_jsonlines_file(
-    novel_jsonlines_path, directory_path, novel_name, output_chapter_length=10
+    novel_jsonlines_path: str,
+    directory_path: str,
+    novel_name: str,
+    output_chapter_range: int,
 ):
     """
-    read_jsonlines_file() takes in a jsonfiles novel name dictionary,
-    loops through all the dict object, split and unpack them in 10 chapters and write into text files
+    Read a JSON lines file containing a novel and split its content into output_chapter_range chapters, then write each
+    group of chapters to a separate text file.
+
+    Args:
+        novel_jsonlines_path (str): Path to the JSON lines file containing the novel.
+        directory_path (str): Path to the directory where the text files will be saved.
+        novel_name (str): Name of the novel.
+        output_chapter_range (int, optional): The number of chapters to include in each output text file. Defaults to 10.
     """
     # ['novel_title', 'volume_title', 'chapter_number', 'chapter_title', 'chapter_foreword', 'chapter_text', 'chapter_afterword']
 
@@ -22,17 +31,15 @@ def read_jsonlines_file(
     # open <<filename>> jsonlines in read mode
     with jsonlines.open(novel_jsonlines_path, "r") as jsonlinesReader:
         for chapter in jsonlinesReader.iter(type=dict, skip_invalid=True):
+            chapter_number = chapter.get("chapter_number")
             # Skip chapter content if chapter title in the skip list
             if chapter_title_skip_check(chapter):
                 continue
             # save start and end chapter num to add to file text name
-            if (
-                int(chapter.get("chapter_number")) % output_chapter_length
-                == chapter_start_number_rest
-            ):
+            if int(chapter_number) % output_chapter_range == chapter_start_number_rest:
                 if chapter.get("volume_title"):
                     main_text += chapter.get("volume_title") + "\n"
-                start_chapter_number = chapter.get("chapter_number")
+                start_chapter_number = chapter_number
             # add chapter title to main output text and foreword and afterword if exist
             main_text += chapter.get("chapter_title") + "\n"
             if chapter.get("chapter_foreword"):
@@ -40,19 +47,16 @@ def read_jsonlines_file(
             main_text += chapter.get("chapter_text") + "\n"
             if chapter.get("chapter_afterword"):
                 main_text += chapter.get("chapter_afterword") + "\n"
-            # get novel last chapter number
+            # get novel last chapter number from the start, end list
             chapter_last_num = chapter.get("chapter_start_end").split("/")[1]
+
             # Every 10 chapter save novel title, last chapter number to the text file output or rest chapter txt
             if (
-                int(chapter.get("chapter_number")) % output_chapter_length
-                == chapter_end_number_rest
-                or chapter.get("chapter_number") == chapter_last_num
+                int(chapter_number) % output_chapter_range == chapter_end_number_rest
+                or chapter_number == chapter_last_num
             ):
-                end_chapter_number = chapter.get("chapter_number")
                 novel_title = chapter.get("novel_title")
-                start_end_chapter_number = (
-                    start_chapter_number + "-" + end_chapter_number
-                )
+                start_end_chapter_number = start_chapter_number + "-" + chapter_number
 
                 novel_description = chapter.get("novel_description")
                 if novel_description:
@@ -63,7 +67,7 @@ def read_jsonlines_file(
                 filename = start_end_chapter_number + " " + novel_title[0:30] + ".txt"
 
                 # add start end chapter prefiks, novel title and description to main text
-                if int(start_chapter_number) < output_chapter_length:
+                if int(start_chapter_number) < output_chapter_range:
                     main_text = (
                         str(start_end_chapter_number)
                         + " "
