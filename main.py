@@ -31,20 +31,31 @@ def novel_crawler(novels_urls: list):
             remove_jl_file(novel_name)
 
 
-def remove_jl_file(novel_name):
+def remove_jl_file(novel_name: str):
+    """
+    Deletes a .jl file with the given name if it exists in the current directory.
+    """
     novel = "{}.jl".format(novel_name)
+    # checks if file with this name exists and deletes it
     if os.path.exists(novel):
         os.remove(novel)
 
 
 def illegal_char_in_name(foldername):
+    """
+    Checks if a folder name contains any invalid characters.
+    """
     invalid = '<>:"/\|?*'
+    # iterates through each character in the list of invalid characters and returns the found invalid chars
     for char in invalid:
         if char in foldername:
             return char
 
 
 def chapter_output_range(range: int = 10):
+    """
+    Returns the input range, which defaults to 10 if no argument is given
+    """
     return range
 
 
@@ -78,8 +89,3 @@ if __name__ == "__main__":
 
     output_chapter_size = 3
     novel_crawler(novels_urls)
-
-
-# Press the green button in the gutter to run the script.
-# if __name__ == '__main__':
-#   print("Hello XYPython")

@@ -25,7 +25,6 @@ def read_jsonlines_file(
             # Skip chapter content if chapter title in the skip list
             if chapter_title_skip_check(chapter):
                 continue
-
             # save start and end chapter num to add to file text name
             if (
                 int(chapter.get("chapter_number")) % output_chapter_length
@@ -34,7 +33,6 @@ def read_jsonlines_file(
                 if chapter.get("volume_title"):
                     main_text += chapter.get("volume_title") + "\n"
                 start_chapter_number = chapter.get("chapter_number")
-
             # add chapter title to main output text and foreword and afterword if exist
             main_text += chapter.get("chapter_title") + "\n"
             if chapter.get("chapter_foreword"):
@@ -42,7 +40,6 @@ def read_jsonlines_file(
             main_text += chapter.get("chapter_text") + "\n"
             if chapter.get("chapter_afterword"):
                 main_text += chapter.get("chapter_afterword") + "\n"
-
             # get novel last chapter number
             chapter_last_num = chapter.get("chapter_start_end").split("/")[1]
             # Every 10 chapter save novel title, last chapter number to the text file output or rest chapter txt
@@ -87,42 +84,52 @@ def read_jsonlines_file(
         jsonlinesReader.close()
 
 
-def create_novel_directory(directory_path, novel_name):
+def create_novel_directory(directory_path: str, novel_name: str):
     """
-    Create the directory folder in the given directory path for the novel with the given novel_name
-    """
-    # directory_path = "G:\LN Raw Text Files"
-    directory = os.path.join(directory_path, novel_name)
+    Create a directory for the novel with the given name in the specified directory path.
 
+    Args:
+        directory_path (str): The path where the directory should be created.
+        novel_name (str): The name of the novel.
+    """
+    # combines the directory path and novel name into a single path
+    directory = os.path.join(directory_path, novel_name)
+    # checks and creates the directory if it does not already exist
     if not os.path.exists(directory):
         os.mkdir(directory)
 
 
-def save_text_to_file(directory_path, novel_name, filename, chapter_text):
+def save_text_to_file(
+    directory_path: str, novel_name: str, filename: str, chapter_text: str
+):
     """
-    Save the chapter content into a txt file in the file path created from param
-    :param directory_path:
-    :param novel_name:
-    :param filename:
-    :param chapter_text:
-    :return:
+    Save the content of chapter range to a text file in the specified directory path.
+    Args:
+        directory_path (str): The path where the file should be saved.
+        novel_name (str): The name of the novel.
+        filename (str): The name of the file to be saved.
+        chapter_text (str): The content of the chapter to be saved.
     """
+    # combines the directory path, novel name, and filename into a single path
     file_path = os.path.join(directory_path, novel_name, filename)
-
+    # opens the file for writing with utf-8 encoding and writes the chapter content to the file
     text_file = open(file_path, "w", encoding="utf-8")
     n = text_file.write(chapter_text)
     text_file.close()
 
 
-def chapter_title_skip_check(chapter):
+def chapter_title_skip_check(chapter: dict):
     """
-    Check if title includes the words in skip_content_titles to decide whether chapter should be skipped
-    :param chapter: jsonline content given for the chapter
-    :return: True if chapter includes the given words else False
+    Check if the chapter title includes specific words that indicate it should be skipped.
+    Args:
+        chapter (dict): A dictionary containing the chapter data, including the chapter title and number.
+    Returns:
+        bool: True if the chapter title includes specific words that indicate it should be skipped, False otherwise.
     """
     skip_content_titles = ["人物紹介", "登場人物"]
     global chapter_start_number_rest
     global chapter_end_number_rest
+    # iterates through each title to check if it is present in the chapter title
     for title_check in skip_content_titles:
         if title_check in chapter.get("chapter_title"):
             # Increase chapter rest number when modulo rest is equal to the rest for start chapter, else only return true
@@ -130,5 +137,5 @@ def chapter_title_skip_check(chapter):
                 chapter_start_number_rest += 1
                 chapter_end_number_rest += 1
 
-            return True
-    return False
+            return True  # returns True if the chapter should be skipped
+    return False  # returns False if the chapter should not be skipped
