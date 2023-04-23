@@ -33,7 +33,7 @@ def read_jsonlines_file(
         for chapter in jsonlinesReader.iter(type=dict, skip_invalid=True):
             chapter_number = chapter.get("chapter_number")
             # Skip chapter content if chapter title in the skip list
-            if chapter_title_skip_check(chapter):
+            if chapter_title_skip_check(chapter, output_chapter_range):
                 continue
             # save start and end chapter num to add to file text name
             if int(chapter_number) % output_chapter_range == chapter_start_number_rest:
@@ -122,7 +122,7 @@ def save_text_to_file(
     text_file.close()
 
 
-def chapter_title_skip_check(chapter: dict):
+def chapter_title_skip_check(chapter: dict, output_chapter_range):
     """
     Check if the chapter title includes specific words that indicate it should be skipped.
     Args:
@@ -136,8 +136,11 @@ def chapter_title_skip_check(chapter: dict):
     # iterates through each title to check if it is present in the chapter title
     for title_check in skip_content_titles:
         if title_check in chapter.get("chapter_title"):
-            # Increase chapter rest number when modulo rest is equal to the rest for start chapter, else only return true
-            if int(chapter.get("chapter_number")) % 10 == chapter_start_number_rest:
+            # Increase chapter start and end rest number when modulo rest is equal to the rest for start chapter, to get correct start-end chapter on output file
+            if (
+                int(chapter.get("chapter_number")) % output_chapter_range
+                == chapter_start_number_rest
+            ):
                 chapter_start_number_rest += 1
                 chapter_end_number_rest += 1
 

@@ -63,15 +63,15 @@ if __name__ == "__main__":
     # Feed the novel name and url to spider and crawl the webpages
 
     novels_urls = [
-        (
-            "Ascendance of a Bookworm - Extra Story",
-            "https://ncode.syosetu.com/n4750dy/",
-            output_chapter_range(3),
-        ),
+        # (
+        #     "Ascendance of a Bookworm - Extra Story",
+        #     "https://ncode.syosetu.com/n4750dy/",
+        #     output_chapter_range(3),
+        # ),
         # ("My Next Life as a Villainess - All Routes Lead to Doom!", "https://ncode.syosetu.com/n5040ce/", output_chapter_range()),
         # ("Homeless Tensei ~Isekai de Jiyuu Sugiru Jikyuu Jisoku Seikatsu", "https://ncode.syosetu.com/n8162dq/", output_chapter_range()),
         # ("The Magical Revolution of the Reincarnated Princess and the Genius Young Lady", "https://ncode.syosetu.com/n8558fh/", output_chapter_range(5)),
-        # ("Silent Witch", "https://ncode.syosetu.com/n5194gp/", output_chapter_range()),
+        ("Silent Witch", "https://ncode.syosetu.com/n5194gp/", output_chapter_range(5)),
         # ("Food Travel in the Other World with Ridiculous Ability", "https://ncode.syosetu.com/n2710db/", output_chapter_range()),
         # ("Frontier Lord Starts Out With a Population of 0", "https://ncode.syosetu.com/n1980en/", output_chapter_range()),
         # ("Reincarnated as a Dragon’s Egg", "https://ncode.syosetu.com/n4698cv/", output_chapter_range()),
