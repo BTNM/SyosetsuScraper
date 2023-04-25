@@ -59,7 +59,7 @@ class SyosetsuSpider(scrapy.Spider):
         Returns:
             A NovelItem object containing the extracted information from the chapter.
         """
-        # novel_description value is retrieved from the meta param dictionary
+        # novel_description retrieved from meta dictionary, and passed to next parse_chapters
         novel_description = response.meta.get("novel_description")
         # start_timer = default_timer()
         novel_item = NovelItem()
@@ -101,7 +101,11 @@ class SyosetsuSpider(scrapy.Spider):
         next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
         if next_page is not None:
             next_page = response.urljoin(next_page)
-            yield scrapy.Request(next_page, callback=self.parse_chapters)
+            yield scrapy.Request(
+                next_page,
+                callback=self.parse_chapters,
+                meta={"novel_description": novel_description},
+            )
 
     def parse_test(self, response):
         # character introduction - 登場人物紹介

@@ -35,57 +35,91 @@ def read_jsonlines_file(
             # Skip chapter content if chapter title in the skip list
             if chapter_title_skip_check(chapter, output_chapter_range):
                 continue
+
             # save start and end chapter num to add to file text name
             if int(chapter_number) % output_chapter_range == chapter_start_number_rest:
                 if chapter.get("volume_title"):
                     main_text += chapter.get("volume_title") + "\n"
                 start_chapter_number = chapter_number
-            # add chapter title to main output text and foreword and afterword if exist
-            main_text += chapter.get("chapter_title") + "\n"
-            if chapter.get("chapter_foreword"):
-                main_text += chapter.get("chapter_foreword") + "\n"
-            main_text += chapter.get("chapter_text") + "\n"
-            if chapter.get("chapter_afterword"):
-                main_text += chapter.get("chapter_afterword") + "\n"
-            # get novel last chapter number from the start, end list
-            chapter_last_num = chapter.get("chapter_start_end").split("/")[1]
 
+            # add chapter title to main output text and foreword and afterword if exist
+            main_text = add_main_text_content(chapter, main_text)
+
+            # get last novel chapter number from the start, end list
+            chapter_last_num = chapter.get("chapter_start_end").split("/")[1]
             # Every 10 chapter save novel title, last chapter number to the text file output or rest chapter txt
             if (
                 int(chapter_number) % output_chapter_range == chapter_end_number_rest
                 or chapter_number == chapter_last_num
             ):
                 novel_title = chapter.get("novel_title")
-                start_end_chapter_number = start_chapter_number + "-" + chapter_number
-
                 novel_description = chapter.get("novel_description")
-                if novel_description:
-                    novel_title_description = novel_title + "\n" + novel_description
+                start_end_chapter_number = f"{start_chapter_number}-{chapter_number}"
+                # add start and end chapter prefix to main text, novel title and description if first txt output
+                if int(start_chapter_number) <= output_chapter_range:
+                    main_text = f"{start_end_chapter_number} {novel_title}\n{novel_description}\n{main_text}"
                 else:
-                    novel_title_description = ""
-                # create name for output text files with chapter start end and limited novel title
-                filename = start_end_chapter_number + " " + novel_title[0:30] + ".txt"
-
-                # add start end chapter prefiks, novel title and description to main text
-                if int(start_chapter_number) < output_chapter_range:
-                    main_text = (
-                        str(start_end_chapter_number)
-                        + " "
-                        + novel_title_description
-                        + "\n"
-                        + main_text
-                    )
-                else:
-                    main_text = str(start_end_chapter_number) + " " + main_text
+                    main_text = f"{start_end_chapter_number} {main_text}"
 
                 # create directory for the novel if doesn't exist
                 create_novel_directory(directory_path, novel_name)
                 # output the main text to txt file in the directory
+                filename = f"{start_end_chapter_number} {novel_title[:30]}.txt"
                 save_text_to_file(directory_path, novel_name, filename, main_text)
                 # After output main txt with content from start and end chapter num, refrech main_text
                 main_text = ""
 
         jsonlinesReader.close()
+
+
+def add_main_text_content(chapter, main_text):
+    """Add the main text content of a chapter to the main output text.
+    Args:
+        chapter (dict): A dictionary containing the chapter information,
+            including the title, foreword, main text, and afterword.
+        main_text (str): The main output text that the chapter content will be added to.
+
+    Returns:
+        str: The updated main output text.
+    """
+    # Add the chapter title to the main output text and foreword and afterword if they exist.
+    main_text += chapter.get("chapter_title") + "\n"
+    if chapter.get("chapter_foreword"):
+        main_text += chapter.get("chapter_foreword") + "\n"
+    # add main chapter content
+    main_text += chapter.get("chapter_text") + "\n"
+    if chapter.get("chapter_afterword"):
+        main_text += chapter.get("chapter_afterword") + "\n"
+
+    return main_text
+
+
+def chapter_title_skip_check(chapter: dict, output_chapter_range):
+    """
+    Check if the chapter title includes specific words that indicate it should be skipped.
+    Args:
+        chapter (dict): A dictionary containing the chapter data, including the chapter title and number.
+
+    Returns:
+        bool: True if the chapter title includes specific words that indicate it should be skipped, False otherwise.
+    """
+    skip_content_titles = ["人物紹介", "登場人物"]
+    global chapter_start_number_rest
+    global chapter_end_number_rest
+    # iterates through each title to check if it is present in the chapter title
+    for title_check in skip_content_titles:
+        if title_check in chapter.get("chapter_title"):
+            # Increase chapter start and end rest number when modulo rest is equal to the rest for start chapter,
+            # to get correct start-end chapter on output file. To avoid start number on skipped chapters
+            if (
+                int(chapter.get("chapter_number")) % output_chapter_range
+                == chapter_start_number_rest
+            ):
+                chapter_start_number_rest += 1
+                chapter_end_number_rest += 1
+
+            return True  # returns True if the chapter should be skipped
+    return False  # returns False if the chapter should not be skipped
 
 
 def create_novel_directory(directory_path: str, novel_name: str):
@@ -120,29 +154,3 @@ def save_text_to_file(
     text_file = open(file_path, "w", encoding="utf-8")
     n = text_file.write(chapter_text)
     text_file.close()
-
-
-def chapter_title_skip_check(chapter: dict, output_chapter_range):
-    """
-    Check if the chapter title includes specific words that indicate it should be skipped.
-    Args:
-        chapter (dict): A dictionary containing the chapter data, including the chapter title and number.
-    Returns:
-        bool: True if the chapter title includes specific words that indicate it should be skipped, False otherwise.
-    """
-    skip_content_titles = ["人物紹介", "登場人物"]
-    global chapter_start_number_rest
-    global chapter_end_number_rest
-    # iterates through each title to check if it is present in the chapter title
-    for title_check in skip_content_titles:
-        if title_check in chapter.get("chapter_title"):
-            # Increase chapter start and end rest number when modulo rest is equal to the rest for start chapter, to get correct start-end chapter on output file
-            if (
-                int(chapter.get("chapter_number")) % output_chapter_range
-                == chapter_start_number_rest
-            ):
-                chapter_start_number_rest += 1
-                chapter_end_number_rest += 1
-
-            return True  # returns True if the chapter should be skipped
-    return False  # returns False if the chapter should not be skipped
