@@ -63,9 +63,10 @@ def read_jsonlines_file(
 
                 # create directory for the novel if doesn't exist
                 create_novel_directory(directory_path, novel_name)
-                # output the main text to txt file in the directory
+                # combines the directory, novel name and filename into a path, and output main text to txt file in the directory
                 filename = f"{start_end_chapter_number} {novel_title[:30]}.txt"
-                save_text_to_file(directory_path, novel_name, filename, main_text)
+                file_path = os.path.join(directory_path, novel_name, filename)
+                output_text_to_file(file_path, main_text)
                 # After output main txt with content from start and end chapter num, refrech main_text
                 main_text = ""
 
@@ -137,9 +138,7 @@ def create_novel_directory(directory_path: str, novel_name: str):
         os.mkdir(directory)
 
 
-def save_text_to_file(
-    directory_path: str, novel_name: str, filename: str, chapter_text: str
-):
+def output_text_to_file(file_path: str, chapter_text: str):
     """
     Save the content of chapter range to a text file in the specified directory path.
     Args:
@@ -148,9 +147,6 @@ def save_text_to_file(
         filename (str): The name of the file to be saved.
         chapter_text (str): The content of the chapter to be saved.
     """
-    # combines the directory path, novel name, and filename into a single path
-    file_path = os.path.join(directory_path, novel_name, filename)
     # opens the file for writing with utf-8 encoding and writes the chapter content to the file
-    text_file = open(file_path, "w", encoding="utf-8")
-    n = text_file.write(chapter_text)
-    text_file.close()
+    with open(file_path, "w", encoding="utf-8") as text_file:
+        text_file.write(chapter_text)
