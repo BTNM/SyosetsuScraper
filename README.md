@@ -1,10 +1,10 @@
-Syosetsu Scraper
+# Syosetsu Scraper
 
 A small projects for web scraping novels on https://ncode.syosetu.com/ and divide the content into wanted size ranges,
 to faciliate easy conversion into soundbooks with TextAloud and similar programs.
 
 
-Installation
+## Installation
 
     Install Scrapy using pip:
 
@@ -25,7 +25,7 @@ bash
 pip install -r requirements.txt
 
 
-Usage
+## Usage
 To run the spider:
 
 bash
