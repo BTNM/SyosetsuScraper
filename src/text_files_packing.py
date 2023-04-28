@@ -28,11 +28,10 @@ def read_jsonlines_file(
     with jsonlines.open(novel_jsonlines_path, "r") as jsonlinesReader:
         for chapter in jsonlinesReader.iter(type=dict, skip_invalid=True):
             chapter_number = chapter.get("chapter_number")
-            # Skip chapter content if chapter title in the skip list and increase chapter start end modulo rest if output start number on skipped title
+            # Skip chapter content if chapter title in the skip list
             title_skip = chapter_title_skip_check(chapter)
             if title_skip:
-                # Increase  chapter modulo check when skip chapter, if equal to output range reset
-                # to get correct start-end numbering on output file. To avoid start number on skipped chapters
+                # Increase chapter modulo check when skip chapter, if equal to output range reset to avoid start number on skipped chapters
                 if (
                     int(chapter.get("chapter_number")) % output_chapter_range
                     == chapter_start_modulo_rest
@@ -109,7 +108,7 @@ def increase_chapter_modulo_rest_check(
     chapter_start_modulo_rest, chapter_end_modulo_rest, output_chapter_range
 ):
     """
-    Increase chapter modulo rest check variable, if rest is equal to output_chapter_range then set back to 0 to get correct numbering
+    Increase chapter modulo rest check variable, if rest is equal to output_chapter_range then reset back to 0 to get correct numbering
     """
     chapter_start_modulo_rest += 1
     chapter_end_modulo_rest += 1
@@ -158,9 +157,7 @@ def output_text_to_file(file_path: str, chapter_text: str):
     """
     Save the content of chapter range to a text file in the specified directory path.
     Args:
-        directory_path (str): The path where the file should be saved.
-        novel_name (str): The name of the novel.
-        filename (str): The name of the file to be saved.
+        file_path (str): The path where where the directory, novel name and filename into a path
         chapter_text (str): The content of the chapter to be saved.
     """
     # opens the file for writing with utf-8 encoding and writes the chapter content to the file
