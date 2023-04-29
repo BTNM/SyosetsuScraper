@@ -1,13 +1,7 @@
 import scrapy
-from scrapy.crawler import CrawlerRunner
 from scrapy.crawler import CrawlerProcess
 from multiprocessing import Process
-from scrapy.settings import Settings
-from twisted.internet import reactor
 from src.scraper.items import NovelItem
-from scrapy.utils.project import get_project_settings
-from timeit import default_timer
-import timer
 import time
 
 # run scrapy shell to test scrapy extract which content
@@ -108,7 +102,6 @@ class SyosetsuSpider(scrapy.Spider):
             )
 
     def parse_test(self, response):
-        # character introduction - 登場人物紹介
         # get next page hreft
         # response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
 
@@ -143,14 +136,12 @@ def run_single_crawler_spider(novel_name: str, url: str):
     )
     SyosetsuSpider.start_urls = [url]
 
-    # start_crawl = default_timer()
     start_crawl = time.time()
     print("Start spider crawl: {}".format(start_crawl))
 
     process.crawl(SyosetsuSpider)
     process.start()
 
-    # end_crawl = default_timer()
     end_crawl = time.time()
     print(
         "Spider Crawl Novel took seconds: {} / minutes: {}".format(

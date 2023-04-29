@@ -9,7 +9,7 @@ def read_jsonlines_file(
     output_chapter_range: int,
 ):
     """
-    Read a JSON lines file containing a novel and split its content into output_chapter_range chapters, then write each
+    Read a JSON lines file containing a novel content, split into sized chapters, then write each
     group of chapters to a separate text file.
 
     Args:
@@ -21,9 +21,10 @@ def read_jsonlines_file(
     # ['novel_title', 'volume_title', 'chapter_number', 'chapter_title', 'chapter_foreword', 'chapter_text', 'chapter_afterword']
 
     main_text = ""
+    # variable keep track of chapter num that correspond to start, end of each group of chapters
     chapter_start_modulo_rest = 1
     chapter_end_modulo_rest = 0
-
+    # Set numbering to 1, for first group of chapters start at 1
     start_chapter_numbering = 1
     with jsonlines.open(novel_jsonlines_path, "r") as jsonlinesReader:
         for chapter in jsonlinesReader.iter(type=dict, skip_invalid=True):
