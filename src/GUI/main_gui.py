@@ -58,6 +58,11 @@ window = sg.Window("Table Example", layout)
 data = []
 novel_list = []
 
+# TODO: make executable, desktop app
+# TODO: a new listbox/table that stores all novels that have been added before, persistent store in text file or something
+# TODO: add new window/tab or something to store old novel data
+# FIXME: restructure files, main.py into new file, imported module by main_gui
+
 # Event loop
 while True:
     event, values = window.read()
@@ -81,6 +86,11 @@ while True:
             tuple_data = tuple(selected_data[0])
             novel_list.append(tuple_data)
             window["output_text"].update(f"Selected rows: {tuple_data}")
+    if event == "all_scraper_button":
+        # get the latest values of window table
+        table_values = window["table"].get()
+        novel_list = [tuple(row) for row in table_values]
+        window["output_text"].update(f"table_data:{novel_list}")
 
 
 # Close the window

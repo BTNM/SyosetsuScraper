@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.crawler import CrawlerProcess
 from multiprocessing import Process
-from src.scraper.items import NovelItem
+from scraper.items import NovelItem
 import time
 
 # run scrapy shell to test scrapy extract which content

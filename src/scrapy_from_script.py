@@ -1,6 +1,5 @@
-from src.scraper.spiders.syosetsu_spider import *
-from src.text_files_packing import *
-import src.text_files_packing as packing
+from scraper.spiders.syosetsu_spider import *
+import text_files_packing as packing
 import os
 
 
@@ -27,7 +26,7 @@ def novel_crawler(novels_urls: list):
         else:
             # remove the jl file after finished reading the jl file
             print("Remove jsonlines files")
-            # remove_jl_file(novel_name)
+            remove_jl_file(novel_name)
 
 
 def remove_jl_file(novel_name: str):
@@ -58,10 +57,10 @@ def output_chapter_range(range: int = 10):
     return range
 
 
+# print("gonna run main, name: ", __name__, type(__name__))
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     # Feed the novel name and url to spider and crawl the webpages
-
     novels_urls = [
         (
             "Ascendance of a Bookworm - Extra Story",
