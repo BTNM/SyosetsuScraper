@@ -1,9 +1,11 @@
-from scraper.spiders.syosetsu_spider import *
+from ..scraper.spiders.syosetsu_spider import *
 import text_files_packing as packing
 import os
 
 
 def novel_crawler(novels_urls: list):
+    check_illegal_char(novels_urls)
+
     # crawl the given syosetsu webpages
     run_multi_process_crawler(novels_urls)
 
@@ -50,6 +52,15 @@ def illegal_char_in_name(foldername):
             return char
 
 
+def check_illegal_char(novels_urls):
+    # check illegal character in novel name
+    for novel_name, url, output_range in novels_urls:
+        check = illegal_char_in_name(novel_name)
+        if check:
+            print(f"Illegal character in {novel_name}: {check}")
+            exit()
+
+
 def output_chapter_range(range: int = 10):
     """
     Returns the input range, which defaults to 10 if no argument is given
@@ -77,12 +88,5 @@ if __name__ == "__main__":
         # ("Reincarnated as a Sword", "https://ncode.syosetu.com/n6006cw/", output_chapter_range()),
         # ("Saving 80,000 Gold in an Another World for Retirement", "https://ncode.syosetu.com/n5529cy/", output_chapter_range()),
     ]
-
-    # check illegal character in novel name
-    for novel_name, url, output_range in novels_urls:
-        check = illegal_char_in_name(novel_name)
-        if check:
-            print(f"Illegal character in {novel_name}: {check}")
-            exit()
 
     novel_crawler(novels_urls)

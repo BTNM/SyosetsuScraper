@@ -1,43 +1,47 @@
 import PySimpleGUI as sg
+from src.scrapy_from_script import novel_crawler
+
+# import scrapy_from_script as script
+
+
+left_column = [
+    [
+        sg.Text("Enter novel name:", size=(20, 1)),
+        sg.Input(key="name", size=(20, 1)),
+    ],
+    [
+        sg.Text("Enter novel URL", size=(20, 1)),
+        sg.Input(key="url", size=(20, 1)),
+    ],
+    [
+        sg.Text("Enter novel Output Range", size=(20, 1)),
+        sg.Input(key="range", size=(20, 1)),
+    ],
+    [
+        sg.Button("Add", key="add_button"),
+        sg.Button("Delete", key="delete_button"),
+    ],
+]
+
+right_column = [
+    [
+        sg.Table(
+            values=[],
+            headings=["Name", "URL", "Range"],
+            key="table",
+            enable_events=True,
+            auto_size_columns=False,
+            right_click_menu=["", ["Delete"]],
+            col_widths=[10, 10, 10],
+        )
+    ],
+]
 
 # Define the layout for the GUI
 layout = [
     [
-        sg.Column(
-            [
-                [
-                    sg.Text("Enter novel name:", size=(20, 1)),
-                    sg.Input(key="name", size=(20, 1)),
-                ],
-                [
-                    sg.Text("Enter novel URL", size=(20, 1)),
-                    sg.Input(key="url", size=(20, 1)),
-                ],
-                [
-                    sg.Text("Enter novel Output Range", size=(20, 1)),
-                    sg.Input(key="range", size=(20, 1)),
-                ],
-                [
-                    sg.Button("Add", key="add_button"),
-                    sg.Button("Delete", key="delete_button"),
-                ],
-            ]
-        ),
-        sg.Column(
-            [
-                [
-                    sg.Table(
-                        values=[],
-                        headings=["Name", "URL", "Range"],
-                        key="table",
-                        enable_events=True,
-                        auto_size_columns=False,
-                        right_click_menu=["", ["Delete"]],
-                        col_widths=[10, 10, 10],
-                    )
-                ],
-            ]
-        ),
+        sg.Column(left_column),
+        sg.Column(right_column),
     ],
     [sg.HorizontalSeparator()],
     [
@@ -86,6 +90,7 @@ while True:
             tuple_data = tuple(selected_data[0])
             novel_list.append(tuple_data)
             window["output_text"].update(f"Selected rows: {tuple_data}")
+            novel_crawler(novel_list)
     if event == "all_scraper_button":
         # get the latest values of window table
         table_values = window["table"].get()
