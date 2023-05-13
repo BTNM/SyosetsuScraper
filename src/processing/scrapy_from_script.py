@@ -1,5 +1,5 @@
 from ..scraper.spiders.syosetsu_spider import *
-import text_files_packing as packing
+from .text_files_packing import *
 import os
 
 
@@ -17,7 +17,7 @@ def novel_crawler(novels_urls: list):
         )
         try:
             print("Run read jsonline file and output txt files")
-            packing.read_jsonlines_file(
+            read_jsonlines_file(
                 novel_jsonlines_path,
                 directory_output_path,
                 novel_name,
