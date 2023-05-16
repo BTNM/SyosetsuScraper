@@ -2,6 +2,8 @@ from src.processing.scrapy_from_script import *
 import PySimpleGUI as sg
 import threading
 import multiprocessing
+import queue
+import subprocess
 
 # import scrapy_from_script as script
 
@@ -64,34 +66,41 @@ layout = [
 ]
 
 
+# Create a queue for inter-thread communication
+# progress_queue = queue.Queue()
+# Create a queue for inter-process communication
+progress_queue = multiprocessing.Queue()
+# Create a queue for inter-process communication
+# progress_queue = queue.Queue()
+
 # Create the window
 window = sg.Window("Table Example", layout)
 
 
-# Define a function to run in the background
 def crawl_novels(novel_list):
-    # novel_crawler(novel_list)
-    run_multi_process_crawler(novel_list)
-
-
-# Define a function to run the scraping process in a new process
-def start_scraping_process(urls):
-    # Start the scraping process in a new thread
-    t = threading.Thread(target=crawl_novels, args=(novel_list,))
-    t.start()
     progress_layout = [
         [sg.Text("Scraping in progress...")],
-        [sg.ProgressBar(len(urls), orientation="h", size=(40, 20), key="progressbar")],
+        [
+            [sg.Text("Scraping syosetsu novel", key="output_text")],
+            [sg.Button("Close")],
+        ],
     ]
-    progress_window = sg.Window("Progress", progress_layout)
-    progress_bar = progress_window["progressbar"]
-    # Update the progress bar in the progress window while the scraper is running
-    while t.is_alive():
-        event, values = progress_window.read(timeout=5)
-        if event == sg.WIN_CLOSED:
+    progress_window = sg.Window("Scraping progress", progress_layout)
+
+    # run_multi_process_crawler(novel_list)
+    # Start the scraping process in a new thread
+    # t = threading.Thread(target=run_multi_process_crawler, args=(novel_list,))
+    # t.start()
+    run_multi_process_crawler(novel_list)
+
+    while True:
+        event, values = progress_window.read(timeout=100)
+        if event == sg.WINDOW_CLOSED or event == "Close":
             break
-        progress_bar.update(len(urls) - len(t._args[0]))
-    progress_window.close()
+
+
+def start_crawling(novel_list):
+    crawl_novels(novel_list)
 
 
 # Initialize the data list
@@ -106,7 +115,7 @@ novel_list = []
 
 # Event loop
 while True:
-    event, values = window.read()
+    event, values = window.read(timeout=1000)
     if event == sg.WINDOW_CLOSED or event == "Close":
         break
     if event == "add_button":
@@ -128,11 +137,9 @@ while True:
             novel_list.append(tuple_data)
             window["output_text"].update(f"Selected rows: {tuple_data}")
             # Create a thread to run the crawl_novels function in the background
-            # processing = multiprocessing.Process(
-            #     target=start_scraping_process, args=(novel_list,)
-            # )
-            # processing.start()
-            start_scraping_process(novel_list)
+            # crawl_novels(novel_list)
+            t = threading.Thread(target=start_crawling, args=(novel_list,))
+            t.start()
 
     if event == "all_scraper_button":
         # get the latest values of window table

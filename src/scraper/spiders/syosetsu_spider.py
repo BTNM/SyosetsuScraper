@@ -1,6 +1,7 @@
 import scrapy
 from scrapy.crawler import CrawlerProcess
 from multiprocessing import Process
+import threading
 
 # from scraper.items import NovelItem
 from ..items import NovelItem
@@ -172,6 +173,12 @@ def run_spider_crawl(novelname: str, url: str):
     process.start()
 
 
+def run_spider_crawl_thread(novelname, url):
+    t = threading.Thread(target=run_spider_crawl, args=(novelname, url))
+    t.start()
+    t.join()  # Wait for the thread to finish before proceeding
+
+
 def run_multi_process_crawler(novels_urls):
     """
     Runs multiple instances of the `run_spider_crawl` function, each in a separate process, to crawl data from
@@ -190,7 +197,10 @@ def run_multi_process_crawler(novels_urls):
     """
     for novelname, url, output_range in novels_urls:
         # creates a new crawlerprocess object for each spider and runs it in a seperate process with multiprocessing
-        multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
+        # multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
+        multiprocess = threading.Thread(
+            target=run_spider_crawl_thread, args=(novelname, url)
+        )
         # start spider process
         multiprocess.start()
         # called after starting each process to wait for it to finish before proceeding to the next iteration
