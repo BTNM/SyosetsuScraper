@@ -29,8 +29,8 @@ left_column_elements = [
 
 novels_urls = [
     ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
-    ["Another Novel", "https://example.com", 5],
-    ["Yet Another Novel", "https://example.com/another", 2],
+    ["Ascendance of a Bookworm - Extra2", "https://ncode.syosetu.com/n4750dy/", 5],
+    ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
 ]
 
 right_column_elements = [
@@ -99,8 +99,23 @@ def crawl_novels(novel_list):
             break
 
 
-def start_crawling(novel_list):
-    crawl_novels(novel_list)
+# def start_crawling(novel_list):
+#   crawl_novels(novel_list)
+testlayout = [[sg.Text("Hello, World!")], [sg.Button("Exit")]]
+
+
+def start_crawling2():
+    # Create and run the GUI
+    window = sg.Window("My GUI", layout)
+    while True:
+        event, values = window.read(timeout=100)
+        if event == sg.WINDOW_CLOSED or event == "Exit":
+            break
+    window.close()
+
+
+def start_single_crawling(novelname, url):
+    run_spider_crawl(novelname, url)
 
 
 # Initialize the data list
@@ -113,41 +128,59 @@ novel_list = []
 # TODO: add option to load novel_list with list of tuple with name, url, range directly
 # FIXME: restructure files, main.py into new file, imported module by main_gui
 
-# Event loop
-while True:
-    event, values = window.read(timeout=1000)
-    if event == sg.WINDOW_CLOSED or event == "Close":
-        break
-    if event == "add_button":
-        name = values["name"]
-        url = values["url"]
-        range_val = values["range"]
-        table_data.append([name, url, range_val])
-        window["table"].update(values=table_data)
-    if event == "delete_button":
-        selected_rows = window["table"].SelectedRows
-        if selected_rows:
-            del table_data[selected_rows[0]]
+if __name__ == "__main__":
+    # Event loop
+    while True:
+        event, values = window.read(timeout=1000)
+        if event == sg.WINDOW_CLOSED or event == "Close":
+            break
+        if event == "add_button":
+            name = values["name"]
+            url = values["url"]
+            range_val = values["range"]
+            table_data.append([name, url, range_val])
             window["table"].update(values=table_data)
-    if event == "selected_scraper_button":
-        selected_rows = window["table"].SelectedRows
-        if selected_rows:
-            selected_data = [table_data[i] for i in selected_rows]
-            tuple_data = tuple(selected_data[0])
-            novel_list.append(tuple_data)
-            window["output_text"].update(f"Selected rows: {tuple_data}")
-            # Create a thread to run the crawl_novels function in the background
-            # crawl_novels(novel_list)
-            t = threading.Thread(target=start_crawling, args=(novel_list,))
-            t.start()
+        if event == "delete_button":
+            selected_rows = window["table"].SelectedRows
+            if selected_rows:
+                del table_data[selected_rows[0]]
+                window["table"].update(values=table_data)
+        if event == "selected_scraper_button":
+            selected_rows = window["table"].SelectedRows
+            if selected_rows:
+                selected_data = [table_data[i] for i in selected_rows]
+                tuple_data = tuple(selected_data[0])
+                novel_list.append(tuple_data)
+                window["output_text"].update(f"Selected rows: {tuple_data}")
+                # Create a thread to run the crawl_novels function in the background
+                # crawl_novels(novel_list)
+                # t = threading.Thread(target=start_crawling, args=(novel_list,))
+                # t.start()
+                # start_crawling(novel_list)
 
-    if event == "all_scraper_button":
-        # get the latest values of window table
-        table_values = window["table"].get()
-        novel_list = [tuple(row) for row in table_values]
-        window["output_text"].update(f"table_data:{novel_list}")
-        # novel_crawler(novel_list)
+                # Create and run the spider in the main thread
+                novelname, url, range = tuple_data
+                # run_spider_crawl(novelname, url)
 
+                p = multiprocessing.Process(
+                    target=start_single_crawling, args=(novelname, url)
+                )
+                p.start()
+                # Optionally, you can wait for the process to finish before continuing
+                p.join()
 
-# Close the window
-window.close()
+                print("spider crawl finished")
+                # window["output_text"].update(f"Scrape novel {novelname} finished")
+
+                # Run the GUI in a separate thread
+                # gui_thread = threading.Thread(target=start_crawling)
+                # gui_thread.start()
+        if event == "all_scraper_button":
+            # get the latest values of window table
+            table_values = window["table"].get()
+            novel_list = [tuple(row) for row in table_values]
+            window["output_text"].update(f"table_data:{novel_list}")
+            # novel_crawler(novel_list)
+
+    # Close the window
+    window.close()
