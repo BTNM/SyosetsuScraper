@@ -1,11 +1,9 @@
+# from src.processing.scrapy_from_script import *
+import src.processing.scrapy_from_script as spider
+import src.processing.text_files_packing as packing
 from src.processing.scrapy_from_script import *
 import PySimpleGUI as sg
-import threading
 import multiprocessing
-import queue
-import subprocess
-
-# import scrapy_from_script as script
 
 
 left_column_elements = [
@@ -30,7 +28,7 @@ left_column_elements = [
 novels_urls = [
     ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
     ["Ascendance of a Bookworm - Extra2", "https://ncode.syosetu.com/n4750dy/", 5],
-    ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
+    # ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
 ]
 
 right_column_elements = [
@@ -43,7 +41,8 @@ right_column_elements = [
             enable_events=True,
             auto_size_columns=False,
             right_click_menu=["", ["Delete"]],
-            col_widths=[10, 10, 10],
+            justification="left",
+            col_widths=[30, 25, 10],
         )
     ],
 ]
@@ -66,13 +65,6 @@ layout = [
 ]
 
 
-# Create a queue for inter-thread communication
-# progress_queue = queue.Queue()
-# Create a queue for inter-process communication
-progress_queue = multiprocessing.Queue()
-# Create a queue for inter-process communication
-# progress_queue = queue.Queue()
-
 # Create the window
 window = sg.Window("Table Example", layout)
 
@@ -91,7 +83,7 @@ def crawl_novels(novel_list):
     # Start the scraping process in a new thread
     # t = threading.Thread(target=run_multi_process_crawler, args=(novel_list,))
     # t.start()
-    run_multi_process_crawler(novel_list)
+    spider.run_multi_process_crawler(novel_list)
 
     while True:
         event, values = progress_window.read(timeout=100)
@@ -114,8 +106,15 @@ def start_crawling2():
     window.close()
 
 
-def start_single_crawling(novelname, url):
-    run_spider_crawl(novelname, url)
+def run_multiprocess_crawl(novel_list):
+    for novelname, url, output_range in novel_list:
+        # signal only open on main thread, have to run on main
+        multiprocess = multiprocessing.Process(
+            target=spider.run_spider_crawl, args=(novelname, url)
+        )
+        multiprocess.start()
+        # Optionally, you can wait for the process to finish before continuing
+        multiprocess.join()
 
 
 # Initialize the data list
@@ -152,35 +151,24 @@ if __name__ == "__main__":
                 tuple_data = tuple(selected_data[0])
                 novel_list.append(tuple_data)
                 window["output_text"].update(f"Selected rows: {tuple_data}")
-                # Create a thread to run the crawl_novels function in the background
-                # crawl_novels(novel_list)
-                # t = threading.Thread(target=start_crawling, args=(novel_list,))
-                # t.start()
-                # start_crawling(novel_list)
+                # Create multiprocessing processes for each novel web scraping in the background
+                run_multiprocess_crawl(novel_list)
 
-                # Create and run the spider in the main thread
-                novelname, url, range = tuple_data
-                # run_spider_crawl(novelname, url)
-
-                p = multiprocessing.Process(
-                    target=start_single_crawling, args=(novelname, url)
+                text_output_files(novel_list)
+                window["output_text"].update(
+                    f"Web Scraping Novel: {selected_data[0][0]} Finished"
                 )
-                p.start()
-                # Optionally, you can wait for the process to finish before continuing
-                p.join()
-
-                print("spider crawl finished")
-                # window["output_text"].update(f"Scrape novel {novelname} finished")
-
-                # Run the GUI in a separate thread
-                # gui_thread = threading.Thread(target=start_crawling)
-                # gui_thread.start()
         if event == "all_scraper_button":
             # get the latest values of window table
             table_values = window["table"].get()
             novel_list = [tuple(row) for row in table_values]
             window["output_text"].update(f"table_data:{novel_list}")
-            # novel_crawler(novel_list)
+            # start_multi_crawling(novel_list)
+            run_multiprocess_crawl(novel_list)
+
+            text_output_files(novel_list)
+            # window["output_text"].update(f"Web Scrapeing novel: {novelname} finished")
+            print("web scraping all novels in table finished")
 
     # Close the window
     window.close()

@@ -31,6 +31,31 @@ def novel_crawler(novels_urls: list):
             remove_jl_file(novel_name)
 
 
+def text_output_files(novels_urls: list):
+    check_illegal_char(novels_urls)
+
+    directory_output_path = os.path.normpath("G:\LN Raw Text Files")
+    for novel_name, url, output_chapter_range in novels_urls:
+        # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
+        novel_jsonlines_path = os.path.normpath(
+            "G:\Visual Studio Code Projects\SyosetsuScraper\{}.jl".format(novel_name)
+        )
+        try:
+            print(f"Run read jsonline file {novel_name} and output txt files")
+            read_jsonlines_file(
+                novel_jsonlines_path,
+                directory_output_path,
+                novel_name,
+                output_chapter_range,
+            )
+        except:
+            print(f"Something went wrong with the {novel_name} read_jsonLines_file")
+        else:
+            # remove the jl file after finished reading the jl file
+            print(f"Remove jsonlines file {novel_name}")
+            remove_jl_file(novel_name)
+
+
 def remove_jl_file(novel_name: str):
     """
     Deletes a .jl file with the given name if it exists in the current directory.
