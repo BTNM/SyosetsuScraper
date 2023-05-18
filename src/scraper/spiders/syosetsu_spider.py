@@ -103,27 +103,6 @@ class SyosetsuSpider(scrapy.Spider):
                 meta={"novel_description": novel_description},
             )
 
-    def parse_test(self, response):
-        # get next page hreft
-        # response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
-
-        # main text content
-        response.xpath('//*[(@id = "novel_honbun")]').get()
-        response.xpath('//p[@class="chapter_title"]/text()').get()
-        # xpath to the novel main text content #response.xpath('//body/div[@id="container"]/div[@id="novel_contents"]/div[@id="novel_color"]/div[@id="novel_honbun"]/p')
-        first_chapter_number, last_chapter_number = (
-            response.xpath('//div[@id="novel_no"]/text()').get().split("/")
-        )
-        chapter_text = response.xpath(
-            '//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()'
-        ).getall()
-        # concat all the text into 1 string
-        chapter = "".join(
-            response.xpath(
-                '//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()'
-            ).getall()
-        )
-
 
 def run_spider_crawl(novelname: str, url: str):
     """
@@ -145,12 +124,6 @@ def run_spider_crawl(novelname: str, url: str):
     process.start()  # (stop_after_crawl=False)
 
 
-def run_spider_crawl_thread(novelname, url):
-    t = threading.Thread(target=run_spider_crawl, args=(novelname, url))
-    t.start()
-    t.join()  # Wait for the thread to finish before proceeding
-
-
 def run_multi_process_crawler(novels_urls):
     """
     Runs multiple instances of the `run_spider_crawl` function, each in a separate process, to crawl data from
@@ -170,7 +143,7 @@ def run_multi_process_crawler(novels_urls):
     for novelname, url, output_range in novels_urls:
         # creates a new crawlerprocess object for each spider and runs it in a seperate process with multiprocessing
         # multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
-        multiprocess = threading.Thread(target=run_spider_crawl, args=(novelname, url))
+        multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
         # start spider process
         multiprocess.start()
         # called after starting each process to wait for it to finish before proceeding to the next iteration

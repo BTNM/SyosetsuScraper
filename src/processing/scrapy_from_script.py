@@ -3,7 +3,7 @@ from .text_files_packing import *
 import os
 
 
-def novel_crawler(novels_urls: list):
+def novel_crawler_from_script(novels_urls: list):
     check_illegal_char(novels_urls)
 
     # crawl the given syosetsu webpages
@@ -114,4 +114,4 @@ if __name__ == "__main__":
         # ("Saving 80,000 Gold in an Another World for Retirement", "https://ncode.syosetu.com/n5529cy/", output_chapter_range()),
     ]
 
-    novel_crawler(novels_urls)
+    novel_crawler_from_script(novels_urls)

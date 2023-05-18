@@ -25,11 +25,13 @@ left_column_elements = [
     ],
 ]
 
+
 novels_urls = [
     ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
     ["Ascendance of a Bookworm - Extra2", "https://ncode.syosetu.com/n4750dy/", 5],
     # ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
 ]
+
 
 right_column_elements = [
     [
@@ -66,7 +68,7 @@ layout = [
 
 
 # Create the window
-window = sg.Window("Table Example", layout)
+window = sg.Window("Table Example", layout)  # , size=(1000, 300))
 
 
 def crawl_novels(novel_list):
@@ -91,22 +93,8 @@ def crawl_novels(novel_list):
             break
 
 
-# def start_crawling(novel_list):
-#   crawl_novels(novel_list)
-testlayout = [[sg.Text("Hello, World!")], [sg.Button("Exit")]]
-
-
-def start_crawling2():
-    # Create and run the GUI
-    window = sg.Window("My GUI", layout)
-    while True:
-        event, values = window.read(timeout=100)
-        if event == sg.WINDOW_CLOSED or event == "Exit":
-            break
-    window.close()
-
-
 def run_multiprocess_crawl(novel_list):
+    # run scrapy separate process for each crawl
     for novelname, url, output_range in novel_list:
         # signal only open on main thread, have to run on main
         multiprocess = multiprocessing.Process(
@@ -117,6 +105,8 @@ def run_multiprocess_crawl(novel_list):
         multiprocess.join()
 
 
+testlayout = [[sg.Text("Hello, World!")], [sg.Button("Exit")]]
+
 # Initialize the data list
 table_data = novels_urls.copy()
 novel_list = []
@@ -124,8 +114,7 @@ novel_list = []
 # TODO: make executable, desktop app
 # TODO: a new listbox/table that stores all novels that have been added before, persistent store in text file or something
 # TODO: add new window/tab or something to store old novel data
-# TODO: add option to load novel_list with list of tuple with name, url, range directly
-# FIXME: restructure files, main.py into new file, imported module by main_gui
+
 
 if __name__ == "__main__":
     # Event loop
