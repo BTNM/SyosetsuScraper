@@ -6,6 +6,13 @@ import PySimpleGUI as sg
 import multiprocessing
 
 
+test_novels = [
+    ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
+    ["Ascendance of a Bookworm - Extra2", "https://ncode.syosetu.com/n4750dy/", 5],
+    # ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
+]
+
+
 left_column_elements = [
     [
         sg.Text("Enter novel name:", size=(20, 1)),
@@ -25,18 +32,10 @@ left_column_elements = [
     ],
 ]
 
-
-novels_urls = [
-    ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
-    ["Ascendance of a Bookworm - Extra2", "https://ncode.syosetu.com/n4750dy/", 5],
-    # ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
-]
-
-
 right_column_elements = [
     [
         sg.Table(
-            values=novels_urls,
+            values=test_novels,
             headings=["Name", "URL", "Range"],
             key="table",
             select_mode="extended",
@@ -50,7 +49,7 @@ right_column_elements = [
 ]
 
 # Define the layout for the GUI
-layout = [
+scrape_layout = [
     [
         sg.Column(left_column_elements),
         sg.Column(right_column_elements),
@@ -63,12 +62,63 @@ layout = [
         sg.Button("Start All Syosetsu Scraper", key="all_scraper_button", pad=(10)),
     ],
     [sg.Text("", key="output_text")],
-    [sg.Button("Close")],
 ]
 
+historical_layout = [
+    [
+        sg.Table(
+            values=test_novels,
+            headings=["Name", "URL", "Range"],
+            key="history_table",
+            select_mode="extended",
+            enable_events=True,
+            auto_size_columns=False,
+            right_click_menu=["", ["Delete"]],
+            justification="left",
+            col_widths=[30, 25, 5],
+        ),
+        sg.Column(
+            [
+                [
+                    # add stretch before and after to center vertically
+                    sg.Stretch(),
+                    sg.Button("<-->", key="transfer_button"),
+                    sg.Stretch(),
+                ],
+                [
+                    sg.Stretch(),
+                    sg.Button("Delete", key="delete_button"),
+                    sg.Stretch(),
+                ],
+            ],
+            vertical_alignment="center",
+        ),
+        sg.Table(
+            values=test_novels,
+            headings=["Name", "URL", "Range"],
+            key="Scraped_table",
+            select_mode="extended",
+            enable_events=True,
+            auto_size_columns=False,
+            right_click_menu=["", ["Delete"]],
+            justification="left",
+            col_widths=[30, 25, 5],
+        ),
+    ],
+    [
+        sg.Button("Load", key="load_button"),
+    ],
+]
+
+tab1 = sg.Tab("Novel Scrape", scrape_layout)
+tab2 = sg.Tab("Novel History", historical_layout)
+layout_tab_group = [
+    [sg.TabGroup([[tab1, tab2]])],
+    [sg.Button("Exit", key="exit_button")],
+]
 
 # Create the window
-window = sg.Window("Table Example", layout)  # , size=(1000, 300))
+window = sg.Window("Scrape Tab Group", layout_tab_group, size=(1200, 600))
 
 
 def crawl_novels(novel_list):
@@ -105,10 +155,8 @@ def run_multiprocess_crawl(novel_list):
         multiprocess.join()
 
 
-testlayout = [[sg.Text("Hello, World!")], [sg.Button("Exit")]]
-
 # Initialize the data list
-table_data = novels_urls.copy()
+table_data = test_novels.copy()
 novel_list = []
 
 # TODO: make executable, desktop app
@@ -120,8 +168,9 @@ if __name__ == "__main__":
     # Event loop
     while True:
         event, values = window.read(timeout=1000)
-        if event == sg.WINDOW_CLOSED or event == "Close":
+        if event == sg.WINDOW_CLOSED or event == "exit_button":
             break
+
         if event == "add_button":
             name = values["name"]
             url = values["url"]

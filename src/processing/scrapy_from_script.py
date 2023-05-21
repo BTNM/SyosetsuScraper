@@ -97,7 +97,7 @@ def output_chapter_range(range: int = 10):
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     # Feed the novel name and url to spider and crawl the webpages
-    novels_urls = [
+    test_novels = [
         (
             "Ascendance of a Bookworm - Extra Story",
             "https://ncode.syosetu.com/n4750dy/",
@@ -114,4 +114,4 @@ if __name__ == "__main__":
         # ("Saving 80,000 Gold in an Another World for Retirement", "https://ncode.syosetu.com/n5529cy/", output_chapter_range()),
     ]
 
-    novel_crawler_from_script(novels_urls)
+    novel_crawler_from_script(test_novels)
