@@ -87,16 +87,17 @@ historical_layout = [
                 ],
                 [
                     sg.Stretch(),
-                    sg.Button("Delete", key="delete_button"),
+                    sg.Button("Delete", key="table_row_delete_btn"),
                     sg.Stretch(),
                 ],
+                [sg.Button("Deselect", key="deselect_btn")],
             ],
             vertical_alignment="center",
         ),
         sg.Table(
             values=test_novels,
             headings=["Name", "URL", "Range"],
-            key="Scraped_table",
+            key="scraped_table",
             select_mode="extended",
             enable_events=True,
             auto_size_columns=False,
@@ -113,7 +114,7 @@ historical_layout = [
 tab1 = sg.Tab("Novel Scrape", scrape_layout)
 tab2 = sg.Tab("Novel History", historical_layout)
 layout_tab_group = [
-    [sg.TabGroup([[tab1, tab2]])],
+    [sg.TabGroup([[tab1, tab2]], key="tab_group")],
     [sg.Button("Exit", key="exit_button")],
 ]
 
@@ -155,8 +156,26 @@ def run_multiprocess_crawl(novel_list):
         multiprocess.join()
 
 
+def handle_delete_button_event(values):
+    if values["history_table"]:
+        del history_table_data[values["history_table"][0]]
+        window["history_table"].update(values=history_table_data)
+    elif values["scraped_table"]:
+        del scraped_table_data[values["scraped_table"][0]]
+        window["scraped_table"].update(values=scraped_table_data)
+
+
+def handle_deselect_button_event(values):
+    if values["history_table"]:
+        window["history_table"].update(select_rows=[])
+    elif values["scraped_table"]:
+        window["scraped_table"].update(select_rows=[])
+
+
 # Initialize the data list
 table_data = test_novels.copy()
+history_table_data = test_novels.copy()
+scraped_table_data = test_novels.copy()
 novel_list = []
 
 # TODO: make executable, desktop app
@@ -171,6 +190,7 @@ if __name__ == "__main__":
         if event == sg.WINDOW_CLOSED or event == "exit_button":
             break
 
+        # Handle events from the "Novel Scrape" tab
         if event == "add_button":
             name = values["name"]
             url = values["url"]
@@ -207,6 +227,11 @@ if __name__ == "__main__":
             text_output_files(novel_list)
             # window["output_text"].update(f"Web Scrapeing novel: {novelname} finished")
             print("web scraping all novels in table finished")
+        # Handle events from the "Novel History" tab
+        if event == "table_row_delete_btn":
+            handle_delete_button_event(values)
+        if event == "deselect_btn":
+            handle_deselect_button_event(values)
 
     # Close the window
     window.close()
