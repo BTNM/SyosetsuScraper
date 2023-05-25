@@ -119,7 +119,7 @@ layout_tab_group = [
 ]
 
 # Create the window
-window = sg.Window("Scrape Tab Group", layout_tab_group, size=(1200, 600))
+window = sg.Window("Scrape Tab Group", layout_tab_group)  # , size=(1200, 700))
 
 
 def crawl_novels(novel_list):
@@ -172,8 +172,26 @@ def handle_deselect_button_event(values):
         window["scraped_table"].update(select_rows=[])
 
 
+def transfer_rows(window, source_table_key, destination_table_key):
+    source_table = window[source_table_key]
+    destination_table = window[destination_table_key]
+
+    selected_rows = source_table.SelectedRows  # Get the selected row indexes
+
+    if selected_rows:
+        source_data = source_table.Get()
+        destination_data = destination_table.Get()
+
+        for row in selected_rows:
+            selected_row_data = source_data[row]
+            if selected_row_data not in destination_data:
+                destination_data.append(selected_row_data)
+
+        destination_table.Update(destination_data)
+
+
 # Initialize the data list
-table_data = test_novels.copy()
+input_table_data = test_novels.copy()
 history_table_data = test_novels.copy()
 scraped_table_data = test_novels.copy()
 novel_list = []
@@ -195,17 +213,20 @@ if __name__ == "__main__":
             name = values["name"]
             url = values["url"]
             range_val = values["range"]
-            table_data.append([name, url, range_val])
-            window["table"].update(values=table_data)
+            input_table_data.append([name, url, range_val])
+            window["table"].update(values=input_table_data)
+            # add to history table as well
+            history_table_data.append([name, url, range_val])
+            window["history_table"].update(values=history_table_data)
         if event == "delete_button":
             selected_rows = window["table"].SelectedRows
             if selected_rows:
-                del table_data[selected_rows[0]]
-                window["table"].update(values=table_data)
+                del input_table_data[selected_rows[0]]
+                window["table"].update(values=input_table_data)
         if event == "selected_scraper_button":
             selected_rows = window["table"].SelectedRows
             if selected_rows:
-                selected_data = [table_data[i] for i in selected_rows]
+                selected_data = [input_table_data[i] for i in selected_rows]
                 tuple_data = tuple(selected_data[0])
                 novel_list.append(tuple_data)
                 window["output_text"].update(f"Selected rows: {tuple_data}")
@@ -232,6 +253,15 @@ if __name__ == "__main__":
             handle_delete_button_event(values)
         if event == "deselect_btn":
             handle_deselect_button_event(values)
+        if event == "transfer_button":
+            # transfer_rows(window, "history_table", "scraped_table")
+            selected_rows = window["history_table"].SelectedRows
+            if selected_rows:
+                selected_row = [input_table_data[i] for i in selected_rows]
+                selected_data = selected_row[0]
+                if selected_data not in scraped_table_data:
+                    scraped_table_data.append(selected_data)
+                    window["scraped_table"].update(values=scraped_table_data)
 
     # Close the window
     window.close()
