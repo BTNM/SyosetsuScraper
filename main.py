@@ -52,6 +52,7 @@ right_column_elements = [
 scrape_layout = [
     [
         sg.Column(left_column_elements),
+        sg.Stretch(),
         sg.Column(right_column_elements),
     ],
     [sg.HorizontalSeparator()],
@@ -82,12 +83,22 @@ historical_layout = [
                 [
                     # add stretch before and after to center vertically
                     sg.Stretch(),
-                    sg.Button("<-->", key="transfer_button"),
+                    sg.Button("-->", key="transfer_btn"),
                     sg.Stretch(),
                 ],
                 [
                     sg.Stretch(),
                     sg.Button("Delete", key="table_row_delete_btn"),
+                    sg.Stretch(),
+                ],
+                [
+                    sg.Stretch(),
+                    sg.Button("↑", key="up_arrow_btn"),
+                    sg.Stretch(),
+                ],
+                [
+                    sg.Stretch(),
+                    sg.Button("↓", key="down_arrow_btn"),
                     sg.Stretch(),
                 ],
                 [sg.Button("Deselect", key="deselect_btn")],
@@ -173,21 +184,48 @@ def handle_deselect_button_event(values):
 
 
 def transfer_rows(window, source_table_key, destination_table_key):
-    source_table = window[source_table_key]
-    destination_table = window[destination_table_key]
-
-    selected_rows = source_table.SelectedRows  # Get the selected row indexes
-
+    selected_rows = window[source_table_key].SelectedRows
     if selected_rows:
-        source_data = source_table.Get()
-        destination_data = destination_table.Get()
+        selected_row = [input_table_data[index] for index in selected_rows]
+        selected_data = selected_row[0]
+        if selected_data not in scraped_table_data:
+            scraped_table_data.append(selected_data)
+            window[destination_table_key].update(values=scraped_table_data)
+
+
+def move_rows_up(table):
+    selected_rows = table.SelectedRows  # Get the selected row indexes
+    print("selected_rows: ", selected_rows)
+    if selected_rows:
+        table_data = table.Get()
+        print("data: ", table_data)
 
         for row in selected_rows:
-            selected_row_data = source_data[row]
-            if selected_row_data not in destination_data:
-                destination_data.append(selected_row_data)
+            if row > 0:
+                # Swap the selected row with the row above it
+                table_data[row], table_data[row - 1] = (
+                    table_data[row - 1],
+                    table_data[row],
+                )
 
-        destination_table.Update(destination_data)
+        table.Update(values=table_data)  # Update the table with the modified data
+
+
+def move_rows_down(table):
+    selected_rows = table.SelectedRows  # Get the selected row indexes
+
+    if selected_rows:
+        table_data = table.Get()
+
+        for row in reversed(selected_rows):
+            if row < len(table_data) - 1:
+                # Swap the selected row with the row below it
+                table_data[row], table_data[row + 1] = (
+                    table_data[row + 1],
+                    table_data[row],
+                )
+
+        table.Update(values=table_data)  # Update the table with the modified data
 
 
 # Initialize the data list
@@ -253,7 +291,11 @@ if __name__ == "__main__":
             handle_delete_button_event(values)
         if event == "deselect_btn":
             handle_deselect_button_event(values)
-        if event == "transfer_button":
+        if event == "up_arrow_btn":
+            move_rows_up(window["scraped_table"])
+        if event == "down_arrow_btn":
+            move_rows_down(window["scraped_table"])
+        if event == "transfer_btn":
             # transfer_rows(window, "history_table", "scraped_table")
             selected_rows = window["history_table"].SelectedRows
             if selected_rows:
