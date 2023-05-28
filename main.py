@@ -37,7 +37,7 @@ right_column_elements = [
         sg.Table(
             values=test_novels,
             headings=["Name", "URL", "Range"],
-            key="table",
+            key="input_table",
             select_mode="extended",
             enable_events=True,
             auto_size_columns=False,
@@ -63,6 +63,7 @@ scrape_layout = [
         sg.Button("Start All Syosetsu Scraper", key="all_scraper_button", pad=(10)),
     ],
     [sg.Text("", key="output_text")],
+    [sg.Multiline("Multiline\n", size=(80, 10), key="ouput_terminal")],
 ]
 
 historical_layout = [
@@ -186,20 +187,17 @@ def handle_deselect_button_event(values):
 def transfer_rows(window, source_table_key, destination_table_key):
     selected_rows = window[source_table_key].SelectedRows
     if selected_rows:
-        selected_row = [input_table_data[index] for index in selected_rows]
+        selected_row = [history_table_data[index] for index in selected_rows]
         selected_data = selected_row[0]
         if selected_data not in scraped_table_data:
             scraped_table_data.append(selected_data)
             window[destination_table_key].update(values=scraped_table_data)
 
 
-def move_rows_up(table):
-    selected_rows = table.SelectedRows  # Get the selected row indexes
-    print("selected_rows: ", selected_rows)
+def move_rows_up(window_table):
+    selected_rows = window_table.SelectedRows  # Get the selected row indexes
     if selected_rows:
-        table_data = table.Get()
-        print("data: ", table_data)
-
+        table_data = window_table.Get()
         for row in selected_rows:
             if row > 0:
                 # Swap the selected row with the row above it
@@ -208,15 +206,15 @@ def move_rows_up(table):
                     table_data[row],
                 )
 
-        table.Update(values=table_data)  # Update the table with the modified data
+        window_table.Update(
+            values=table_data
+        )  # Update the table with the modified data
 
 
-def move_rows_down(table):
-    selected_rows = table.SelectedRows  # Get the selected row indexes
-
+def move_rows_down(window_table):
+    selected_rows = window_table.SelectedRows  # Get the selected row indexes
     if selected_rows:
-        table_data = table.Get()
-
+        table_data = window_table.Get()
         for row in reversed(selected_rows):
             if row < len(table_data) - 1:
                 # Swap the selected row with the row below it
@@ -225,18 +223,19 @@ def move_rows_down(table):
                     table_data[row],
                 )
 
-        table.Update(values=table_data)  # Update the table with the modified data
+        window_table.Update(
+            values=table_data
+        )  # Update the table with the modified data
 
 
 # Initialize the data list
-input_table_data = test_novels.copy()
 history_table_data = test_novels.copy()
 scraped_table_data = test_novels.copy()
 novel_list = []
 
 # TODO: make executable, desktop app
 # TODO: a new listbox/table that stores all novels that have been added before, persistent store in text file or something
-# TODO: add new window/tab or something to store old novel data
+# TODO: add a output/multiline for print and outputs, add scrapy info_log
 
 
 if __name__ == "__main__":
@@ -251,20 +250,18 @@ if __name__ == "__main__":
             name = values["name"]
             url = values["url"]
             range_val = values["range"]
-            input_table_data.append([name, url, range_val])
-            window["table"].update(values=input_table_data)
-            # add to history table as well
             history_table_data.append([name, url, range_val])
+            window["input_table"].update(values=history_table_data)
             window["history_table"].update(values=history_table_data)
         if event == "delete_button":
-            selected_rows = window["table"].SelectedRows
+            selected_rows = window["input_table"].SelectedRows
             if selected_rows:
-                del input_table_data[selected_rows[0]]
-                window["table"].update(values=input_table_data)
+                del history_table_data[selected_rows[0]]
+                window["input_table"].update(values=history_table_data)
         if event == "selected_scraper_button":
-            selected_rows = window["table"].SelectedRows
+            selected_rows = window["input_table"].SelectedRows
             if selected_rows:
-                selected_data = [input_table_data[i] for i in selected_rows]
+                selected_data = [history_table_data[i] for i in selected_rows]
                 tuple_data = tuple(selected_data[0])
                 novel_list.append(tuple_data)
                 window["output_text"].update(f"Selected rows: {tuple_data}")
@@ -277,7 +274,7 @@ if __name__ == "__main__":
                 )
         if event == "all_scraper_button":
             # get the latest values of window table
-            table_values = window["table"].get()
+            table_values = window["input_table"].get()
             novel_list = [tuple(row) for row in table_values]
             window["output_text"].update(f"table_data:{novel_list}")
             # start_multi_crawling(novel_list)
@@ -292,14 +289,20 @@ if __name__ == "__main__":
         if event == "deselect_btn":
             handle_deselect_button_event(values)
         if event == "up_arrow_btn":
-            move_rows_up(window["scraped_table"])
+            if values["history_table"]:
+                move_rows_up(window["history_table"])
+            elif values["scraped_table"]:
+                move_rows_up(window["scraped_table"])
         if event == "down_arrow_btn":
-            move_rows_down(window["scraped_table"])
+            if values["history_table"]:
+                move_rows_down(window["history_table"])
+            elif values["scraped_table"]:
+                move_rows_down(window["scraped_table"])
         if event == "transfer_btn":
             # transfer_rows(window, "history_table", "scraped_table")
             selected_rows = window["history_table"].SelectedRows
             if selected_rows:
-                selected_row = [input_table_data[i] for i in selected_rows]
+                selected_row = [history_table_data[i] for i in selected_rows]
                 selected_data = selected_row[0]
                 if selected_data not in scraped_table_data:
                     scraped_table_data.append(selected_data)
