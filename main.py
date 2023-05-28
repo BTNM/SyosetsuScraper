@@ -1,7 +1,5 @@
-# from src.processing.scrapy_from_script import *
-import src.processing.scrapy_from_script as spider
 import src.processing.text_files_packing as packing
-from src.processing.scrapy_from_script import *
+import src.processing.scrapy_from_script as spider
 import PySimpleGUI as sg
 import multiprocessing
 
@@ -268,7 +266,7 @@ if __name__ == "__main__":
                 # Create multiprocessing processes for each novel web scraping in the background
                 run_multiprocess_crawl(novel_list)
 
-                text_output_files(novel_list)
+                spider.text_output_files(novel_list)
                 window["output_text"].update(
                     f"Web Scraping Novel: {selected_data[0][0]} Finished"
                 )
@@ -280,7 +278,7 @@ if __name__ == "__main__":
             # start_multi_crawling(novel_list)
             run_multiprocess_crawl(novel_list)
 
-            text_output_files(novel_list)
+            spider.text_output_files(novel_list)
             # window["output_text"].update(f"Web Scrapeing novel: {novelname} finished")
             print("web scraping all novels in table finished")
         # Handle events from the "Novel History" tab
