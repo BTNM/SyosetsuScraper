@@ -2,6 +2,7 @@ import src.processing.text_files_packing as packing
 import src.processing.scrapy_from_script as spider
 import PySimpleGUI as sg
 import multiprocessing
+import os
 
 
 test_novels = [
@@ -117,8 +118,14 @@ historical_layout = [
         ),
     ],
     [
-        sg.Button("Load", key="load_button"),
+        sg.Button("Load History Table", key="load_history_btn"),
+        sg.Button("Export History Table", key="export_history_btn"),
+        sg.Stretch(),
+        sg.Button("Load Scraped Table", key="load_scraped_btn"),
+        sg.Button("Export Scraped Table", key="export_scraped_btn"),
     ],
+    [sg.HorizontalSeparator(pad=(10, 10, 10, 10))],
+    [sg.Text("", key="tab2_output_text")],
 ]
 
 tab1 = sg.Tab("Novel Scrape", scrape_layout)
@@ -130,28 +137,6 @@ layout_tab_group = [
 
 # Create the window
 window = sg.Window("Scrape Tab Group", layout_tab_group)  # , size=(1200, 700))
-
-
-def crawl_novels(novel_list):
-    progress_layout = [
-        [sg.Text("Scraping in progress...")],
-        [
-            [sg.Text("Scraping syosetsu novel", key="output_text")],
-            [sg.Button("Close")],
-        ],
-    ]
-    progress_window = sg.Window("Scraping progress", progress_layout)
-
-    # run_multi_process_crawler(novel_list)
-    # Start the scraping process in a new thread
-    # t = threading.Thread(target=run_multi_process_crawler, args=(novel_list,))
-    # t.start()
-    spider.run_multi_process_crawler(novel_list)
-
-    while True:
-        event, values = progress_window.read(timeout=100)
-        if event == sg.WINDOW_CLOSED or event == "Close":
-            break
 
 
 def run_multiprocess_crawl(novel_list):
@@ -226,6 +211,23 @@ def move_rows_down(window_table):
         )  # Update the table with the modified data
 
 
+def export_table(table: list, tablename):
+    file_path = os.path.normpath(
+        "G:\Visual Studio Code Projects\SyosetsuScraper\{}.txt".format(tablename)
+    )
+
+    # opens the file for writing with utf-8 encoding and writes table list
+    # with open(file_path, "w", encoding="utf-8") as text_file:
+    #   text_file.write(table)
+    # Convert the table to a formatted string
+    # table_string = "\n".join([", ".join(map(str, row)) for row in table])
+    table_string = "\n".join(["[{}]".format(", ".join(map(str, row))) for row in table])
+
+    # Open the file for writing with utf-8 encoding and write the table as text to the file
+    with open(file_path, "w", encoding="utf-8") as text_file:
+        text_file.write(table_string)
+
+
 # Initialize the data list
 history_table_data = test_novels.copy()
 scraped_table_data = test_novels.copy()
@@ -296,6 +298,16 @@ if __name__ == "__main__":
                 move_rows_down(window["history_table"])
             elif values["scraped_table"]:
                 move_rows_down(window["scraped_table"])
+        if event == "export_history_btn":
+            table_values = window["history_table"].get()
+            novel_list = [row for row in table_values]
+            window["tab2_output_text"].update(f"table_data:{novel_list}")
+            export_table(novel_list, "history_table")
+        if event == "export_scraped_btn":
+            table_values = window["scraped_table"].get()
+            novel_list = [row for row in table_values]
+            window["tab2_output_text"].update(f"table_data:{novel_list}")
+            export_table(novel_list, "scraped_table")
         if event == "transfer_btn":
             # transfer_rows(window, "history_table", "scraped_table")
             selected_rows = window["history_table"].SelectedRows
