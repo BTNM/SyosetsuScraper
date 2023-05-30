@@ -342,11 +342,13 @@ if __name__ == "__main__":
         if event == "load_history_btn":
             file_path = values["history_filepath"]
             table_data = load_table(file_path)
+            history_table_data = table_data
             window["history_table"].update(values=table_data)
             window["tab2_output_text"].update(f"Selected file:{table_data}")
-        if event == "scraped_history_btn":
+        if event == "load_scraped_btn":
             file_path = values["scraped_filepath"]
             table_data = load_table(file_path)
+            scraped_table_data = table_data
             window["scraped_table"].update(values=table_data)
             window["tab2_output_text"].update(f"Selected file:{table_data}")
         if event == "transfer_btn":
