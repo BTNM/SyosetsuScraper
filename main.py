@@ -3,6 +3,7 @@ import src.processing.scrapy_from_script as spider
 import PySimpleGUI as sg
 import multiprocessing
 import os
+import csv
 
 
 test_novels = [
@@ -119,9 +120,13 @@ historical_layout = [
     ],
     [
         sg.Button("Load History Table", key="load_history_btn"),
+        sg.Input(key="history_filepath", size=(30, 1)),
+        sg.FileBrowse(),
         sg.Button("Export History Table", key="export_history_btn"),
         sg.Stretch(),
         sg.Button("Load Scraped Table", key="load_scraped_btn"),
+        sg.Input(key="scraped_filepath", size=(30, 1)),
+        sg.FileBrowse(),
         sg.Button("Export Scraped Table", key="export_scraped_btn"),
     ],
     [sg.HorizontalSeparator(pad=(10, 10, 10, 10))],
@@ -211,21 +216,47 @@ def move_rows_down(window_table):
         )  # Update the table with the modified data
 
 
+def load_table(filepath):
+    """
+    Read a CSV file at the given file path and return its data as a list of lists, excluding the header.
+    Args:
+        filepath (str): The path of the CSV file to be read.
+    Returns:
+        list: The list of lists containing the CSV data, excluding the header.
+    """
+    data = []
+    try:
+        with open(filepath, "r", encoding="utf-8") as file:
+            csv_reader = csv.reader(file)
+            headers = next(csv_reader)  # Skip the header
+            for row in csv_reader:
+                data.append(row)
+        return data
+    except FileNotFoundError:
+        print("File not found: {}".format(filepath))
+        return []
+
+
 def export_table(table: list, tablename):
-    file_path = os.path.normpath(
-        "G:\Visual Studio Code Projects\SyosetsuScraper\{}.txt".format(tablename)
+    """
+    Save the content of the table to a CSV file in the specified directory path.
+    Args:
+        table (list): The list of lists representing the table data.
+        tablename (str): The name of the CSV file.
+    """
+    file_path = "G:\Visual Studio Code Projects\SyosetsuScraper\{}.csv".format(
+        tablename
     )
+    header = [["Name", "URL", "Range"]]
 
-    # opens the file for writing with utf-8 encoding and writes table list
-    # with open(file_path, "w", encoding="utf-8") as text_file:
-    #   text_file.write(table)
-    # Convert the table to a formatted string
-    # table_string = "\n".join([", ".join(map(str, row)) for row in table])
-    table_string = "\n".join(["[{}]".format(", ".join(map(str, row))) for row in table])
-
-    # Open the file for writing with utf-8 encoding and write the table as text to the file
-    with open(file_path, "w", encoding="utf-8") as text_file:
-        text_file.write(table_string)
+    try:
+        with open(file_path, mode="w", newline="", encoding="utf-8") as csv_file:
+            # csv_writer = csv.writer(csv_file, quotechar='"', quoting=csv.QUOTE_ALL)
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerows(header)
+            csv_writer.writerows(table)
+    except IOError:
+        print("Error writing to CSV file: {}".format(file_path))
 
 
 # Initialize the data list
@@ -308,6 +339,16 @@ if __name__ == "__main__":
             novel_list = [row for row in table_values]
             window["tab2_output_text"].update(f"table_data:{novel_list}")
             export_table(novel_list, "scraped_table")
+        if event == "load_history_btn":
+            file_path = values["history_filepath"]
+            table_data = load_table(file_path)
+            window["history_table"].update(values=table_data)
+            window["tab2_output_text"].update(f"Selected file:{table_data}")
+        if event == "scraped_history_btn":
+            file_path = values["scraped_filepath"]
+            table_data = load_table(file_path)
+            window["scraped_table"].update(values=table_data)
+            window["tab2_output_text"].update(f"Selected file:{table_data}")
         if event == "transfer_btn":
             # transfer_rows(window, "history_table", "scraped_table")
             selected_rows = window["history_table"].SelectedRows
