@@ -2,15 +2,64 @@ import src.processing.text_files_packing as packing
 import src.processing.scrapy_from_script as spider
 import PySimpleGUI as sg
 import multiprocessing
-import os
 import csv
 
 
-test_novels = [
-    ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
-    ["Ascendance of a Bookworm - Extra2", "https://ncode.syosetu.com/n4750dy/", 5],
-    # ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
-]
+# test_novels = [
+#     ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
+#     ["Ascendance of a Bookworm - Extra2", "https://ncode.syosetu.com/n4750dy/", 5],
+#     # ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
+# ]
+
+
+def load_table(filepath):
+    """
+    Read a CSV file at the given file path and return its data as a list of lists, excluding the header.
+    Args:
+        filepath (str): The path of the CSV file to be read.
+    Returns:
+        list: The list of lists containing the CSV data, excluding the header.
+    """
+    data = []
+    try:
+        with open(filepath, "r", encoding="utf-8") as file:
+            csv_reader = csv.reader(file)
+            headers = next(csv_reader)  # Skip the header
+            for row in csv_reader:
+                data.append(row)
+        return data
+    except FileNotFoundError:
+        print("File not found: {}".format(filepath))
+        return []
+
+
+def export_table(table: list, tablename):
+    """
+    Save the content of the table to a CSV file in the specified directory path.
+    Args:
+        table (list): The list of lists representing the table data.
+        tablename (str): The name of the CSV file.
+    """
+    file_path = "G:\Visual Studio Code Projects\SyosetsuScraper\{}.csv".format(
+        tablename
+    )
+    header = [["Name", "URL", "Range"]]
+
+    try:
+        with open(file_path, mode="w", newline="", encoding="utf-8") as csv_file:
+            # csv_writer = csv.writer(csv_file, quotechar='"', quoting=csv.QUOTE_ALL)
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerows(header)
+            csv_writer.writerows(table)
+    except IOError:
+        print("Error writing to CSV file: {}".format(file_path))
+
+
+# load data from storage file for persistent data
+history_table_path = "G:/Visual Studio Code Projects/SyosetsuScraper/history_table.csv"
+scraped_table_path = "G:/Visual Studio Code Projects/SyosetsuScraper/scraped_table.csv"
+history_table_load_data = load_table(history_table_path)
+scraped_table_load_data = load_table(scraped_table_path)
 
 
 left_column_elements = [
@@ -35,7 +84,7 @@ left_column_elements = [
 right_column_elements = [
     [
         sg.Table(
-            values=test_novels,
+            values=history_table_load_data,
             headings=["Name", "URL", "Range"],
             key="input_table",
             select_mode="extended",
@@ -69,7 +118,7 @@ scrape_layout = [
 historical_layout = [
     [
         sg.Table(
-            values=test_novels,
+            values=history_table_load_data,
             headings=["Name", "URL", "Range"],
             key="history_table",
             select_mode="extended",
@@ -107,7 +156,7 @@ historical_layout = [
             vertical_alignment="center",
         ),
         sg.Table(
-            values=test_novels,
+            values=scraped_table_load_data,
             headings=["Name", "URL", "Range"],
             key="scraped_table",
             select_mode="extended",
@@ -216,52 +265,9 @@ def move_rows_down(window_table):
         )  # Update the table with the modified data
 
 
-def load_table(filepath):
-    """
-    Read a CSV file at the given file path and return its data as a list of lists, excluding the header.
-    Args:
-        filepath (str): The path of the CSV file to be read.
-    Returns:
-        list: The list of lists containing the CSV data, excluding the header.
-    """
-    data = []
-    try:
-        with open(filepath, "r", encoding="utf-8") as file:
-            csv_reader = csv.reader(file)
-            headers = next(csv_reader)  # Skip the header
-            for row in csv_reader:
-                data.append(row)
-        return data
-    except FileNotFoundError:
-        print("File not found: {}".format(filepath))
-        return []
-
-
-def export_table(table: list, tablename):
-    """
-    Save the content of the table to a CSV file in the specified directory path.
-    Args:
-        table (list): The list of lists representing the table data.
-        tablename (str): The name of the CSV file.
-    """
-    file_path = "G:\Visual Studio Code Projects\SyosetsuScraper\{}.csv".format(
-        tablename
-    )
-    header = [["Name", "URL", "Range"]]
-
-    try:
-        with open(file_path, mode="w", newline="", encoding="utf-8") as csv_file:
-            # csv_writer = csv.writer(csv_file, quotechar='"', quoting=csv.QUOTE_ALL)
-            csv_writer = csv.writer(csv_file)
-            csv_writer.writerows(header)
-            csv_writer.writerows(table)
-    except IOError:
-        print("Error writing to CSV file: {}".format(file_path))
-
-
-# Initialize the data list
-history_table_data = test_novels.copy()
-scraped_table_data = test_novels.copy()
+# Initialize the data list and table data from storage
+history_table_data = history_table_load_data
+scraped_table_data = scraped_table_load_data
 novel_list = []
 
 # TODO: make executable, desktop app
@@ -275,7 +281,6 @@ if __name__ == "__main__":
         event, values = window.read(timeout=1000)
         if event == sg.WINDOW_CLOSED or event == "exit_button":
             break
-
         # Handle events from the "Novel Scrape" tab
         if event == "add_button":
             name = values["name"]
