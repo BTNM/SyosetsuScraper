@@ -1,11 +1,9 @@
 import scrapy
 from scrapy.crawler import CrawlerProcess
+from scrapy.utils.log import configure_logging
 from multiprocessing import Process
-import threading
-
-# from scraper.items import NovelItem
 from ..items import NovelItem
-import time
+import logging
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'

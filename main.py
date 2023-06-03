@@ -1,5 +1,5 @@
-import src.processing.text_files_packing as packing
-import src.processing.scrapy_from_script as spider
+import src.processing.scrapy_from_script as sfs
+import src.scraper.spiders.syosetsu_spider as spider
 import PySimpleGUI as sg
 import multiprocessing
 import csv
@@ -112,7 +112,15 @@ scrape_layout = [
         sg.Button("Start All Syosetsu Scraper", key="all_scraper_button", pad=(10)),
     ],
     [sg.Text("", key="output_text")],
-    [sg.Multiline("Multiline\n", size=(80, 10), key="ouput_terminal")],
+    [
+        sg.Multiline(
+            "",
+            size=(80, 10),
+            key="output_terminal",
+            reroute_stdout=True,
+            reroute_cprint=True,
+        )
+    ],
 ]
 
 historical_layout = [
@@ -208,6 +216,7 @@ def run_multiprocess_crawl(novel_list):
 def handle_delete_button_event(values):
     if values["history_table"]:
         del history_table_data[values["history_table"][0]]
+        window["input_table"].update(values=history_table_data)
         window["history_table"].update(values=history_table_data)
     elif values["scraped_table"]:
         del scraped_table_data[values["scraped_table"][0]]
@@ -285,7 +294,20 @@ if __name__ == "__main__":
         if event == "add_button":
             name = values["name"]
             url = values["url"]
+            if not url.startswith("https://ncode.syosetu.com/"):
+                window["output_terminal"].write(
+                    f"Only novels from syosetsu starting with 'https://ncode.syosetu.com/' allowed in URL field, Invalid URL: {url}\n"
+                )
+                window["url"].update("")
+                continue
             range_val = values["range"]
+            if not range_val.isdigit():
+                window["output_terminal"].write(
+                    f"Only digits allowed in range field, Invalid Range: {range_val}\n"
+                )
+                window["range"].update("")
+                continue
+
             history_table_data.append([name, url, range_val])
             window["input_table"].update(values=history_table_data)
             window["history_table"].update(values=history_table_data)
@@ -294,6 +316,7 @@ if __name__ == "__main__":
             if selected_rows:
                 del history_table_data[selected_rows[0]]
                 window["input_table"].update(values=history_table_data)
+                window["history_table"].update(values=history_table_data)
         if event == "selected_scraper_button":
             selected_rows = window["input_table"].SelectedRows
             if selected_rows:
@@ -304,11 +327,8 @@ if __name__ == "__main__":
                 # Create multiprocessing processes for each novel web scraping in the background
                 run_multiprocess_crawl(novel_list)
 
-                spider.text_output_files(novel_list)
-                window["ouput_terminal"].write(
-                    f"Web Scraping Novel: {selected_data[0][0]} Finished"
-                )
-                window["output_text"].update(
+                sfs.text_output_files(novel_list)
+                window["output_terminal"].write(
                     f"Web Scraping Novel: {selected_data[0][0]} Finished"
                 )
         if event == "all_scraper_button":
@@ -319,7 +339,7 @@ if __name__ == "__main__":
             # start_multi_crawling(novel_list)
             run_multiprocess_crawl(novel_list)
 
-            spider.text_output_files(novel_list)
+            sfs.text_output_files(novel_list)
             # window["output_text"].update(f"Web Scrapeing novel: {novelname} finished")
             print("web scraping all novels in table finished")
         # Handle events from the "Novel History" tab
