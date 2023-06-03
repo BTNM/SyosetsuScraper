@@ -24,6 +24,7 @@ def read_jsonlines_file(
     # variable keep track of chapter num that correspond to start, end of each group of chapters
     chapter_start_modulo_rest = 1
     chapter_end_modulo_rest = 0
+    output_chapter_range = int(output_chapter_range)
     # Set numbering to 1, for first group of chapters start at 1
     start_chapter_numbering = 1
     with jsonlines.open(novel_jsonlines_path, "r") as jsonlinesReader:
@@ -106,7 +107,9 @@ def add_main_text_content(chapter, main_text):
 
 
 def increase_chapter_modulo_rest_check(
-    chapter_start_modulo_rest, chapter_end_modulo_rest, output_chapter_range
+    chapter_start_modulo_rest: int,
+    chapter_end_modulo_rest: int,
+    output_chapter_range: int,
 ):
     """
     Increase chapter modulo rest check variable, if rest is equal to output_chapter_range then reset back to 0 to get correct numbering

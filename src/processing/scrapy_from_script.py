@@ -42,14 +42,18 @@ def text_output_files(novels_urls: list):
         )
         try:
             print(f"Run read jsonline file {novel_name} and output txt files")
+            # print(
+            #   f"novel_jsonlines_path: {novel_jsonlines_path} ,directory_output_path: {directory_output_path}, novel_name: {novel_name}, output_chapter_range: {output_chapter_range}"
+            # )
             read_jsonlines_file(
                 novel_jsonlines_path,
                 directory_output_path,
                 novel_name,
                 output_chapter_range,
             )
-        except:
+        except Exception as error:
             print(f"Something went wrong with the {novel_name} read_jsonLines_file")
+            print("An exception occurred:", error)
         else:
             # remove the jl file after finished reading the jl file
             print(f"Remove jsonlines file {novel_name}")

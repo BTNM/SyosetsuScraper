@@ -305,6 +305,9 @@ if __name__ == "__main__":
                 run_multiprocess_crawl(novel_list)
 
                 spider.text_output_files(novel_list)
+                window["ouput_terminal"].write(
+                    f"Web Scraping Novel: {selected_data[0][0]} Finished"
+                )
                 window["output_text"].update(
                     f"Web Scraping Novel: {selected_data[0][0]} Finished"
                 )
