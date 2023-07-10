@@ -63,11 +63,6 @@ def export_table(table: list, tablename):
         print("Error writing to CSV file: {}".format(file_path))
 
 
-#TODO
-# transfer from and back history and scraped table
-# check and create csv file if not exists
-# connect history table and front table
-
 # load data from storage file for persistent data
 history_table_path = "D:\VisualStudioProjects\SyosetsuScraper\history_table.csv"
 scraped_table_path = "D:\VisualStudioProjects\SyosetsuScraper\scraped_table.csv"
@@ -154,7 +149,7 @@ historical_layout = [
                 [
                     # add stretch before and after to center vertically
                     sg.Stretch(),
-                    sg.Button("-->", key="transfer_btn"),
+                    sg.Button("<-->", key="transfer_btn"),
                     sg.Stretch(),
                 ],
                 [
@@ -239,18 +234,29 @@ def handle_delete_button_event(values):
 def handle_deselect_button_event(values):
     if values["history_table"]:
         window["history_table"].update(select_rows=[])
-    elif values["scraped_table"]:
+    if values["scraped_table"]:
         window["scraped_table"].update(select_rows=[])
 
 
 def transfer_rows(window, source_table_key, destination_table_key):
     selected_rows = window[source_table_key].SelectedRows
+    if source_table_key == "history_table":
+        source_table_data = history_table_data
+        destination_table_data = scraped_table_data
+    elif source_table_key == "scraped_table":
+        source_table_data = scraped_table_data
+        destination_table_data = history_table_data
+
     if selected_rows:
-        selected_row = [history_table_data[index] for index in selected_rows]
+        selected_row = [source_table_data[index] for index in selected_rows]
         selected_data = selected_row[0]
-        if selected_data not in scraped_table_data:
-            scraped_table_data.append(selected_data)
-            window[destination_table_key].update(values=scraped_table_data)
+        if selected_data not in destination_table_data:
+            destination_table_data.append(selected_data)
+            window[destination_table_key].update(values=destination_table_data)
+            #update input_table on front page if transfer to history_table
+            if source_table_key == "scraped_table":
+                window["input_table"].update(values=destination_table_data)
+
 
 
 def move_rows_up(window_table):
@@ -393,14 +399,11 @@ if __name__ == "__main__":
             window["scraped_table"].update(values=table_data)
             window["tab2_output_text"].update(f"Selected file:{table_data}")
         if event == "transfer_btn":
-            # transfer_rows(window, "history_table", "scraped_table")
-            selected_rows = window["history_table"].SelectedRows
-            if selected_rows:
-                selected_row = [history_table_data[i] for i in selected_rows]
-                selected_data = selected_row[0]
-                if selected_data not in scraped_table_data:
-                    scraped_table_data.append(selected_data)
-                    window["scraped_table"].update(values=scraped_table_data)
+            if values["history_table"]:
+                transfer_rows(window, "history_table", "scraped_table")
+            elif values["scraped_table"]:
+                transfer_rows(window, "scraped_table", "history_table")
+
 
     # Close the window
     window.close()
