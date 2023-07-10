@@ -3,6 +3,7 @@ import src.scraper.spiders.syosetsu_spider as spider
 import PySimpleGUI as sg
 import multiprocessing
 import csv
+import os
 
 
 # test_novels = [
@@ -21,16 +22,23 @@ def load_table(filepath):
         list: The list of lists containing the CSV data, excluding the header.
     """
     data = []
-    try:
-        with open(filepath, "r", encoding="utf-8") as file:
-            csv_reader = csv.reader(file)
-            headers = next(csv_reader)  # Skip the header
-            for row in csv_reader:
-                data.append(row)
-        return data
-    except FileNotFoundError:
-        print("File not found: {}".format(filepath))
-        return []
+    if not os.path.exists(filepath):
+        # Create the file if it doesn't exist
+        with open(filepath, 'w', newline='') as file:
+            writer = csv.writer(file)
+            # Write the header row if needed
+            writer.writerow(["Name", "URL", "Range"])
+    else:
+        try:
+            with open(filepath, "r", encoding="utf-8") as file:
+                csv_reader = csv.reader(file)
+                headers = next(csv_reader)  # Skip the header
+                for row in csv_reader:
+                    data.append(row)
+        except FileNotFoundError:
+            print("File not found: {}".format(filepath))
+            return []
+    return data
 
 
 def export_table(table: list, tablename):
@@ -40,7 +48,7 @@ def export_table(table: list, tablename):
         table (list): The list of lists representing the table data.
         tablename (str): The name of the CSV file.
     """
-    file_path = "G:\Visual Studio Code Projects\SyosetsuScraper\{}.csv".format(
+    file_path = "D:\VisualStudioProjects\SyosetsuScraper\{}.csv".format(
         tablename
     )
     header = [["Name", "URL", "Range"]]
@@ -55,9 +63,14 @@ def export_table(table: list, tablename):
         print("Error writing to CSV file: {}".format(file_path))
 
 
+#TODO
+# transfer from and back history and scraped table
+# check and create csv file if not exists
+# connect history table and front table
+
 # load data from storage file for persistent data
-history_table_path = "G:/Visual Studio Code Projects/SyosetsuScraper/history_table.csv"
-scraped_table_path = "G:/Visual Studio Code Projects/SyosetsuScraper/scraped_table.csv"
+history_table_path = "D:\VisualStudioProjects\SyosetsuScraper\history_table.csv"
+scraped_table_path = "D:\VisualStudioProjects\SyosetsuScraper\scraped_table.csv"
 history_table_load_data = load_table(history_table_path)
 scraped_table_load_data = load_table(scraped_table_path)
 

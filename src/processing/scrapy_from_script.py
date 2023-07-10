@@ -9,11 +9,11 @@ def novel_crawler_from_script(novels_urls: list):
     # crawl the given syosetsu webpages
     run_multi_process_crawler(novels_urls)
 
-    directory_output_path = os.path.normpath("G:\LN Raw Text Files")
+    directory_output_path = os.path.normpath("D:\LN Raw Text Files")
     for novel_name, url, output_chapter_range in novels_urls:
         # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
         novel_jsonlines_path = os.path.normpath(
-            "G:\Visual Studio Code Projects\SyosetsuScraper\{}.jl".format(novel_name)
+            "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
         )
         try:
             print("Run read jsonline file and output txt files")
@@ -34,11 +34,11 @@ def novel_crawler_from_script(novels_urls: list):
 def text_output_files(novels_urls: list):
     check_illegal_char(novels_urls)
 
-    directory_output_path = os.path.normpath("G:\LN Raw Text Files")
+    directory_output_path = os.path.normpath("D:\LN Raw Text Files")
     for novel_name, url, output_chapter_range in novels_urls:
         # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
         novel_jsonlines_path = os.path.normpath(
-            "G:\Visual Studio Code Projects\SyosetsuScraper\{}.jl".format(novel_name)
+            "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
         )
         try:
             print(f"Run read jsonline file {novel_name} and output txt files")
