@@ -185,13 +185,13 @@ historical_layout = [
     ],
     [
         sg.Button("Load History Table", key="load_history_btn"),
-        sg.Input(key="history_filepath", size=(30, 1)),
         sg.FileBrowse(),
+        sg.Input(key="history_filepath", size=(30, 1)),
         sg.Button("Export History Table", key="export_history_btn"),
         sg.Stretch(),
         sg.Button("Load Scraped Table", key="load_scraped_btn"),
-        sg.Input(key="scraped_filepath", size=(30, 1)),
         sg.FileBrowse(),
+        sg.Input(key="scraped_filepath", size=(30, 1)),
         sg.Button("Export Scraped Table", key="export_scraped_btn"),
     ],
     [sg.HorizontalSeparator(pad=(10, 10, 10, 10))],
@@ -388,16 +388,24 @@ if __name__ == "__main__":
             export_table(novel_list, "scraped_table")
         if event == "load_history_btn":
             file_path = values["history_filepath"]
-            table_data = load_table(file_path)
-            history_table_data = table_data
-            window["history_table"].update(values=table_data)
-            window["tab2_output_text"].update(f"Selected file:{table_data}")
+            if file_path:
+                table_data = load_table(file_path)
+                history_table_data = table_data
+                window["history_table"].update(values=table_data)
+                window["tab2_output_text"].update(f"Selected file:{table_data}")
+            else:
+                print("No load history filepath found")
+                window["tab2_output_text"].update(f"No load history filepath found")
         if event == "load_scraped_btn":
             file_path = values["scraped_filepath"]
-            table_data = load_table(file_path)
-            scraped_table_data = table_data
-            window["scraped_table"].update(values=table_data)
-            window["tab2_output_text"].update(f"Selected file:{table_data}")
+            if file_path:
+                table_data = load_table(file_path)
+                scraped_table_data = table_data
+                window["scraped_table"].update(values=table_data)
+                window["tab2_output_text"].update(f"Selected file:{table_data}")
+            else:
+                print("No scraped history filepath found")
+                window["tab2_output_text"].update(f"No scraped history filepath found")
         if event == "transfer_btn":
             if values["history_table"]:
                 transfer_rows(window, "history_table", "scraped_table")
