@@ -48,7 +48,7 @@ def export_table_csv(table: list, tablename):
         table (list): The list of lists representing the table data.
         tablename (str): The name of the CSV file.
     """
-    file_path = "D:\VisualStudioProjects\SyosetsuScraper\{}.csv".format(
+    file_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\{}.csv".format(
         tablename
     )
     header = [["Name", "URL", "Range"]]
@@ -64,8 +64,8 @@ def export_table_csv(table: list, tablename):
 
 
 # load data from storage file for persistent data
-history_table_path = "D:\VisualStudioProjects\SyosetsuScraper\history_table.csv"
-scraped_table_path = "D:\VisualStudioProjects\SyosetsuScraper\scraped_table.csv"
+history_table_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\history_table.csv"
+scraped_table_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\scraped_table.csv"
 history_table_load_data = load_table(history_table_path)
 scraped_table_load_data = load_table(scraped_table_path)
 
@@ -185,13 +185,13 @@ historical_layout = [
     ],
     [
         sg.Button("Load History Table", key="load_history_btn"),
-        sg.FileBrowse(),
         sg.Input(key="history_filepath", size=(30, 1)),
+        sg.FileBrowse(),
         sg.Button("Export History Table", key="export_history_btn"),
         sg.Stretch(),
         sg.Button("Load Scraped Table", key="load_scraped_btn"),
-        sg.FileBrowse(),
         sg.Input(key="scraped_filepath", size=(30, 1)),
+        sg.FileBrowse(),
         sg.Button("Export Scraped Table", key="export_scraped_btn"),
     ],
     [sg.HorizontalSeparator(pad=(10, 10, 10, 10))],
