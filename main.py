@@ -41,7 +41,7 @@ def load_table(filepath):
     return data
 
 
-def export_table(table: list, tablename):
+def export_table_csv(table: list, tablename):
     """
     Save the content of the table to a CSV file in the specified directory path.
     Args:
@@ -73,15 +73,15 @@ scraped_table_load_data = load_table(scraped_table_path)
 left_column_elements = [
     [
         sg.Text("Enter novel name:", size=(20, 1)),
-        sg.Input(key="name", size=(20, 1)),
+        sg.Input(key="name", size=(30, 1)),
     ],
     [
         sg.Text("Enter novel URL", size=(20, 1)),
-        sg.Input(key="url", size=(20, 1)),
+        sg.Input(key="url", default_text="https://ncode.syosetu.com/", size=(30, 1)),
     ],
     [
         sg.Text("Enter novel Output Range", size=(20, 1)),
-        sg.Input(key="range", size=(20, 1)),
+        sg.Input(key="range", default_text="10", size=(30, 1)),
     ],
     [
         sg.Button("Add", key="add_button"),
@@ -258,7 +258,6 @@ def transfer_rows(window, source_table_key, destination_table_key):
                 window["input_table"].update(values=destination_table_data)
 
 
-
 def move_rows_up(window_table):
     selected_rows = window_table.SelectedRows  # Get the selected row indexes
     if selected_rows:
@@ -293,6 +292,13 @@ def move_rows_down(window_table):
         )  # Update the table with the modified data
 
 
+def export_table_data(table_key):
+    table_values = window[table_key].get()
+    novel_list = [row for row in table_values]
+    window["tab2_output_text"].update(f"table_data:{novel_list}")
+    export_table_csv(novel_list, table_key)
+
+
 # Initialize the data list and table data from storage
 history_table_data = history_table_load_data
 scraped_table_data = scraped_table_load_data
@@ -308,6 +314,9 @@ if __name__ == "__main__":
     while True:
         event, values = window.read(timeout=1000)
         if event == sg.WINDOW_CLOSED or event == "exit_button":
+            # export last history and scraped table data to csv storage when exit
+            export_table_data("history_table")
+            export_table_data("scraped_table")
             break
         # Handle events from the "Novel Scrape" tab
         if event == "add_button":
@@ -377,15 +386,9 @@ if __name__ == "__main__":
             elif values["scraped_table"]:
                 move_rows_down(window["scraped_table"])
         if event == "export_history_btn":
-            table_values = window["history_table"].get()
-            novel_list = [row for row in table_values]
-            window["tab2_output_text"].update(f"table_data:{novel_list}")
-            export_table(novel_list, "history_table")
+            export_table_data("history_table")
         if event == "export_scraped_btn":
-            table_values = window["scraped_table"].get()
-            novel_list = [row for row in table_values]
-            window["tab2_output_text"].update(f"table_data:{novel_list}")
-            export_table(novel_list, "scraped_table")
+            export_table_data("scraped_table")
         if event == "load_history_btn":
             file_path = values["history_filepath"]
             if file_path:
