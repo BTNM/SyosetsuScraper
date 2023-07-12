@@ -115,6 +115,10 @@ def run_spider_crawl(novelname: str, url: str):
         # reduce the amount of logging output
         "LOG_LEVEL": "INFO",
     }
+    # Configure logging to ignore warnings
+    configure_logging(install_root_handler=False)
+    logging.getLogger("py.warnings").setLevel(logging.ERROR)
+
     process = CrawlerProcess(settings=settings)
     # Run the spider with the current URL and output file settings
     process.crawl(SyosetsuSpider, start_urls=[url])
