@@ -4,6 +4,7 @@ from scrapy.utils.log import configure_logging
 from multiprocessing import Process
 from ..items import NovelItem
 import logging
+from ..custom_logging_handler import CustomLoggingHandler
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -102,7 +103,7 @@ class SyosetsuSpider(scrapy.Spider):
             )
 
 
-def run_spider_crawl(novelname: str, url: str):
+def run_spider_crawl(novelname: str, url: str, log_queue):
     """
     Runs the SyosetsuSpider crawler to scrape data from the provided `url` and saves the output to a JSON Lines file
     named `novelname`.jl.
@@ -115,8 +116,13 @@ def run_spider_crawl(novelname: str, url: str):
         # reduce the amount of logging output
         "LOG_LEVEL": "INFO",
     }
+     # Create the custom logging handler
+    custom_handler = CustomLoggingHandler(log_queue)
+    custom_handler.setLevel(logging.INFO)
+    # Configure logging to use the custom logging handler
+    logger = logging.getLogger()
+    logger.addHandler(custom_handler)
     # Configure logging to ignore warnings
-    configure_logging(install_root_handler=False)
     logging.getLogger("py.warnings").setLevel(logging.ERROR)
 
     process = CrawlerProcess(settings=settings)

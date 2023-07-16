@@ -4,7 +4,8 @@ import PySimpleGUI as sg
 import multiprocessing
 import csv
 import os
-
+from src.scraper.custom_logging_handler import CustomLoggingHandler
+import logging
 
 # test_novels = [
 #     ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
@@ -123,7 +124,7 @@ scrape_layout = [
     [
         sg.Multiline(
             "",
-            size=(80, 10),
+            size=(160, 10),
             key="output_terminal",
             reroute_stdout=True,
             reroute_cprint=True,
@@ -209,12 +210,12 @@ layout_tab_group = [
 window = sg.Window("Scrape Tab Group", layout_tab_group)  # , size=(1200, 700))
 
 
-def run_multiprocess_crawl(novel_list):
+def run_multiprocess_crawl(novel_list, log_queue):
     # run scrapy separate process for each crawl
     for novelname, url, output_range in novel_list:
         # signal only open on main thread, have to run on main
         multiprocess = multiprocessing.Process(
-            target=spider.run_spider_crawl, args=(novelname, url)
+            target=spider.run_spider_crawl, args=(novelname, url, log_queue)
         )
         multiprocess.start()
         # Optionally, you can wait for the process to finish before continuing
@@ -299,6 +300,25 @@ def export_table_data(table_key):
     export_table_csv(novel_list, table_key)
 
 
+# LOG_FORMAT = '%(asctime)s [%(name)s] %(levelname)s: %(message)s'
+# LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format=LOG_FORMAT,
+#     datefmt=LOG_DATE_FORMAT
+# )
+
+
+# Create a multiprocessing queue to store the log messages
+log_queue = multiprocessing.Queue()
+
+# Create the Scrapy spider and configure the custom logging handler
+#custom_handler = CustomLoggingHandler(log_queue)
+#custom_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
+#custom_handler.setLevel(logging.INFO)
+#custom_handler.setStream(log_queue)
+
 # Initialize the data list and table data from storage
 history_table_data = history_table_load_data
 scraped_table_data = scraped_table_load_data
@@ -318,6 +338,10 @@ if __name__ == "__main__":
             export_table_data("history_table")
             export_table_data("scraped_table")
             break
+        # Check if there are new log messages in the queue
+        while not log_queue.empty():
+            log_message = log_queue.get()
+            window['output_terminal'].print(log_message, end='')    
         # Handle events from the "Novel Scrape" tab
         if event == "add_button":
             name = values["name"]
@@ -353,11 +377,11 @@ if __name__ == "__main__":
                 novel_list.append(tuple_data)
                 window["output_text"].update(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
-                run_multiprocess_crawl(novel_list)
+                run_multiprocess_crawl(novel_list, log_queue)
 
                 sfs.text_output_files(novel_list)
                 window["output_terminal"].write(
-                    f"Web Scraping Novel: {selected_data[0][0]} Finished"
+                    f"Web Scraping Novel: {selected_data[0][0]} Finished\n"
                 )
         if event == "all_scraper_button":
             # get the latest values of window table
@@ -365,11 +389,11 @@ if __name__ == "__main__":
             novel_list = [tuple(row) for row in table_values]
             window["output_text"].update(f"table_data:{novel_list}")
             # start_multi_crawling(novel_list)
-            run_multiprocess_crawl(novel_list)
+            run_multiprocess_crawl(novel_list, log_queue)
 
             sfs.text_output_files(novel_list)
-            # window["output_text"].update(f"Web Scrapeing novel: {novelname} finished")
-            print("web scraping all novels in table finished")
+            # window["output_text"].update(f"Web Scrapeing novel: {novelname} finished\n")
+            print("web scraping all novels in table finished\n")
         # Handle events from the "Novel History" tab
         if event == "table_row_delete_btn":
             handle_delete_button_event(values)
