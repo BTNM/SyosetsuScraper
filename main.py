@@ -300,24 +300,8 @@ def export_table_data(table_key):
     export_table_csv(novel_list, table_key)
 
 
-# LOG_FORMAT = '%(asctime)s [%(name)s] %(levelname)s: %(message)s'
-# LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
-
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format=LOG_FORMAT,
-#     datefmt=LOG_DATE_FORMAT
-# )
-
-
 # Create a multiprocessing queue to store the log messages
 log_queue = multiprocessing.Queue()
-
-# Create the Scrapy spider and configure the custom logging handler
-#custom_handler = CustomLoggingHandler(log_queue)
-#custom_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
-#custom_handler.setLevel(logging.INFO)
-#custom_handler.setStream(log_queue)
 
 # Initialize the data list and table data from storage
 history_table_data = history_table_load_data
