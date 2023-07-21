@@ -124,7 +124,7 @@ scrape_layout = [
     [
         sg.Multiline(
             "",
-            size=(160, 10),
+            size=(180, 10),
             key="output_terminal",
             reroute_stdout=True,
             reroute_cprint=True,
@@ -322,10 +322,6 @@ if __name__ == "__main__":
             export_table_data("history_table")
             export_table_data("scraped_table")
             break
-        # Check if there are new log messages in the queue
-        while not log_queue.empty():
-            log_message = log_queue.get()
-            window['output_terminal'].print(log_message, end='')    
         # Handle events from the "Novel Scrape" tab
         if event == "add_button":
             name = values["name"]
@@ -422,7 +418,10 @@ if __name__ == "__main__":
                 transfer_rows(window, "history_table", "scraped_table")
             elif values["scraped_table"]:
                 transfer_rows(window, "scraped_table", "history_table")
-
+        # Check if there are new log messages in the queue
+        while not log_queue.empty():
+            log_message = log_queue.get()
+            window['output_terminal'].print(log_message, end='')    
 
     # Close the window
     window.close()
