@@ -368,9 +368,9 @@ if __name__ == "__main__":
                 run_multiprocess_crawl(novel_list, log_queue)
 
                 sfs.text_output_files(novel_list)
-
-                scraped_table_data.append(selected_data[0])
-                window["scraped_table"].update(values=scraped_table_data)
+                if selected_data[0] not in scraped_table_data:
+                    scraped_table_data.append(selected_data[0])
+                    window["scraped_table"].update(values=scraped_table_data)
                 window["output_terminal"].write(
                     f"Web Scraping Novel: {selected_data[0][0]} Finished\n"
                 )
@@ -384,7 +384,8 @@ if __name__ == "__main__":
 
             sfs.text_output_files(novel_list)
             for row in table_values:
-                scraped_table_data.append(row)
+                if row not in scraped_table_data:
+                    scraped_table_data.append(row)
             window["scraped_table"].update(values=scraped_table_data)
             # window["output_terminal"].print(f"Web Scrapeing novel: {novelname} finished\n")
             print("web scraping all novels in table finished\n")
