@@ -114,9 +114,9 @@ def run_spider_crawl(novelname: str, url: str, log_queue):
             novelname + ".jl": {"format": "jsonlines", "encoding": "utf8"},
         },
         # reduce the amount of logging output
-        "LOG_LEVEL": "INFO",
+        # "LOG_LEVEL": "INFO",
     }
-     # Create the custom logging handler
+    # Create the custom logging handler
     custom_handler = CustomLoggingHandler(log_queue)
     custom_handler.setLevel(logging.INFO)
     # Configure logging to use the custom logging handler

@@ -25,7 +25,7 @@ def load_table(filepath):
     data = []
     if not os.path.exists(filepath):
         # Create the file if it doesn't exist
-        with open(filepath, 'w', newline='') as file:
+        with open(filepath, "w", newline="") as file:
             writer = csv.writer(file)
             # Write the header row if needed
             writer.writerow(["Name", "URL", "Range"])
@@ -65,8 +65,12 @@ def export_table_csv(table: list, tablename):
 
 
 # load data from storage file for persistent data
-history_table_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\history_table.csv"
-scraped_table_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\scraped_table.csv"
+history_table_path = (
+    "D:\VisualStudioProjects\SyosetsuScraper\src\storage\history_table.csv"
+)
+scraped_table_path = (
+    "D:\VisualStudioProjects\SyosetsuScraper\src\storage\scraped_table.csv"
+)
 history_table_load_data = load_table(history_table_path)
 scraped_table_load_data = load_table(scraped_table_path)
 
@@ -186,12 +190,16 @@ historical_layout = [
     ],
     [
         sg.Input(key="history_filepath", size=(30, 1)),
-        sg.FileBrowse(initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage"),
+        sg.FileBrowse(
+            initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage"
+        ),
         sg.Button("Load History Table", key="load_history_btn"),
         sg.Button("Export History Table", key="export_history_btn"),
         sg.Stretch(),
         sg.Input(key="scraped_filepath", size=(30, 1)),
-        sg.FileBrowse(initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage"),
+        sg.FileBrowse(
+            initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage"
+        ),
         sg.Button("Load Scraped Table", key="load_scraped_btn"),
         sg.Button("Export Scraped Table", key="export_scraped_btn"),
     ],
@@ -254,7 +262,7 @@ def transfer_rows(window, source_table_key, destination_table_key):
         if selected_data not in destination_table_data:
             destination_table_data.append(selected_data)
             window[destination_table_key].update(values=destination_table_data)
-            #update input_table on front page if transfer to history_table
+            # update input_table on front page if transfer to history_table
             if source_table_key == "scraped_table":
                 window["input_table"].update(values=destination_table_data)
 
@@ -355,11 +363,14 @@ if __name__ == "__main__":
                 selected_data = [history_table_data[i] for i in selected_rows]
                 tuple_data = tuple(selected_data[0])
                 novel_list.append(tuple_data)
-                window["output_text"].update(f"Selected rows: {tuple_data}")
+                window["output_terminal"].print(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
                 run_multiprocess_crawl(novel_list, log_queue)
 
                 sfs.text_output_files(novel_list)
+
+                scraped_table_data.append(selected_data[0])
+                window["scraped_table"].update(values=scraped_table_data)
                 window["output_terminal"].write(
                     f"Web Scraping Novel: {selected_data[0][0]} Finished\n"
                 )
@@ -367,12 +378,15 @@ if __name__ == "__main__":
             # get the latest values of window table
             table_values = window["input_table"].get()
             novel_list = [tuple(row) for row in table_values]
-            window["output_text"].update(f"table_data:{novel_list}")
+            window["output_terminal"].print(f"table_data:{novel_list}")
             # start_multi_crawling(novel_list)
             run_multiprocess_crawl(novel_list, log_queue)
 
             sfs.text_output_files(novel_list)
-            # window["output_text"].update(f"Web Scrapeing novel: {novelname} finished\n")
+            for row in table_values:
+                scraped_table_data.append(row)
+            window["scraped_table"].update(values=scraped_table_data)
+            # window["output_terminal"].print(f"Web Scrapeing novel: {novelname} finished\n")
             print("web scraping all novels in table finished\n")
         # Handle events from the "Novel History" tab
         if event == "table_row_delete_btn":
@@ -421,7 +435,7 @@ if __name__ == "__main__":
         # Check if there are new log messages in the queue
         while not log_queue.empty():
             log_message = log_queue.get()
-            window['output_terminal'].print(log_message, end='')    
+            window["output_terminal"].print(log_message, end="")
 
     # Close the window
     window.close()
