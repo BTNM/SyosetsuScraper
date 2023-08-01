@@ -113,6 +113,7 @@ def run_spider_crawl(novelname: str, url: str, log_queue):
         "FEEDS": {
             novelname + ".jl": {"format": "jsonlines", "encoding": "utf8"},
         },
+        # "REQUEST_FINGERPRINTER_IMPLEMENTATION": "scrapy.utils.request.rfc3986.RequestFingerprintRFC3986",
         # reduce the amount of logging output
         # "LOG_LEVEL": "INFO",
     }

@@ -6,6 +6,11 @@ import csv
 import os
 from src.scraper.custom_logging_handler import CustomLoggingHandler
 import logging
+import threading
+import queue
+from scrapy.crawler import CrawlerRunner
+from scrapy.utils.log import configure_logging
+
 
 # test_novels = [
 #     ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
@@ -229,6 +234,10 @@ def run_multiprocess_crawl(novel_list, log_queue):
         # Optionally, you can wait for the process to finish before continuing
         multiprocess.join()
 
+    # output all crawled content in novel_list to txt files
+    sfs.text_output_files(novel_list)
+    print("web scraping all novels in table finished\n")
+
 
 def handle_delete_button_event(values):
     if values["history_table"]:
@@ -365,9 +374,14 @@ if __name__ == "__main__":
                 novel_list.append(tuple_data)
                 window["output_terminal"].print(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
-                run_multiprocess_crawl(novel_list, log_queue)
+                # run_multiprocess_crawl(novel_list, log_queue)
+                # Run the crawling process in a separate thread
+                crawling_thread = threading.Thread(
+                    target=run_multiprocess_crawl, args=(novel_list, log_queue)
+                )
+                crawling_thread.start()
 
-                sfs.text_output_files(novel_list)
+                # sfs.text_output_files(novel_list)
                 if selected_data[0] not in scraped_table_data:
                     scraped_table_data.append(selected_data[0])
                     window["scraped_table"].update(values=scraped_table_data)
@@ -379,16 +393,19 @@ if __name__ == "__main__":
             table_values = window["input_table"].get()
             novel_list = [tuple(row) for row in table_values]
             window["output_terminal"].print(f"table_data:{novel_list}")
-            # start_multi_crawling(novel_list)
-            run_multiprocess_crawl(novel_list, log_queue)
+            # run_multiprocess_crawl(novel_list, log_queue)
+            # sfs.text_output_files(novel_list)
+            # Run the crawling process in a separate thread
+            crawling_thread = threading.Thread(
+                target=run_multiprocess_crawl, args=(novel_list, log_queue)
+            )
+            crawling_thread.start()
 
-            sfs.text_output_files(novel_list)
             for row in table_values:
                 if row not in scraped_table_data:
                     scraped_table_data.append(row)
             window["scraped_table"].update(values=scraped_table_data)
             # window["output_terminal"].print(f"Web Scrapeing novel: {novelname} finished\n")
-            print("web scraping all novels in table finished\n")
         # Handle events from the "Novel History" tab
         if event == "table_row_delete_btn":
             handle_delete_button_event(values)
@@ -437,6 +454,12 @@ if __name__ == "__main__":
         while not log_queue.empty():
             log_message = log_queue.get()
             window["output_terminal"].print(log_message, end="")
+        # try:
+        #     while True:
+        #         progress_msg = log_queue.get_nowait()
+        #         update_gui(window, progress_msg)
+        # except queue.Empty:
+        #     pass
 
     # Close the window
     window.close()
