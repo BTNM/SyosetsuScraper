@@ -119,7 +119,7 @@ def run_spider_crawl(novelname: str, url: str, log_queue):
     }
     # Create the custom logging handler
     custom_handler = CustomLoggingHandler(log_queue)
-    custom_handler.setLevel(logging.INFO)
+    # custom_handler.setLevel(logging.INFO)
     # Configure logging to use the custom logging handler
     logger = logging.getLogger()
     logger.addHandler(custom_handler)

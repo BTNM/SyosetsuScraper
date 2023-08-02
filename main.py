@@ -10,6 +10,7 @@ import threading
 import queue
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
+import re
 
 
 # test_novels = [
@@ -453,13 +454,32 @@ if __name__ == "__main__":
         # Check if there are new log messages in the queue
         while not log_queue.empty():
             log_message = log_queue.get()
+
+            # Extract chapter_start_end using regular expressions
+            chapter_number_match = re.search(
+                r"'chapter_number':\s*'(\d+)'", log_message
+            )
+            chapter_start_end_match = re.search(
+                r"'chapter_start_end':\s*'(\d+/\d+)'", log_message
+            )
+            chapter_number = (
+                chapter_number_match.group(1) if chapter_number_match else ""
+            )
+            chapter_start_end = (
+                chapter_start_end_match.group(1) if chapter_start_end_match else ""
+            )
+
+            # Replace the content inside the brackets with chapter_start_end
+            log_message = re.sub(
+                r"\{[^}]*\}",
+                "'chapter_number': '"
+                + chapter_number
+                + "'\n'chapter_start_end': '"
+                + chapter_start_end
+                + "'\n",
+                log_message,
+            )
             window["output_terminal"].print(log_message, end="")
-        # try:
-        #     while True:
-        #         progress_msg = log_queue.get_nowait()
-        #         update_gui(window, progress_msg)
-        # except queue.Empty:
-        #     pass
 
     # Close the window
     window.close()
