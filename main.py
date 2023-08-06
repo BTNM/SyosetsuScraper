@@ -233,9 +233,10 @@ layout_tab_group = [
 window = sg.Window("Scrape Tab Group", layout_tab_group)  # , size=(1200, 700))
 
 
-def run_multiprocess_crawl(novel_list, log_queue):
+def run_multiprocess_crawl(novel_list, log_queue, window):
     # run scrapy separate process for each crawl
     for novelname, url, output_range in novel_list:
+        window["progress_text"].update(f"Progress: {novelname}:")
         # signal only open on main thread, have to run on main
         multiprocess = multiprocessing.Process(
             target=spider.run_spider_crawl, args=(novelname, url, log_queue)
@@ -446,7 +447,7 @@ if __name__ == "__main__":
             # sfs.text_output_files(novel_list)
             # Run the crawling process in a separate thread
             crawling_thread = threading.Thread(
-                target=run_multiprocess_crawl, args=(novel_list, log_queue)
+                target=run_multiprocess_crawl, args=(novel_list, log_queue, window)
             )
             crawling_thread.start()
 
