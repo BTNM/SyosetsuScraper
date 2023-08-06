@@ -115,7 +115,9 @@ right_column_elements = [
         )
     ],
 ]
-
+progress_bar = sg.ProgressBar(
+    max_value=100, orientation="h", size=(20, 20), key="progress_bar"
+)
 # Define the layout for the GUI
 scrape_layout = [
     [
@@ -131,6 +133,10 @@ scrape_layout = [
         sg.Button("Start All Syosetsu Scraper", key="all_scraper_button", pad=(10)),
     ],
     [sg.Text("", key="output_text")],
+    [
+        sg.Text("Progress:"),
+        progress_bar,
+    ],
     [
         sg.Multiline(
             "",
@@ -325,7 +331,7 @@ log_queue = multiprocessing.Queue()
 history_table_data = history_table_load_data
 scraped_table_data = scraped_table_load_data
 novel_list = []
-
+current_chapter = 0
 # TODO: make executable, desktop app
 # TODO: a new listbox/table that stores all novels that have been added before, persistent store in text file or something
 # TODO: add a output/multiline for print and outputs, add scrapy info_log
@@ -455,30 +461,56 @@ if __name__ == "__main__":
         while not log_queue.empty():
             log_message = log_queue.get()
 
-            # Extract chapter_start_end using regular expressions
-            chapter_number_match = re.search(
-                r"'chapter_number':\s*'(\d+)'", log_message
-            )
+            # chapter_number_match = re.search(
+            #     r"'chapter_number':\s*'(\d+)'", log_message
+            # )
+            # chapter_number = (
+            #     chapter_number_match.group(1) if chapter_number_match else ""
+            # )
+
             chapter_start_end_match = re.search(
                 r"'chapter_start_end':\s*'(\d+/\d+)'", log_message
-            )
-            chapter_number = (
-                chapter_number_match.group(1) if chapter_number_match else ""
             )
             chapter_start_end = (
                 chapter_start_end_match.group(1) if chapter_start_end_match else ""
             )
+            # only replace content when the crawled part shows up
+            if chapter_start_end:
+                # Extract total_chapters from chapter_start_end
+                split_start_end_chapters = chapter_start_end.split("/")
+                # chapter_number = (
+                #     split_start_end_chapters[0]
+                #     if len(split_start_end_chapters) == 2
+                #     else "0"
+                # )
+                # total_chapters = (
+                #     split_start_end_chapters[1]
+                #     if len(split_start_end_chapters) == 2
+                #     else "100"
+                # )
+                if len(split_start_end_chapters) == 2:
+                    chapter_number = split_start_end_chapters[0]
+                    total_chapters = split_start_end_chapters[1]
 
-            # Replace the content inside the brackets with chapter_start_end
-            log_message = re.sub(
-                r"\{[^}]*\}",
-                "'chapter_number': '"
-                + chapter_number
-                + "'\n'chapter_start_end': '"
-                + chapter_start_end
-                + "'\n",
-                log_message,
-            )
+                # Update the progress bar's max_value with the total chapters
+                # window["progress_bar"].update(max_value=int(total_chapters))
+                # window["progress_bar"].update_bar(chapter_number)
+                progress_bar.max_value = int(total_chapters)
+                progress_bar.update_bar(chapter_number)
+
+                # Replace the content inside the brackets with chapter_start_end
+                log_message = re.sub(
+                    r"\{[^}]*\}",
+                    "'chapter_number': '"
+                    + chapter_number
+                    + "'\n'chapter_start_end': '"
+                    + chapter_start_end
+                    + "'\n'total_chapters': '"
+                    + total_chapters
+                    + "'\n",
+                    log_message,
+                )
+
             window["output_terminal"].print(log_message, end="")
 
     # Close the window
