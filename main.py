@@ -115,9 +115,6 @@ right_column_elements = [
         )
     ],
 ]
-progress_bar = sg.ProgressBar(
-    max_value=100, orientation="h", size=(20, 20), key="progress_bar"
-)
 # Define the layout for the GUI
 scrape_layout = [
     [
@@ -134,8 +131,14 @@ scrape_layout = [
     ],
     [sg.Text("", key="output_text")],
     [
-        sg.Text("Progress:"),
-        progress_bar,
+        sg.Text("Progress: ", key="progress_text"),
+        sg.ProgressBar(
+            max_value=100,
+            orientation="h",
+            size=(40, 20),
+            key="progress_bar",
+            bar_color=("Green", "White"),
+        ),
     ],
     [
         sg.Multiline(
@@ -324,17 +327,58 @@ def export_table_data(table_key):
     export_table_csv(novel_list, table_key)
 
 
+def update_progress_bar_print_logs(window, log_queue):
+    log_message = log_queue.get()
+
+    # chapter_number_match = re.search(
+    #     r"'chapter_number':\s*'(\d+)'", log_message
+    # )
+    # chapter_number = (
+    #     chapter_number_match.group(1) if chapter_number_match else ""
+    # )
+    chapter_start_end_match = re.search(
+        r"'chapter_start_end':\s*'(\d+/\d+)'", log_message
+    )
+    chapter_start_end = (
+        chapter_start_end_match.group(1) if chapter_start_end_match else ""
+    )
+    # only replace content when the crawled part shows up
+    if chapter_start_end:
+        # Extract total_chapters from chapter_start_end
+        split_start_end_chapters = chapter_start_end.split("/")
+
+        if len(split_start_end_chapters) == 2:
+            chapter_number = split_start_end_chapters[0]
+            total_chapters = split_start_end_chapters[1]
+
+            # Update the progress bar's with current chapter number and max_value with total chapters
+        window["progress_bar"].update(
+            current_count=int(chapter_number), max=int(total_chapters)
+        )
+
+        # Replace the content inside the brackets with chapter_start_end
+        log_message = re.sub(
+            r"\{[^}]*\}",
+            "'chapter_number': '"
+            + chapter_number
+            + "'\n'chapter_start_end': '"
+            + chapter_start_end
+            + "'\n'total_chapters': '"
+            + total_chapters
+            + "'\n",
+            log_message,
+        )
+
+    window["output_terminal"].print(log_message, end="")
+
+
 # Create a multiprocessing queue to store the log messages
 log_queue = multiprocessing.Queue()
-
 # Initialize the data list and table data from storage
 history_table_data = history_table_load_data
 scraped_table_data = scraped_table_load_data
 novel_list = []
-current_chapter = 0
 # TODO: make executable, desktop app
-# TODO: a new listbox/table that stores all novels that have been added before, persistent store in text file or something
-# TODO: add a output/multiline for print and outputs, add scrapy info_log
 
 
 if __name__ == "__main__":
@@ -381,6 +425,7 @@ if __name__ == "__main__":
                 novel_list.append(tuple_data)
                 window["output_terminal"].print(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
+                window["progress_text"].update(f"Progress: {selected_data[0][0]}:")
                 # run_multiprocess_crawl(novel_list, log_queue)
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
@@ -392,9 +437,6 @@ if __name__ == "__main__":
                 if selected_data[0] not in scraped_table_data:
                     scraped_table_data.append(selected_data[0])
                     window["scraped_table"].update(values=scraped_table_data)
-                window["output_terminal"].write(
-                    f"Web Scraping Novel: {selected_data[0][0]} Finished\n"
-                )
         if event == "all_scraper_button":
             # get the latest values of window table
             table_values = window["input_table"].get()
@@ -459,59 +501,7 @@ if __name__ == "__main__":
                 transfer_rows(window, "scraped_table", "history_table")
         # Check if there are new log messages in the queue
         while not log_queue.empty():
-            log_message = log_queue.get()
-
-            # chapter_number_match = re.search(
-            #     r"'chapter_number':\s*'(\d+)'", log_message
-            # )
-            # chapter_number = (
-            #     chapter_number_match.group(1) if chapter_number_match else ""
-            # )
-
-            chapter_start_end_match = re.search(
-                r"'chapter_start_end':\s*'(\d+/\d+)'", log_message
-            )
-            chapter_start_end = (
-                chapter_start_end_match.group(1) if chapter_start_end_match else ""
-            )
-            # only replace content when the crawled part shows up
-            if chapter_start_end:
-                # Extract total_chapters from chapter_start_end
-                split_start_end_chapters = chapter_start_end.split("/")
-                # chapter_number = (
-                #     split_start_end_chapters[0]
-                #     if len(split_start_end_chapters) == 2
-                #     else "0"
-                # )
-                # total_chapters = (
-                #     split_start_end_chapters[1]
-                #     if len(split_start_end_chapters) == 2
-                #     else "100"
-                # )
-                if len(split_start_end_chapters) == 2:
-                    chapter_number = split_start_end_chapters[0]
-                    total_chapters = split_start_end_chapters[1]
-
-                # Update the progress bar's max_value with the total chapters
-                # window["progress_bar"].update(max_value=int(total_chapters))
-                # window["progress_bar"].update_bar(chapter_number)
-                progress_bar.max_value = int(total_chapters)
-                progress_bar.update_bar(chapter_number)
-
-                # Replace the content inside the brackets with chapter_start_end
-                log_message = re.sub(
-                    r"\{[^}]*\}",
-                    "'chapter_number': '"
-                    + chapter_number
-                    + "'\n'chapter_start_end': '"
-                    + chapter_start_end
-                    + "'\n'total_chapters': '"
-                    + total_chapters
-                    + "'\n",
-                    log_message,
-                )
-
-            window["output_terminal"].print(log_message, end="")
+            update_progress_bar_print_logs(window, log_queue)
 
     # Close the window
     window.close()
