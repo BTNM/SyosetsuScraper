@@ -4,20 +4,8 @@ import PySimpleGUI as sg
 import multiprocessing
 import csv
 import os
-from src.scraper.custom_logging_handler import CustomLoggingHandler
-import logging
 import threading
-import queue
-from scrapy.crawler import CrawlerRunner
-from scrapy.utils.log import configure_logging
 import re
-
-
-# test_novels = [
-#     ["Ascendance of a Bookworm - Extra Story", "https://ncode.syosetu.com/n4750dy/", 3],
-#     ["Ascendance of a Bookworm - Extra2", "https://ncode.syosetu.com/n4750dy/", 5],
-#     # ["Ascendance of a Bookworm - Extra3", "https://ncode.syosetu.com/n4750dy/", 10],
-# ]
 
 
 def load_table(filepath):
@@ -236,7 +224,7 @@ window = sg.Window("Scrape Tab Group", layout_tab_group)  # , size=(1200, 700))
 def run_multiprocess_crawl(novel_list, log_queue, window):
     # run scrapy separate process for each crawl
     for novelname, url, output_range in novel_list:
-        window["progress_text"].update(f"Progress: {novelname}:")
+        window["progress_text"].update(f"Progress: {novelname}: ")
         # signal only open on main thread, have to run on main
         multiprocess = multiprocessing.Process(
             target=spider.run_spider_crawl, args=(novelname, url, log_queue)
@@ -362,10 +350,10 @@ def update_progress_bar_print_logs(window, log_queue):
             r"\{[^}]*\}",
             "'chapter_number': '"
             + chapter_number
-            + "'\n'chapter_start_end': '"
-            + chapter_start_end
             + "'\n'total_chapters': '"
             + total_chapters
+            + "'\n'chapter_start_end': '"
+            + chapter_start_end
             + "'\n",
             log_message,
         )
@@ -426,11 +414,13 @@ if __name__ == "__main__":
                 novel_list.append(tuple_data)
                 window["output_terminal"].print(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
-                window["progress_text"].update(f"Progress: {selected_data[0][0]}:")
+
+                # window["progress_text"].update(f"Progress: {selected_data[0][0]}:")
+
                 # run_multiprocess_crawl(novel_list, log_queue)
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
-                    target=run_multiprocess_crawl, args=(novel_list, log_queue)
+                    target=run_multiprocess_crawl, args=(novel_list, log_queue, window)
                 )
                 crawling_thread.start()
 

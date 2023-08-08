@@ -1,6 +1,5 @@
 import scrapy
 from scrapy.crawler import CrawlerProcess
-from scrapy.utils.log import configure_logging
 from multiprocessing import Process
 from ..items import NovelItem
 import logging
@@ -113,7 +112,6 @@ def run_spider_crawl(novelname: str, url: str, log_queue):
         "FEEDS": {
             novelname + ".jl": {"format": "jsonlines", "encoding": "utf8"},
         },
-        # "REQUEST_FINGERPRINTER_IMPLEMENTATION": "scrapy.utils.request.rfc3986.RequestFingerprintRFC3986",
         # reduce the amount of logging output
         # "LOG_LEVEL": "INFO",
     }
@@ -151,7 +149,6 @@ def run_multi_process_crawler(novels_urls):
     """
     for novelname, url, output_range in novels_urls:
         # creates a new crawlerprocess object for each spider and runs it in a seperate process with multiprocessing
-        # multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
         multiprocess = Process(target=run_spider_crawl, args=(novelname, url))
         # start spider process
         multiprocess.start()

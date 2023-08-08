@@ -97,8 +97,6 @@ def output_chapter_range(range: int = 10):
     return range
 
 
-# print("gonna run main, name: ", __name__, type(__name__))
-# Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     # Feed the novel name and url to spider and crawl the webpages
     test_novels = [
