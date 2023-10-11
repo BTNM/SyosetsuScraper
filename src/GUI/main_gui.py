@@ -1,100 +1,84 @@
-# import PySimpleGUI as sg
-# from src.processing.scrapy_from_script import novel_crawler
+import requests
+from bs4 import BeautifulSoup
 
+# Define the URL of the website
+url = "https://ncode.syosetu.com/n8611bv/"
 
-# left_column = [
-#     [
-#         sg.Text("Enter novel name:", size=(20, 1)),
-#         sg.Input(key="name", size=(20, 1)),
-#     ],
-#     [
-#         sg.Text("Enter novel URL", size=(20, 1)),
-#         sg.Input(key="url", size=(20, 1)),
-#     ],
-#     [
-#         sg.Text("Enter novel Output Range", size=(20, 1)),
-#         sg.Input(key="range", size=(20, 1)),
-#     ],
-#     [
-#         sg.Button("Add", key="add_button"),
-#         sg.Button("Delete", key="delete_button"),
-#     ],
-# ]
+# # Send an HTTP GET request to the URL
+# headers = {
+#     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+# }
 
-# right_column = [
-#     [
-#         sg.Table(
-#             values=[],
-#             headings=["Name", "URL", "Range"],
-#             key="table",
-#             enable_events=True,
-#             auto_size_columns=False,
-#             right_click_menu=["", ["Delete"]],
-#             col_widths=[10, 10, 10],
+# # Send an HTTP GET request to the URL with header
+# response = requests.get(url, headers=headers)
+
+# # Parse the HTML content of the page
+# soup = BeautifulSoup(response.content, "html.parser")
+
+# # Find the container with class "index_box"
+# index_box = soup.find("div", class_="index_box")
+
+# if index_box:
+#     # Find all dl elements with class "novel_sublist2" inside the "index_box"
+#     chapter_list = index_box.find_all("dl", class_="novel_sublist2")
+
+#     if chapter_list:
+#         # Find the last "dl" element in the list
+#         last_chapter = chapter_list[-1]
+
+#         # Extract the chapter title
+#         chapter_title = last_chapter.find("dd", class_="subtitle").a.text.strip()
+
+#         # Extract the chapter number from the "a" element's href attribute
+#         chapter_number = int(
+#             last_chapter.find("dd", class_="subtitle").a["href"].split("/")[-2]
 #         )
-#     ],
-# ]
 
-# # Define the layout for the GUI
-# layout = [
-#     [
-#         sg.Column(left_column),
-#         sg.Column(right_column),
-#     ],
-#     [sg.HorizontalSeparator()],
-#     [
-#         sg.Button(
-#             "Start Selected Syosetsu Scraper", key="selected_scraper_button", pad=(10)
-#         ),
-#         sg.Button("Start All Syosetsu Scraper", key="all_scraper_button", pad=(10)),
-#     ],
-#     [sg.Text("", key="output_text")],
-#     [sg.Button("Close")],
-# ]
+#         # Print the last chapter number and title
+#         print(f"Last Chapter Number: {chapter_number}")
+#         print(f"Last Chapter Title: {chapter_title}")
+
+#     else:
+#         print("No chapters found in the list")
+
+# else:
+#     print("Container with class 'index_box' not found on the page")
 
 
-# # Create the window
-# window = sg.Window("Table Example", layout)
+def get_novel_latest_chapter(url: str):
+    # Send an HTTP GET request to the URL
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110"
+    }
 
-# # Initialize the data list
-# data = []
-# novel_list = []
+    # Send an HTTP GET request to the URL with header
+    response = requests.get(url, headers=headers)
 
-# # TODO: make executable, desktop app
-# # TODO: a new listbox/table that stores all novels that have been added before, persistent store in text file or something
-# # TODO: add new window/tab or something to store old novel data
-# # FIXME: restructure files, main.py into new file, imported module by main_gui
+    # Parse the HTML content of the page
+    soup = BeautifulSoup(response.content, "html.parser")
 
-# # Event loop
-# while True:
-#     event, values = window.read()
-#     if event == sg.WINDOW_CLOSED or event == "Close":
-#         break
-#     if event == "add_button":
-#         name = values["name"]
-#         url = values["url"]
-#         range_val = values["range"]
-#         data.append([name, url, range_val])
-#         window["table"].update(values=data)
-#     if event == "delete_button":
-#         selected_rows = window["table"].SelectedRows
-#         if selected_rows:
-#             del data[selected_rows[0]]
-#             window["table"].update(values=data)
-#     if event == "selected_scraper_button":
-#         selected_rows = window["table"].SelectedRows
-#         if selected_rows:
-#             selected_data = [data[i] for i in selected_rows]
-#             tuple_data = tuple(selected_data[0])
-#             novel_list.append(tuple_data)
-#             window["output_text"].update(f"Selected rows: {tuple_data}")
-#             novel_crawler(novel_list)
-#     if event == "all_scraper_button":
-#         # get the latest values of window table
-#         table_values = window["table"].get()
-#         novel_list = [tuple(row) for row in table_values]
-#         window["output_text"].update(f"table_data:{novel_list}")
+    # Find the container with class "index_box"
+    index_box = soup.find("div", class_="index_box")
+    latest_chapter = 0
+    if index_box:
+        # Find all dl elements with class "novel_sublist2" inside the "index_box"
+        chapter_list = index_box.find_all("dl", class_="novel_sublist2")
 
+        if chapter_list:
+            # Find the last "dl" element in the list
+            last_chapter = chapter_list[-1]
+            # Extract the chapter title
+            chapter_title = last_chapter.find("dd", class_="subtitle").a.text.strip()
+            # Extract the chapter number from the "a" element's href attribute
+            latest_chapter = int(
+                last_chapter.find("dd", class_="subtitle").a["href"].split("/")[-2]
+            )
+            # Print the last chapter number and title
+            print(f"Last Chapter Number: {latest_chapter}")
+            print(f"Last Chapter Title: {chapter_title}")
 
-# # Close the window
-# window.close()
+            return latest_chapter
+        else:
+            print("No chapters found in the list")
+    else:
+        print("Container with class 'index_box' not found on the page")

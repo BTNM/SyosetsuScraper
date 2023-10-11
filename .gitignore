@@ -6,8 +6,8 @@ __pycache__/
 *.ipynb
 
 #ignore storage table csv files
-#storage/
 *.csv
+storage/
 
 # Ignore any IDE or editor-specific files
 .vscode/

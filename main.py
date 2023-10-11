@@ -367,7 +367,10 @@ log_queue = multiprocessing.Queue()
 history_table_data = history_table_load_data
 scraped_table_data = scraped_table_load_data
 novel_list = []
-# TODO: make executable, desktop app
+# TODO: make executable, desktop app or
+# TODO: create docker image and run with a docker container
+# TODO: add variable for chapter number to start crawl from
+# TODO: add check for link to check current latest chapter number for novel, maybe scrape html content table size or last element
 
 
 if __name__ == "__main__":

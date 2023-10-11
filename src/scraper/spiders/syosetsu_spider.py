@@ -106,6 +106,13 @@ def run_spider_crawl(novelname: str, url: str, log_queue):
     """
     Runs the SyosetsuSpider crawler to scrape data from the provided `url` and saves the output to a JSON Lines file
     named `novelname`.jl.
+
+    LOG_LEVEL can be set to 5 different levels
+        CRITICAL: The highest level, indicating a critical error that may prevent the program from running.
+        ERROR: Indicates a serious error that may affect the program's functionality.
+        WARNING: Indicates a potential issue or something unexpected but not necessarily critical.
+        INFO: Informational messages that provide details about the program's operation.
+        DEBUG: The most detailed level, providing extensive information useful for debugging and development.
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
     settings = {
