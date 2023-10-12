@@ -370,7 +370,9 @@ novel_list = []
 # TODO: make executable, desktop app or
 # TODO: create docker image and run with a docker container
 # TODO: add variable for chapter number to start crawl from
-# TODO: add check for link to check current latest chapter number for novel, maybe scrape html content table size or last element
+# TODO: refactor code, split out layout and methods etc
+# TODO: add a fourth column to table_data to include latest chapter at that time when scrawled or null if not crawled yet
+# TODO: add check for link to check current latest chapter number for novel, maybe scrape html content table size or last element, in the novel history tab
 
 
 if __name__ == "__main__":
