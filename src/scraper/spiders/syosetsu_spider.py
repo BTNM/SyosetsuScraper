@@ -15,8 +15,13 @@ from ..custom_logging_handler import CustomLoggingHandler
 
 class SyosetsuSpider(scrapy.Spider):
     name = "syosetsu"
+
+    def __init__(self, start_chapter=None, *args, **kwargs):
+        super(SyosetsuSpider, self).__init__(*args, **kwargs)
+        self.start_chapter = start_chapter
+
     start_urls = [
-        "https://ncode.syosetu.com/n1313ff/",
+        "https://ncode.syosetu.com/n8611bv/",
     ]
 
     # Parse novel main page first before parsing chapter content
@@ -34,13 +39,22 @@ class SyosetsuSpider(scrapy.Spider):
             novel_description = "\n".join(
                 response.xpath('//div[@id="novel_ex"]/text()').getall()
             )
-            chapter_link = response.xpath(
+            # first chapter link example '/n1313ff/74/'
+            first_chapter_link = response.xpath(
                 '//dl[@class="novel_sublist2"]/dd[@class="subtitle"]/a/@href'
             )[0].get()
+            # "https://ncode.syosetu.com / n1313ff / 74 /"
+            split_chapter_link = first_chapter_link.split("/")
+            # start_chapter = "55"
+            if self.start_chapter:
+                chapter_link = f"/{split_chapter_link[1]}/{self.start_chapter}/"
+            else:
+                chapter_link = first_chapter_link
+
             # get the first chapter link and pass novel desc to the parse_chapters method
-            start_page = response.urljoin(chapter_link)
+            starting_page = response.urljoin(chapter_link)
             yield scrapy.Request(
-                start_page,
+                starting_page,
                 callback=self.parse_chapters,
                 meta={"novel_description": novel_description},
             )
@@ -102,7 +116,7 @@ class SyosetsuSpider(scrapy.Spider):
             )
 
 
-def run_spider_crawl(novelname: str, url: str, log_queue):
+def run_spider_crawl(novelname: str, url: str, log_queue, start_chapter=None):
     """
     Runs the SyosetsuSpider crawler to scrape data from the provided `url` and saves the output to a JSON Lines file
     named `novelname`.jl.
@@ -133,7 +147,7 @@ def run_spider_crawl(novelname: str, url: str, log_queue):
 
     process = CrawlerProcess(settings=settings)
     # Run the spider with the current URL and output file settings
-    process.crawl(SyosetsuSpider, start_urls=[url])
+    process.crawl(SyosetsuSpider, start_urls=[url], start_chapter=start_chapter)
     # Start the process and wait for it to finish
     process.start()  # (stop_after_crawl=False)
 

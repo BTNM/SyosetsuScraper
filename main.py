@@ -80,7 +80,7 @@ left_column_elements = [
     ],
     [
         sg.Text("Enter novel Output Range", size=(20, 1)),
-        sg.Input(key="range", default_text="10", size=(30, 1)),
+        sg.Input(key="range", default_text="10", size=(30, 1), enable_events=True),
     ],
     [
         sg.Button("Add", key="add_button"),
@@ -115,6 +115,13 @@ scrape_layout = [
         sg.Button(
             "Start Selected Syosetsu Scraper", key="selected_scraper_button", pad=(10)
         ),
+        sg.Input(
+            key="input_starting_chapter",
+            default_text=1,
+            size=(10, 1),
+            enable_events=True,
+        ),
+        sg.Text("Enter Starting Chapter", auto_size_text=True),
         sg.Button("Start All Syosetsu Scraper", key="all_scraper_button", pad=(10)),
     ],
     [sg.Text("", key="output_text")],
@@ -221,20 +228,24 @@ layout_tab_group = [
 window = sg.Window("Scrape Tab Group", layout_tab_group)  # , size=(1200, 700))
 
 
-def run_multiprocess_crawl(novel_list, log_queue, window):
-    # run scrapy separate process for each crawl
+def run_multiprocess_crawl(novel_list, log_queue, window, start_chapter=None):
+    # run scrapy separate process for each crawl, if given start crawl at start_chapter else start from beginning
     for novelname, url, output_range in novel_list:
         window["progress_text"].update(f"Progress: {novelname}: ")
         # signal only open on main thread, have to run on main
         multiprocess = multiprocessing.Process(
-            target=spider.run_spider_crawl, args=(novelname, url, log_queue)
+            target=spider.run_spider_crawl,
+            args=(novelname, url, log_queue, start_chapter),
         )
         multiprocess.start()
         # Optionally, you can wait for the process to finish before continuing
         multiprocess.join()
 
     # output all crawled content in novel_list to txt files
-    sfs.text_output_files(novel_list)
+    print(
+        f"In run_multiprocess_crawl sent to text_output_files start_chapter: {start_chapter}"
+    )
+    sfs.text_output_files(novel_list, start_chapter)
     print("web scraping all novels in table finished\n")
 
 
@@ -361,6 +372,15 @@ def update_progress_bar_print_logs(window, log_queue):
     window["output_terminal"].print(log_message, end="")
 
 
+# Custom input validation function
+def is_input_valid_integer(value, field_name):
+    try:
+        return int(value)
+    except ValueError:
+        print(f"Wrong Input for {field_name}: {value}. Please enter a valid integer.")
+        return None
+
+
 # Create a multiprocessing queue to store the log messages
 log_queue = multiprocessing.Queue()
 # Initialize the data list and table data from storage
@@ -371,6 +391,8 @@ novel_list = []
 # TODO: create docker image and run with a docker container
 # TODO: add variable for chapter number to start crawl from
 # TODO: refactor code, split out layout and methods etc
+# TODO: if given starting chapter then use it on selected novel crawl
+# TODO: before crawl selected novel clear other selected novels from earlier if there is, avoid crawling double
 # TODO: add a fourth column to table_data to include latest chapter at that time when scrawled or null if not crawled yet
 # TODO: add check for link to check current latest chapter number for novel, maybe scrape html content table size or last element, in the novel history tab
 
@@ -384,6 +406,12 @@ if __name__ == "__main__":
             export_table_data("history_table")
             export_table_data("scraped_table")
             break
+        if event == "range" or event == "input_starting_chapter":
+            # Check if field input is integer
+            output_range = is_input_valid_integer(values["range"], "Output Range")
+            starting_chapter = is_input_valid_integer(
+                values["input_starting_chapter"], "Starting Chapter"
+            )
         # Handle events from the "Novel Scrape" tab
         if event == "add_button":
             name = values["name"]
@@ -421,11 +449,13 @@ if __name__ == "__main__":
                 # Create multiprocessing processes for each novel web scraping in the background
 
                 # window["progress_text"].update(f"Progress: {selected_data[0][0]}:")
-
                 # run_multiprocess_crawl(novel_list, log_queue)
+
+                start_chapter = values["input_starting_chapter"]
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
-                    target=run_multiprocess_crawl, args=(novel_list, log_queue, window)
+                    target=run_multiprocess_crawl,
+                    args=(novel_list, log_queue, window, start_chapter),
                 )
                 crawling_thread.start()
 

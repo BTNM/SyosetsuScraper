@@ -7,6 +7,7 @@ def read_jsonlines_file(
     directory_path: str,
     novel_name: str,
     output_chapter_range: int,
+    start_chapter: int = None,
 ):
     """
     Read a JSON lines file containing a novel content, split into sized chapters, then write each
@@ -25,8 +26,11 @@ def read_jsonlines_file(
     chapter_start_modulo_rest = 1
     chapter_end_modulo_rest = 0
     output_chapter_range = int(output_chapter_range)
-    # Set numbering to 1, for first group of chapters start at 1
-    start_chapter_numbering = 1
+    # Set start_chapter_numbering to 1 if not starting crawl chapter on is not given
+    if start_chapter is not None:
+        start_chapter_numbering = start_chapter
+    else:
+        start_chapter_numbering = 1
     with jsonlines.open(novel_jsonlines_path, "r") as jsonlinesReader:
         for chapter in jsonlinesReader.iter(type=dict, skip_invalid=True):
             chapter_number = chapter.get("chapter_number")
@@ -34,6 +38,7 @@ def read_jsonlines_file(
             title_skip = chapter_title_skip_check(chapter)
             if title_skip:
                 # Increase chapter modulo check when skip chapter, if equal to output range reset to avoid start number on skipped chapters
+                # chapter_num = 14 , output_chapter_range 10
                 if (
                     int(chapter.get("chapter_number")) % output_chapter_range
                     == chapter_start_modulo_rest
@@ -46,7 +51,7 @@ def read_jsonlines_file(
                         chapter_end_modulo_rest,
                         output_chapter_range,
                     )
-                # continue to next loop
+                # continue to next loop on if
                 continue
 
             # save start and end chapter num to add to file text name

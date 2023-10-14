@@ -31,7 +31,7 @@ def novel_crawler_from_script(novels_urls: list):
             remove_jl_file(novel_name)
 
 
-def text_output_files(novels_urls: list):
+def text_output_files(novels_urls: list, start_chapter=None):
     check_illegal_char(novels_urls)
 
     directory_output_path = os.path.normpath("D:\LN Raw Text Files")
@@ -41,7 +41,6 @@ def text_output_files(novels_urls: list):
             "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
         )
         try:
-            print(f"Run read jsonline file {novel_name} and output txt files")
             # print(
             #   f"novel_jsonlines_path: {novel_jsonlines_path} ,directory_output_path: {directory_output_path}, novel_name: {novel_name}, output_chapter_range: {output_chapter_range}"
             # )
@@ -50,6 +49,7 @@ def text_output_files(novels_urls: list):
                 directory_output_path,
                 novel_name,
                 output_chapter_range,
+                start_chapter,
             )
         except Exception as error:
             print(f"Something went wrong with the {novel_name} read_jsonLines_file")
