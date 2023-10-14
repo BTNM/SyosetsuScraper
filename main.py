@@ -387,13 +387,12 @@ log_queue = multiprocessing.Queue()
 # Initialize the data list and table data from storage
 history_table_data = history_table_load_data
 scraped_table_data = scraped_table_load_data
-novel_list = []
 # TODO: make executable, desktop app or
 # TODO: create docker image and run with a docker container
 # TODO: add variable for chapter number to start crawl from
 # TODO: refactor code, split out layout and methods etc
 # TODO: if given starting chapter then use it on selected novel crawl
-# TODO: before crawl selected novel clear other selected novels from earlier if there is, avoid crawling double
+
 # TODO: add a fourth column to table_data to include latest chapter at that time when scrawled or null if not crawled yet
 # TODO: add check for link to check current latest chapter number for novel, maybe scrape html content table size or last element, in the novel history tab
 
@@ -445,10 +444,11 @@ if __name__ == "__main__":
                 window["history_table"].update(values=history_table_data)
         if event == "selected_scraper_button":
             selected_rows = window["input_table"].SelectedRows
+            selected_novel_list = []
             if selected_rows:
                 selected_data = [history_table_data[i] for i in selected_rows]
                 tuple_data = tuple(selected_data[0])
-                novel_list.append(tuple_data)
+                selected_novel_list.append(tuple_data)
                 window["output_terminal"].print(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
 
@@ -459,7 +459,7 @@ if __name__ == "__main__":
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
                     target=run_multiprocess_crawl,
-                    args=(novel_list, log_queue, window, start_chapter),
+                    args=(selected_novel_list, log_queue, window, start_chapter),
                 )
                 crawling_thread.start()
 
