@@ -117,7 +117,6 @@ scrape_layout = [
         ),
         sg.Input(
             key="input_starting_chapter",
-            default_text=1,
             size=(10, 1),
             enable_events=True,
         ),
@@ -375,10 +374,12 @@ def update_progress_bar_print_logs(window, log_queue):
 # Custom input validation function
 def is_input_valid_integer(value, field_name):
     try:
-        return int(value)
+        # return int(value)
+        if int(value):
+            return True
     except ValueError:
-        print(f"Wrong Input for {field_name}: {value}. Please enter a valid integer.")
-        return None
+        print(f"Wrong Input for {field_name}: {value} \nPlease enter a valid integer.")
+        return False
 
 
 # Create a multiprocessing queue to store the log messages
@@ -406,12 +407,15 @@ if __name__ == "__main__":
             export_table_data("history_table")
             export_table_data("scraped_table")
             break
-        if event == "range" or event == "input_starting_chapter":
+        if event == "range":
             # Check if field input is integer
-            output_range = is_input_valid_integer(values["range"], "Output Range")
-            starting_chapter = is_input_valid_integer(
-                values["input_starting_chapter"], "Starting Chapter"
-            )
+            output_range = values["range"]
+            if not is_input_valid_integer(output_range, "Output Range"):
+                window["range"].update("")
+        if event == "input_starting_chapter":
+            starting_chapter = values["input_starting_chapter"]
+            if not is_input_valid_integer(starting_chapter, "Starting Chapter"):
+                window["input_starting_chapter"].update("")
         # Handle events from the "Novel Scrape" tab
         if event == "add_button":
             name = values["name"]
