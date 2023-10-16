@@ -122,6 +122,17 @@ if __name__ == "__main__":
             if not tabop.is_input_valid_integer(starting_chapter, "Starting Chapter"):
                 window["input_starting_chapter"].update("")
         # Handle events from the "Novel Scrape" tab
+        if event == "get_latest_chapter_btn":
+            selected_rows = window["input_table"].SelectedRows
+            if selected_rows:
+                selected_data = [history_table_data[i] for i in selected_rows]
+                novel_name = selected_data[0][0]
+                novel_url = selected_data[0][1]
+                window["select_novel"].update(novel_name)
+
+                # get latest chapter
+                latest_chapter = tabop.get_novel_latest_chapter(novel_url)
+                window["max_chapter_output"].update(latest_chapter)
         if event == "add_button":
             name = values["name"]
             url = values["url"]

@@ -38,12 +38,48 @@ def create_layout(history_table_load_data, scraped_table_load_data):
             )
         ],
     ]
+
+    middle_column_elements = [
+        [
+            sg.Text(
+                text="Find Latest Chapter For Selected Novel",
+                justification="center",
+                expand_x=True,
+            ),
+        ],
+        [
+            sg.Text(
+                text="Novel Not Selected yet",
+                key="select_novel",
+                justification="center",
+                expand_x=True,
+            ),
+        ],
+        [
+            sg.Text(
+                text="0",
+                key="max_chapter_output",
+                justification="center",
+                expand_x=True,
+            ),
+        ],
+        [
+            sg.Button(
+                button_text="Get Novel Latest Chapter For Novel",
+                key="get_latest_chapter_btn",
+                size=(30, 1),
+                expand_x=True,
+            ),
+        ],
+    ]
+
     # Define the layout for the GUI
     scrape_layout = [
         [
             sg.Column(left_column_elements),
             sg.Stretch(),
             sg.Column(right_column_elements),
+            sg.Column(middle_column_elements, expand_x=True, expand_y=True),
         ],
         [sg.HorizontalSeparator()],
         [
