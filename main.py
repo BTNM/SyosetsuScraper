@@ -23,7 +23,11 @@ layout_tab_group = layout.create_layout(
 )
 
 # Create the window
-window = sg.Window("Scrape Tab Group", layout_tab_group)  # , size=(1200, 700))
+window = sg.Window(
+    "Scrape Tab Group",
+    layout_tab_group,
+    icon="D:\VisualStudioProjects\SyosetsuScraper\src\GUI\syosetsu_icon.ico",  # , resizable=True
+)  # , size=(1200, 700))
 
 
 def run_multiprocess_crawl(novel_list, log_queue, window, start_chapter=None):
@@ -100,7 +104,6 @@ scraped_table_data = scraped_table_load_data
 # TODO: make executable, desktop app or
 # TODO: create docker image and run with a docker container
 # TODO: add a fourth column to table_data to include latest chapter at that time when scrawled or null if not crawled yet
-# TODO: add check for link to check current latest chapter number for novel, maybe scrape html content table size or last element, in the novel history tab
 
 
 if __name__ == "__main__":

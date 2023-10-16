@@ -23,7 +23,7 @@ def create_layout(history_table_load_data, scraped_table_load_data):
         ],
     ]
 
-    right_column_elements = [
+    middle_column_elements = [
         [
             sg.Table(
                 values=history_table_load_data,
@@ -39,10 +39,10 @@ def create_layout(history_table_load_data, scraped_table_load_data):
         ],
     ]
 
-    middle_column_elements = [
+    right_column_elements = [
         [
             sg.Text(
-                text="Find Latest Chapter For Selected Novel",
+                text="Find Latest Selected Novel Chapter",
                 justification="center",
                 expand_x=True,
             ),
@@ -65,21 +65,21 @@ def create_layout(history_table_load_data, scraped_table_load_data):
         ],
         [
             sg.Button(
-                button_text="Get Novel Latest Chapter For Novel",
+                button_text="Get Latest Selected Novel Chapter",
                 key="get_latest_chapter_btn",
-                size=(30, 1),
+                size=(25, 1),
                 expand_x=True,
             ),
         ],
     ]
 
-    # Define the layout for the GUI
+    # Define the layout for the novel scrape tab
     scrape_layout = [
         [
             sg.Column(left_column_elements),
             sg.Stretch(),
-            sg.Column(right_column_elements),
-            sg.Column(middle_column_elements, expand_x=True, expand_y=True),
+            sg.Column(middle_column_elements),
+            sg.Column(right_column_elements, expand_x=True, expand_y=True),
         ],
         [sg.HorizontalSeparator()],
         [
@@ -114,10 +114,11 @@ def create_layout(history_table_load_data, scraped_table_load_data):
                 key="output_terminal",
                 reroute_stdout=True,
                 reroute_cprint=True,
-            )
+            ),
         ],
     ]
 
+    # Define the layout for the novel history tab
     historical_layout = [
         [
             sg.Table(
@@ -131,6 +132,7 @@ def create_layout(history_table_load_data, scraped_table_load_data):
                 justification="left",
                 col_widths=[30, 25, 5],
             ),
+            # sg.Stretch(),
             sg.Column(
                 [
                     [

@@ -57,7 +57,10 @@ def export_table_csv(table: list, tablename):
 def export_table_data(window, table_key):
     table_values = window[table_key].get()
     novel_list = [row for row in table_values]
-    window["tab2_output_text"].update(f"table_data:{novel_list}")
+    # window["tab2_output_text"].update(f"table_data:{novel_list}")
+    print(f"Export {table_key} novel list:")
+    for novel in novel_list:
+        print(novel)
     export_table_csv(novel_list, table_key)
 
 
