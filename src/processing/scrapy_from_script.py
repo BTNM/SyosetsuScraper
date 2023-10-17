@@ -10,7 +10,7 @@ def novel_crawler_from_script(novels_urls: list):
     run_multi_process_crawler(novels_urls)
 
     directory_output_path = os.path.normpath("D:\LN Raw Text Files")
-    for novel_name, url, output_chapter_range in novels_urls:
+    for novel_name, url, output_chapter_range, latest in novels_urls:
         # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
         novel_jsonlines_path = os.path.normpath(
             "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
@@ -35,7 +35,7 @@ def text_output_files(novels_urls: list, start_chapter=None):
     check_illegal_char(novels_urls)
 
     directory_output_path = os.path.normpath("D:\LN Raw Text Files")
-    for novel_name, url, output_chapter_range in novels_urls:
+    for novel_name, url, output_chapter_range, latest in novels_urls:
         # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
         novel_jsonlines_path = os.path.normpath(
             "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
@@ -83,7 +83,7 @@ def illegal_char_in_name(foldername):
 
 def check_illegal_char(novels_urls):
     # check illegal character in novel name
-    for novel_name, url, output_range in novels_urls:
+    for novel_name, url, output_range, latest in novels_urls:
         check = illegal_char_in_name(novel_name)
         if check:
             print(f"Illegal character in {novel_name}: {check}")

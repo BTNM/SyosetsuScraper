@@ -18,7 +18,7 @@ def load_table(filepath):
         with open(filepath, "w", newline="") as file:
             writer = csv.writer(file)
             # Write the header row if needed
-            writer.writerow(["Name", "URL", "Range"])
+            writer.writerow(["Name", "URL", "Range", "Latest"])
     else:
         try:
             with open(filepath, "r", encoding="utf-8") as file:
@@ -42,7 +42,7 @@ def export_table_csv(table: list, tablename):
     file_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\{}.csv".format(
         tablename
     )
-    header = [["Name", "URL", "Range"]]
+    header = [["Name", "URL", "Range", "Latest"]]
 
     try:
         with open(file_path, mode="w", newline="", encoding="utf-8") as csv_file:

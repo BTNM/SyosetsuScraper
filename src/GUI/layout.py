@@ -18,6 +18,10 @@ def create_layout(history_table_load_data, scraped_table_load_data):
             sg.Input(key="range", default_text="10", size=(30, 1), enable_events=True),
         ],
         [
+            sg.Text("Latest Chapter (Optional)", size=(20, 1)),
+            sg.Input(key="latest_chapter", default_text="", size=(30, 1)),
+        ],
+        [
             sg.Button("Add", key="add_button"),
             sg.Button("Delete", key="delete_button"),
         ],
@@ -27,7 +31,7 @@ def create_layout(history_table_load_data, scraped_table_load_data):
         [
             sg.Table(
                 values=history_table_load_data,
-                headings=["Name", "URL", "Range"],
+                headings=["Name", "URL", "Range", "Latest"],
                 key="input_table",
                 select_mode="extended",
                 enable_events=True,
@@ -110,7 +114,7 @@ def create_layout(history_table_load_data, scraped_table_load_data):
         [
             sg.Multiline(
                 "",
-                size=(180, 10),
+                size=(200, 10),
                 key="output_terminal",
                 reroute_stdout=True,
                 reroute_cprint=True,
@@ -123,7 +127,7 @@ def create_layout(history_table_load_data, scraped_table_load_data):
         [
             sg.Table(
                 values=history_table_load_data,
-                headings=["Name", "URL", "Range"],
+                headings=["Name", "URL", "Range", "Latest"],
                 key="history_table",
                 select_mode="extended",
                 enable_events=True,
@@ -162,7 +166,7 @@ def create_layout(history_table_load_data, scraped_table_load_data):
             ),
             sg.Table(
                 values=scraped_table_load_data,
-                headings=["Name", "URL", "Range"],
+                headings=["Name", "URL", "Range", "Latest"],
                 key="scraped_table",
                 select_mode="extended",
                 enable_events=True,

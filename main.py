@@ -32,7 +32,7 @@ window = sg.Window(
 
 def run_multiprocess_crawl(novel_list, log_queue, window, start_chapter=None):
     # run scrapy separate process for each crawl, if given start crawl at start_chapter else start from beginning
-    for novelname, url, output_range in novel_list:
+    for novelname, url, output_range, latest in novel_list:
         window["progress_text"].update(f"Progress: {novelname}: ")
         # signal only open on main thread, have to run on main
         multiprocess = multiprocessing.Process(
@@ -105,6 +105,7 @@ scraped_table_data = scraped_table_load_data
 # TODO: create docker image and run with a docker container
 # TODO: add a fourth column to table_data to include latest chapter at that time when scrawled or null if not crawled yet
 
+# TODO: finish latest column in table, optional in adding, will be filled when get_latest_btn clicked
 
 if __name__ == "__main__":
     # Event loop
@@ -120,22 +121,16 @@ if __name__ == "__main__":
             output_range = values["range"]
             if not tabop.is_input_valid_integer(output_range, "Output Range"):
                 window["range"].update("")
+        if event == "latest_chapter":
+            # Check if field input is integer
+            output_range = values["latest_chapter"]
+            if not tabop.is_input_valid_integer(output_range, "Latest Chapter"):
+                window["latest_chapter"].update("")
         if event == "input_starting_chapter":
             starting_chapter = values["input_starting_chapter"]
             if not tabop.is_input_valid_integer(starting_chapter, "Starting Chapter"):
                 window["input_starting_chapter"].update("")
         # Handle events from the "Novel Scrape" tab
-        if event == "get_latest_chapter_btn":
-            selected_rows = window["input_table"].SelectedRows
-            if selected_rows:
-                selected_data = [history_table_data[i] for i in selected_rows]
-                novel_name = selected_data[0][0]
-                novel_url = selected_data[0][1]
-                window["select_novel"].update(novel_name)
-
-                # get latest chapter
-                latest_chapter = tabop.get_novel_latest_chapter(novel_url)
-                window["max_chapter_output"].update(latest_chapter)
         if event == "add_button":
             name = values["name"]
             url = values["url"]
@@ -152,7 +147,14 @@ if __name__ == "__main__":
                 )
                 window["range"].update("")
                 continue
-            history_table_data.append([name, url, range_val])
+            latest_chapter = values["latest_chapter"]
+            if not latest_chapter.isdigit():
+                window["output_terminal"].write(
+                    f"Only digits allowed in range field, Invalid Range: {range_val}\n"
+                )
+                window["latest_chapter"].update("")
+                continue
+            history_table_data.append([name, url, range_val, latest_chapter])
             window["input_table"].update(values=history_table_data)
             window["history_table"].update(values=history_table_data)
         if event == "delete_button":
@@ -161,12 +163,30 @@ if __name__ == "__main__":
                 del history_table_data[selected_rows[0]]
                 window["input_table"].update(values=history_table_data)
                 window["history_table"].update(values=history_table_data)
+        if event == "get_latest_chapter_btn":
+            selected_rows = window["input_table"].SelectedRows
+            if selected_rows:
+                # selected_data = [history_table_data[i] for i in selected_rows]
+                # novel_name = selected_data[0][0]
+                # novel_url = selected_data[0][1]
+                selected_data = history_table_data[selected_rows[0]]
+                novel_name = selected_data[0]
+                novel_url = selected_data[1]
+                window["select_novel"].update(novel_name)
+
+                # get latest chapter, Update the "Latest" column for the selected row in history_table_data
+                latest_chapter = tabop.get_novel_latest_chapter(novel_url)
+                selected_data[3] = latest_chapter
+                # Update the table element with the modified data
+                window["input_table"].update(values=history_table_data)
+                window["max_chapter_output"].update(latest_chapter)
         if event == "selected_scraper_button":
             selected_rows = window["input_table"].SelectedRows
             selected_novel_list = []
             if selected_rows:
-                selected_data = [history_table_data[i] for i in selected_rows]
-                tuple_data = tuple(selected_data[0])
+                # selected_data = [history_table_data[i] for i in selected_rows]
+                selected_data = history_table_data[selected_rows[0]]
+                tuple_data = tuple(selected_data)
                 selected_novel_list.append(tuple_data)
                 window["output_terminal"].print(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
