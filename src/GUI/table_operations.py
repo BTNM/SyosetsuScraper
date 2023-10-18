@@ -108,25 +108,38 @@ def transfer_rows(
 
 
 def move_rows_up(window_table):
-    selected_rows = window_table.SelectedRows  # Get the selected row indexes
-    if selected_rows:
+    # Get the selected row indexes
+    selected_row = window_table.SelectedRows
+    if selected_row:
+        # Get the current table data
         table_data = window_table.Get()
-        for row in selected_rows:
+        # Save the data of the selected row before moving
+        selected_data = [table_data[i] for i in selected_row]
+        for row in selected_row:
             if row > 0:
                 # Swap the selected row with the row above it
                 table_data[row], table_data[row - 1] = (
                     table_data[row - 1],
                     table_data[row],
                 )
+
         # Update the table with the modified data
         window_table.Update(values=table_data)
+        # Re-select the rows after updating the table
+        # Check if the row data matches the previously selected data
+        new_selected_rows = [
+            i for i, row in enumerate(table_data) if row in selected_data
+        ]
+        # Update the selected rows in the table
+        window_table.update(select_rows=new_selected_rows)
 
 
 def move_rows_down(window_table):
-    selected_rows = window_table.SelectedRows  # Get the selected row indexes
-    if selected_rows:
+    selected_row = window_table.SelectedRows  # Get the selected row indexes
+    if selected_row:
         table_data = window_table.Get()
-        for row in reversed(selected_rows):
+        selected_data = [table_data[i] for i in selected_row]
+        for row in reversed(selected_row):
             if row < len(table_data) - 1:
                 # Swap the selected row with the row below it
                 table_data[row], table_data[row + 1] = (
@@ -136,6 +149,11 @@ def move_rows_down(window_table):
 
         # Update the table with the modified data
         window_table.Update(values=table_data)
+        new_selected_rows = [
+            i for i, row in enumerate(table_data) if row in selected_data
+        ]
+        # Update the selected rows in the table
+        window_table.update(select_rows=new_selected_rows)
 
 
 # Custom input validation function
