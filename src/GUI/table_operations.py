@@ -64,14 +64,14 @@ def export_table_data(window, table_key):
     export_table_csv(novel_list, table_key)
 
 
-def handle_delete_button_event(window, values, history_table_data, scraped_table_data):
-    if values["history_table"]:
-        del history_table_data[values["history_table"][0]]
-        window["input_table"].update(values=history_table_data)
-        window["history_table"].update(values=history_table_data)
-    elif values["scraped_table"]:
+def handle_delete_button_event(window, values, scraped_table_data, history_table_data):
+    if values["scraped_table"]:
         del scraped_table_data[values["scraped_table"][0]]
+        window["input_table"].update(values=scraped_table_data)
         window["scraped_table"].update(values=scraped_table_data)
+    elif values["history_table"]:
+        del history_table_data[values["history_table"][0]]
+        window["history_table"].update(values=history_table_data)
 
 
 def handle_deselect_button_event(window, values):

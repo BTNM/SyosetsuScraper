@@ -9,17 +9,17 @@ import re
 
 
 # load data from storage file for persistent data
-history_table_path = (
-    "D:\VisualStudioProjects\SyosetsuScraper\src\storage\history_table.csv"
-)
 scraped_table_path = (
     "D:\VisualStudioProjects\SyosetsuScraper\src\storage\scraped_table.csv"
 )
-history_table_load_data = tabop.load_table(history_table_path)
+history_table_path = (
+    "D:\VisualStudioProjects\SyosetsuScraper\src\storage\history_table.csv"
+)
 scraped_table_load_data = tabop.load_table(scraped_table_path)
+history_table_load_data = tabop.load_table(history_table_path)
 
 layout_tab_group = layout.create_layout(
-    history_table_load_data, scraped_table_load_data
+    scraped_table_load_data, history_table_load_data
 )
 
 # Create the window
@@ -99,13 +99,11 @@ def update_progress_bar_print_logs(window, log_queue):
 # Create a multiprocessing queue to store the log messages
 log_queue = multiprocessing.Queue()
 # Initialize the data list and table data from storage
-history_table_data = history_table_load_data
 scraped_table_data = scraped_table_load_data
+history_table_data = history_table_load_data
 # TODO: make executable, desktop app or
 # TODO: create docker image and run with a docker container
-# TODO: add a fourth column to table_data to include latest chapter at that time when scrawled or null if not crawled yet
 
-# TODO: finish latest column in table, optional in adding, will be filled when get_latest_btn clicked
 
 if __name__ == "__main__":
     # Event loop
@@ -113,8 +111,8 @@ if __name__ == "__main__":
         event, values = window.read(timeout=1000)
         if event == sg.WINDOW_CLOSED or event == "exit_button":
             # export last history and scraped table data to csv storage when exit
-            tabop.export_table_data(window, "history_table")
             tabop.export_table_data(window, "scraped_table")
+            tabop.export_table_data(window, "history_table")
             break
         if event == "range":
             # Check if field input is integer
@@ -154,43 +152,40 @@ if __name__ == "__main__":
                 )
                 window["latest_chapter"].update("")
                 continue
-            history_table_data.append([name, url, range_val, latest_chapter])
-            window["input_table"].update(values=history_table_data)
-            window["history_table"].update(values=history_table_data)
+            scraped_table_data.append([name, url, range_val, latest_chapter])
+            window["input_table"].update(values=scraped_table_data)
+            window["scraped_table"].update(values=scraped_table_data)
         if event == "delete_button":
             selected_rows = window["input_table"].SelectedRows
             if selected_rows:
-                del history_table_data[selected_rows[0]]
-                window["input_table"].update(values=history_table_data)
-                window["history_table"].update(values=history_table_data)
+                del scraped_table_data[selected_rows[0]]
+                window["input_table"].update(values=scraped_table_data)
+                window["scraped_table"].update(values=scraped_table_data)
         if event == "get_latest_chapter_btn":
             selected_rows = window["input_table"].SelectedRows
             if selected_rows:
-                # selected_data = [history_table_data[i] for i in selected_rows]
-                # novel_name = selected_data[0][0]
-                # novel_url = selected_data[0][1]
-                selected_data = history_table_data[selected_rows[0]]
+                selected_data = scraped_table_data[selected_rows[0]]
                 novel_name = selected_data[0]
                 novel_url = selected_data[1]
                 window["select_novel"].update(novel_name)
 
-                # get latest chapter, Update the "Latest" column for the selected row in history_table_data
+                # get latest chapter, Update the "Latest" column for the selected row in scraped_table_data
                 latest_chapter = tabop.get_novel_latest_chapter(novel_url)
                 selected_data[3] = latest_chapter
                 # Update the table element with the modified data
-                window["input_table"].update(values=history_table_data)
                 window["max_chapter_output"].update(latest_chapter)
+                window["input_table"].update(values=scraped_table_data)
+                window["scraped_table"].update(values=scraped_table_data)
         if event == "selected_scraper_button":
             selected_rows = window["input_table"].SelectedRows
             selected_novel_list = []
             if selected_rows:
-                # selected_data = [history_table_data[i] for i in selected_rows]
-                selected_data = history_table_data[selected_rows[0]]
+                # selected_data = [scraped_table_data[i] for i in selected_rows]
+                selected_data = scraped_table_data[selected_rows[0]]
                 tuple_data = tuple(selected_data)
                 selected_novel_list.append(tuple_data)
                 window["output_terminal"].print(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
-                # run_multiprocess_crawl(novel_list, log_queue)
                 start_chapter = values["input_starting_chapter"]
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
@@ -199,47 +194,47 @@ if __name__ == "__main__":
                 )
                 crawling_thread.start()
 
-                if selected_data[0] not in scraped_table_data:
+                # after scraped novel, add to history table
+                if selected_data[0] not in history_table_data:
                     scraped_table_data.append(selected_data[0])
-                    window["scraped_table"].update(values=scraped_table_data)
+                    window["history_table"].update(values=history_table_data)
         if event == "all_scraper_button":
             # get the latest values of window table
             table_values = window["input_table"].get()
             novel_list = [tuple(row) for row in table_values]
             window["output_terminal"].print(f"table_data:{novel_list}")
-            # run_multiprocess_crawl(novel_list, log_queue)
-
             # Run the crawling process in a separate thread
             crawling_thread = threading.Thread(
                 target=run_multiprocess_crawl, args=(novel_list, log_queue, window)
             )
             crawling_thread.start()
 
+            # after scraped novel, add to history table
             for row in table_values:
-                if row not in scraped_table_data:
-                    scraped_table_data.append(row)
-            window["scraped_table"].update(values=scraped_table_data)
+                if row not in history_table_data:
+                    history_table_data.append(row)
+            window["history_table"].update(values=history_table_data)
         # Handle events from the "Novel History" tab
         if event == "table_row_delete_btn":
             tabop.handle_delete_button_event(
-                window, values, history_table_data, scraped_table_data
+                window, values, scraped_table_data, history_table_data
             )
         if event == "deselect_btn":
             tabop.handle_deselect_button_event(window, values)
         if event == "up_arrow_btn":
-            if values["history_table"]:
-                tabop.move_rows_up(window["history_table"])
-            elif values["scraped_table"]:
+            if values["scraped_table"]:
                 tabop.move_rows_up(window["scraped_table"])
+            elif values["history_table"]:
+                tabop.move_rows_up(window["history_table"])
         if event == "down_arrow_btn":
-            if values["history_table"]:
-                tabop.move_rows_down(window["history_table"])
-            elif values["scraped_table"]:
+            if values["scraped_table"]:
                 tabop.move_rows_down(window["scraped_table"])
-        if event == "export_history_btn":
-            tabop.export_table_data(window, "history_table")
+            elif values["history_table"]:
+                tabop.move_rows_down(window["history_table"])
         if event == "export_scraped_btn":
             tabop.export_table_data(window, "scraped_table")
+        if event == "export_history_btn":
+            tabop.export_table_data(window, "history_table")
         if event == "load_history_btn":
             file_path = values["history_filepath"]
             if file_path:
@@ -261,19 +256,19 @@ if __name__ == "__main__":
                 print("No scraped history filepath found")
                 window["tab2_output_text"].update(f"No scraped history filepath found")
         if event == "transfer_btn":
-            if values["history_table"]:
+            if values["scraped_table"]:
                 tabop.transfer_rows(
                     window,
-                    "history_table",
                     "scraped_table",
+                    "history_table",
                     history_table_data,
                     scraped_table_data,
                 )
-            elif values["scraped_table"]:
+            elif values["history_table"]:
                 tabop.transfer_rows(
                     window,
-                    "scraped_table",
                     "history_table",
+                    "scraped_table",
                     history_table_data,
                     scraped_table_data,
                 )

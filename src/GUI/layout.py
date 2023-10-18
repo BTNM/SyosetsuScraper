@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 
 
-def create_layout(history_table_load_data, scraped_table_load_data):
+def create_layout(scraped_table_load_data, history_table_load_data):
     left_column_elements = [
         [
             sg.Text("Enter novel name:", size=(20, 1)),
@@ -30,7 +30,7 @@ def create_layout(history_table_load_data, scraped_table_load_data):
     middle_column_elements = [
         [
             sg.Table(
-                values=history_table_load_data,
+                values=scraped_table_load_data,
                 headings=["Name", "URL", "Range", "Latest"],
                 key="input_table",
                 select_mode="extended",
@@ -126,9 +126,9 @@ def create_layout(history_table_load_data, scraped_table_load_data):
     historical_layout = [
         [
             sg.Table(
-                values=history_table_load_data,
+                values=scraped_table_load_data,
                 headings=["Name", "URL", "Range", "Latest"],
-                key="history_table",
+                key="scraped_table",
                 select_mode="extended",
                 enable_events=True,
                 auto_size_columns=False,
@@ -165,9 +165,9 @@ def create_layout(history_table_load_data, scraped_table_load_data):
                 vertical_alignment="center",
             ),
             sg.Table(
-                values=scraped_table_load_data,
+                values=history_table_load_data,
                 headings=["Name", "URL", "Range", "Latest"],
-                key="scraped_table",
+                key="history_table",
                 select_mode="extended",
                 enable_events=True,
                 auto_size_columns=False,
@@ -177,19 +177,19 @@ def create_layout(history_table_load_data, scraped_table_load_data):
             ),
         ],
         [
-            sg.Input(key="history_filepath", size=(30, 1)),
-            sg.FileBrowse(
-                initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage"
-            ),
-            sg.Button("Load History Table", key="load_history_btn"),
-            sg.Button("Export History Table", key="export_history_btn"),
-            sg.Stretch(),
             sg.Input(key="scraped_filepath", size=(30, 1)),
             sg.FileBrowse(
                 initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage"
             ),
             sg.Button("Load Scraped Table", key="load_scraped_btn"),
             sg.Button("Export Scraped Table", key="export_scraped_btn"),
+            sg.Stretch(),
+            sg.Input(key="history_filepath", size=(30, 1)),
+            sg.FileBrowse(
+                initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage"
+            ),
+            sg.Button("Load History Table", key="load_history_btn"),
+            sg.Button("Export History Table", key="export_history_btn"),
         ],
         [sg.HorizontalSeparator(pad=(10, 10, 10, 10))],
         [sg.Text("", key="tab2_output_text")],
