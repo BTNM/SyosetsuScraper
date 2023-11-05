@@ -4,6 +4,7 @@ from multiprocessing import Process
 from ..items import NovelItem
 import logging
 from ..custom_logging_handler import CustomLoggingHandler
+import time
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -67,9 +68,10 @@ class SyosetsuSpider(scrapy.Spider):
         Returns:
             A NovelItem object containing the extracted information from the chapter.
         """
+        time_start = time.perf_counter()
         # novel_description retrieved from meta dictionary, and passed to next parse_chapters
         novel_description = response.meta.get("novel_description")
-        # start_timer = default_timer()
+
         novel_item = NovelItem()
         novel_item["novel_title"] = response.xpath(
             '//div[@class="contents1"]/a[@class="margin_r20"]/text()'
@@ -104,8 +106,15 @@ class SyosetsuSpider(scrapy.Spider):
         )
         yield novel_item
 
-        # end_timer = default_timer()
-        # print("crawl chapter {}: {}".format(response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0], (end_timer-start_timer)))
+        # Calculate the time taken to crawl the chapter
+        time_end = time.perf_counter()
+        crawl_time = time_end - time_start
+
+        # Log the time taken to crawl the chapter
+        self.logger.info(
+            f"Crawled chapter {novel_item['chapter_number']} in {crawl_time:.2f} seconds"
+        )
+
         next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
         if next_page is not None:
             next_page = response.urljoin(next_page)

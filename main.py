@@ -104,6 +104,7 @@ scraped_table_data = scraped_table_load_data
 history_table_data = history_table_load_data
 # TODO: make executable, desktop app or
 # TODO: create docker image and run with a docker container
+# TODO: fix sg.table right_click_menu Delete option
 
 
 if __name__ == "__main__":
@@ -156,10 +157,9 @@ if __name__ == "__main__":
             latest_chapter = values["latest_chapter"]
             if not latest_chapter.isdigit():
                 window["output_terminal"].write(
-                    f"Only digits allowed in range field, Invalid Range: {range_val}\n"
+                    f"Only digits allowed in latest chapter field, Invalid latest_chapter: {latest_chapter}\n"
                 )
                 window["latest_chapter"].update("")
-                continue
             scraped_table_data.append([name, url, range_val, latest_chapter])
             window["input_table"].update(values=scraped_table_data)
             window["scraped_table"].update(values=scraped_table_data)
@@ -202,9 +202,9 @@ if __name__ == "__main__":
                 )
                 crawling_thread.start()
 
-                # after scraped novel, add to history table
-                if selected_data[0] not in history_table_data:
-                    scraped_table_data.append(selected_data[0])
+                # after scraped novel, add to history table since already in input and scraped table
+                if selected_data not in history_table_data:
+                    history_table_data.append(selected_data)
                     window["history_table"].update(values=history_table_data)
         if event == "all_scraper_button":
             # get the latest values of window table
