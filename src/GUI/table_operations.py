@@ -74,6 +74,25 @@ def handle_delete_button_event(window, values, scraped_table_data, history_table
         window["history_table"].update(values=history_table_data)
 
 
+# Define the event handler for the table right-click menu
+def handle_table_right_click_event(
+    event, values, scraped_table_data, history_table_data, window
+):
+    if event == "Delete":
+        # Check if any rows are selected in the table
+        if values["input_table"]:
+            del scraped_table_data[values["input_table"][0]]
+            window["input_table"].update(values=scraped_table_data)
+            window["scraped_table"].update(values=scraped_table_data)
+        elif values["scraped_table"]:
+            del scraped_table_data[values["scraped_table"][0]]
+            window["input_table"].update(values=scraped_table_data)
+            window["scraped_table"].update(values=scraped_table_data)
+        elif values["history_table"]:
+            del history_table_data[values["history_table"][0]]
+            window["history_table"].update(values=history_table_data)
+
+
 def handle_deselect_button_event(window, values):
     if values["history_table"]:
         window["history_table"].update(select_rows=[])
@@ -102,8 +121,8 @@ def transfer_rows(
         if selected_data not in destination_table_data:
             destination_table_data.append(selected_data)
             window[destination_table_key].update(values=destination_table_data)
-            # update input_table on front page if transfer to history_table
-            if source_table_key == "scraped_table":
+            # update input_table on front page if transfer to scraped_table
+            if source_table_key == "history_table":
                 window["input_table"].update(values=destination_table_data)
 
 

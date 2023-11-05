@@ -227,6 +227,10 @@ if __name__ == "__main__":
             tabop.handle_delete_button_event(
                 window, values, scraped_table_data, history_table_data
             )
+        else:
+            tabop.handle_table_right_click_event(
+                event, values, scraped_table_data, history_table_data, window
+            )
         if event == "deselect_btn":
             tabop.handle_deselect_button_event(window, values)
         if event == "up_arrow_btn":
