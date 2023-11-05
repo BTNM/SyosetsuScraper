@@ -145,7 +145,7 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                         ),
                     ],
                     [
-                        sg.Input(key="scraped_input_filepath", size=(55, 1)),
+                        sg.Input(key="scraped_input_file_path", size=(55, 1)),
                         sg.FileBrowse(
                             button_text="Find Scraped Table",
                             initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage",
@@ -153,10 +153,10 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                         sg.Button("Load Scraped Table", key="load_scraped_btn"),
                     ],
                     [
-                        sg.Input(key="scraped_input_folderpath", size=(55, 1)),
+                        sg.Input(key="scraped_input_folder_path", size=(40, 1)),
                         sg.FolderBrowse(
-                            button_text="Browse Folder For Export Scraped Table",
-                            initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage",
+                            button_text="Browse Folder Export Scraped Table",
+                            initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src",
                         ),
                         sg.Button("Export Scraped Table", key="export_scraped_btn"),
                     ],
@@ -208,7 +208,7 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                         ),
                     ],
                     [
-                        sg.Input(key="history_input_filepath", size=(55, 1)),
+                        sg.Input(key="history_input_file_path", size=(55, 1)),
                         sg.FileBrowse(
                             button_text="Find History Table",
                             initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage",
@@ -216,10 +216,10 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                         sg.Button("Load History Table", key="load_history_btn"),
                     ],
                     [
-                        sg.Input(key="history_input_folderpath", size=(55, 1)),
+                        sg.Input(key="history_input_folder_path", size=(40, 1)),
                         sg.FolderBrowse(
-                            button_text="Browse Folder For Export History Table",
-                            initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage",
+                            button_text="Browse Folder Export History Table",
+                            initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src",
                         ),
                         sg.Button("Export History Table", key="export_history_btn"),
                     ],

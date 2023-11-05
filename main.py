@@ -112,8 +112,15 @@ if __name__ == "__main__":
         event, values = window.read(timeout=1000)
         if event == sg.WINDOW_CLOSED or event == "exit_button":
             # export last history and scraped table data to csv storage when exit
-            tabop.export_table_data(window, "scraped_table")
-            tabop.export_table_data(window, "history_table")
+            standard_storage_folder_path = (
+                "D:\VisualStudioProjects\SyosetsuScraper\src\storage"
+            )
+            tabop.export_table_data(
+                window, "scraped_table", standard_storage_folder_path
+            )
+            tabop.export_table_data(
+                window, "history_table", standard_storage_folder_path
+            )
             break
         if event == "range":
             # Check if field input is integer
@@ -250,7 +257,7 @@ if __name__ == "__main__":
                     scraped_table_data,
                 )
         if event == "load_scraped_btn":
-            file_path = values["scraped_input_filepath"]
+            file_path = values["scraped_input_file_path"]
             if file_path:
                 table_data = tabop.load_table(file_path)
                 # update table scraped table data
@@ -262,7 +269,7 @@ if __name__ == "__main__":
                 print("No scraped history filepath found")
                 window["test_output_text"].update(f"No scraped history filepath found")
         if event == "load_history_btn":
-            file_path = values["history_input_filepath"]
+            file_path = values["history_input_file_path"]
             if file_path:
                 table_data = tabop.load_table(file_path)
                 history_table_data = table_data
@@ -272,9 +279,13 @@ if __name__ == "__main__":
                 print("No load history filepath found")
                 window["test_output_text"].update(f"No load history filepath found")
         if event == "export_scraped_btn":
-            tabop.export_table_data(window, "scraped_table")
+            folder_path = values["scraped_input_folder_path"]
+            if folder_path:
+                tabop.export_table_data(window, "scraped_table", folder_path)
         if event == "export_history_btn":
-            tabop.export_table_data(window, "history_table")
+            folder_path = values["history_input_folder_path"]
+            if folder_path:
+                tabop.export_table_data(window, "history_table", folder_path)
 
         # Check if there are new log messages in the queue
         while not log_queue.empty():

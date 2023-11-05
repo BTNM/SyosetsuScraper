@@ -32,16 +32,16 @@ def load_table(filepath):
     return data
 
 
-def export_table_csv(table: list, tablename):
+def export_table_csv(table: list, tablename, folder_path):
     """
     Save the content of the table to a CSV file in the specified directory path.
     Args:
         table (list): The list of lists representing the table data.
         tablename (str): The name of the CSV file.
     """
-    file_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\{}.csv".format(
-        tablename
-    )
+
+    # file_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\{}.csv".format(tablename)
+    file_path = f"{folder_path}\{tablename}.csv"
     header = [["Name", "URL", "Range", "Latest"]]
 
     try:
@@ -54,14 +54,14 @@ def export_table_csv(table: list, tablename):
         print("Error writing to CSV file: {}".format(file_path))
 
 
-def export_table_data(window, table_key):
+def export_table_data(window, table_key, folder_path):
     table_values = window[table_key].get()
     novel_list = [row for row in table_values]
     # window["tab2_output_text"].update(f"table_data:{novel_list}")
     print(f"Export {table_key} novel list:")
     for novel in novel_list:
         print(novel)
-    export_table_csv(novel_list, table_key)
+    export_table_csv(novel_list, table_key, folder_path)
 
 
 def handle_delete_button_event(window, values, scraped_table_data, history_table_data):
