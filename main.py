@@ -26,7 +26,8 @@ layout_tab_group = layout.create_layout(
 window = sg.Window(
     "Scrape Tab Group",
     layout_tab_group,
-    icon="D:\VisualStudioProjects\SyosetsuScraper\src\GUI\syosetsu_icon.ico",  # , resizable=True
+    icon="D:\VisualStudioProjects\SyosetsuScraper\src\GUI\syosetsu_icon.ico",
+    # resizable=True,
 )  # , size=(1200, 700))
 
 
@@ -231,30 +232,6 @@ if __name__ == "__main__":
                 tabop.move_rows_down(window["scraped_table"])
             elif values["history_table"]:
                 tabop.move_rows_down(window["history_table"])
-        if event == "export_scraped_btn":
-            tabop.export_table_data(window, "scraped_table")
-        if event == "export_history_btn":
-            tabop.export_table_data(window, "history_table")
-        if event == "load_history_btn":
-            file_path = values["history_filepath"]
-            if file_path:
-                table_data = tabop.load_table(file_path)
-                history_table_data = table_data
-                window["history_table"].update(values=table_data)
-                window["tab2_output_text"].update(f"Selected file:{table_data}")
-            else:
-                print("No load history filepath found")
-                window["tab2_output_text"].update(f"No load history filepath found")
-        if event == "load_scraped_btn":
-            file_path = values["scraped_filepath"]
-            if file_path:
-                table_data = tabop.load_table(file_path)
-                scraped_table_data = table_data
-                window["scraped_table"].update(values=table_data)
-                window["tab2_output_text"].update(f"Selected file:{table_data}")
-            else:
-                print("No scraped history filepath found")
-                window["tab2_output_text"].update(f"No scraped history filepath found")
         if event == "transfer_btn":
             if values["scraped_table"]:
                 tabop.transfer_rows(
@@ -272,6 +249,33 @@ if __name__ == "__main__":
                     history_table_data,
                     scraped_table_data,
                 )
+        if event == "load_scraped_btn":
+            file_path = values["scraped_input_filepath"]
+            if file_path:
+                table_data = tabop.load_table(file_path)
+                # update table scraped table data
+                scraped_table_data = table_data
+                window["scraped_table"].update(values=table_data)
+                window["input_table"].update(values=table_data)
+                window["test_output_text"].update(f"Selected file:{table_data}")
+            else:
+                print("No scraped history filepath found")
+                window["test_output_text"].update(f"No scraped history filepath found")
+        if event == "load_history_btn":
+            file_path = values["history_input_filepath"]
+            if file_path:
+                table_data = tabop.load_table(file_path)
+                history_table_data = table_data
+                window["history_table"].update(values=table_data)
+                window["test_output_text"].update(f"Selected file:{table_data}")
+            else:
+                print("No load history filepath found")
+                window["test_output_text"].update(f"No load history filepath found")
+        if event == "export_scraped_btn":
+            tabop.export_table_data(window, "scraped_table")
+        if event == "export_history_btn":
+            tabop.export_table_data(window, "history_table")
+
         # Check if there are new log messages in the queue
         while not log_queue.empty():
             update_progress_bar_print_logs(window, log_queue)
