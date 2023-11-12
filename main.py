@@ -31,7 +31,9 @@ window = sg.Window(
 )  # , size=(1200, 700))
 
 
-def run_multiprocess_crawl(novel_list, log_queue, window, start_chapter=None):
+def run_multiprocess_crawl(
+    novel_list, log_queue, window, start_chapter=None, folder_path=None
+):
     # run scrapy separate process for each crawl, if given start crawl at start_chapter else start from beginning
     for novelname, url, output_range, latest in novel_list:
         window["progress_text"].update(f"Progress: {novelname}: ")
@@ -48,7 +50,8 @@ def run_multiprocess_crawl(novel_list, log_queue, window, start_chapter=None):
     print(
         f"In run_multiprocess_crawl sent to text_output_files start_chapter: {start_chapter}"
     )
-    sfs.text_output_files(novel_list, start_chapter)
+
+    sfs.text_output_files(novel_list, start_chapter, folder_path)
     print("web scraping all novels in table finished\n")
 
 
@@ -195,10 +198,17 @@ if __name__ == "__main__":
                 window["output_terminal"].print(f"Selected rows: {tuple_data}")
                 # Create multiprocessing processes for each novel web scraping in the background
                 start_chapter = values["input_starting_chapter"]
+                output_folder = values["input_folder_path"]
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
                     target=run_multiprocess_crawl,
-                    args=(selected_novel_list, log_queue, window, start_chapter),
+                    args=(
+                        selected_novel_list,
+                        log_queue,
+                        window,
+                        start_chapter,
+                        output_folder,
+                    ),
                 )
                 crawling_thread.start()
 
@@ -211,9 +221,12 @@ if __name__ == "__main__":
             table_values = window["input_table"].get()
             novel_list = [tuple(row) for row in table_values]
             window["output_terminal"].print(f"table_data:{novel_list}")
+            output_folder = values["input_folder_path"]
+
             # Run the crawling process in a separate thread
             crawling_thread = threading.Thread(
-                target=run_multiprocess_crawl, args=(novel_list, log_queue, window)
+                target=run_multiprocess_crawl,
+                args=(novel_list, log_queue, window, None, output_folder),
             )
             crawling_thread.start()
 

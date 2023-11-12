@@ -102,6 +102,20 @@ def create_layout(scraped_table_load_data, history_table_load_data):
             ),
             sg.Text("Enter Specific Starting Chapter", auto_size_text=True),
             sg.Button("Start All Syosetsu Scraper", key="all_scraper_button", pad=(10)),
+            sg.Text(
+                "Enter Folder Path for output novel split text files:",
+                auto_size_text=True,
+                pad=(10, 0),
+            ),
+            sg.Input(
+                default_text="D:\LN Raw Text Files",
+                key="input_folder_path",
+                size=(40, 1),
+            ),
+            sg.FolderBrowse(
+                button_text="Browse Output Folder Path",
+                initial_folder="D:\LN Raw Text Files",
+            ),
         ],
         [sg.Text("", key="output_text")],
         [

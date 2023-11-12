@@ -31,10 +31,15 @@ def novel_crawler_from_script(novels_urls: list):
             remove_jl_file(novel_name)
 
 
-def text_output_files(novels_urls: list, start_chapter=None):
+def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
     check_illegal_char(novels_urls)
 
-    directory_output_path = os.path.normpath("D:\LN Raw Text Files")
+    # TODO: make output_path to variable to decide where to output novel text files
+    if folder_path:
+        directory_output_path = folder_path
+    else:
+        directory_output_path = os.path.normpath("D:\LN Raw Text Files")
+
     for novel_name, url, output_chapter_range, latest in novels_urls:
         # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
         novel_jsonlines_path = os.path.normpath(
