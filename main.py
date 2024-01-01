@@ -6,7 +6,10 @@ import src.GUI.table_operations as tabop
 import multiprocessing
 import threading
 import re
+import os
 
+# Set the DISPLAY environment variable
+os.environ["DISPLAY"] = ":0"
 
 # load data from storage file for persistent data
 scraped_table_path = (

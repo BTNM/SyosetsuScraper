@@ -1,0 +1,6 @@
+# Ignore any IDE or editor-specific files
+.vscode/
+
+.ipynb_checkpoints
+
+*.ipynb
