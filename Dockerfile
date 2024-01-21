@@ -60,4 +60,5 @@ CMD ["python", "main.py"]
 
 #set DISPLAY=192.168.10.195:0.0
 #docker run -it --rm -e DISPLAY=%DISPLAY% --network="host" --name gui_container btnm/demogui:0.6
-#docker run -it --rm -p 8080:8080 -e DISPLAY=$192.168.10.195:0.0 -v /tmp/.X11-unix:/tmp/.X11-unix --network="host" --name gui_container btnm/demogui:0.6
+#docker run -it --rm -p 8080:8080 -e DISPLAY=$192.168.10.195:0.0 -v /tmp/.X11-unix:/tmp/.X11-unix --network="host" --name gui_container btnm/demogui:0.7
+#docker run -it --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v D:/VisualStudioProjects/SyosetsuScraper/src/storage:/app/src/storage --network="host" --name gui_container --user=$(id -u):$(id -g) btnm/demogui:0.7
