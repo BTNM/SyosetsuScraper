@@ -41,10 +41,13 @@ def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
         directory_output_path = os.path.normpath("D:\LN Raw Text Files")
 
     for novel_name, url, output_chapter_range, latest in novels_urls:
-        # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
-        novel_jsonlines_path = os.path.normpath(
-            "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
+        # novel_jsonlines_path = os.path.normpath(
+        #     "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
+        # )
+        novel_jsonlines_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", f"{novel_name}.jl")
         )
+
         try:
             # print(
             #   f"novel_jsonlines_path: {novel_jsonlines_path} ,directory_output_path: {directory_output_path}, novel_name: {novel_name}, output_chapter_range: {output_chapter_range}"
