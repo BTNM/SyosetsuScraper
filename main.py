@@ -6,17 +6,23 @@ import src.GUI.table_operations as tabop
 import multiprocessing
 import threading
 import re
+import os
 
+# Determine CSV file path
+# csv_file_path = os.path.join(os.path.dirname(__file__), 'data.csv')
 
 # load data from storage file for persistent data
-scraped_table_path = (
-    "D:\VisualStudioProjects\SyosetsuScraper\src\storage\scraped_table.csv"
+# standard_storage_folder_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage"
+standard_storage_folder_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "storage")
 )
-history_table_path = (
-    "D:\VisualStudioProjects\SyosetsuScraper\src\storage\history_table.csv"
+
+scraped_table_load_data = tabop.load_table(
+    standard_storage_folder_path, "scraped_table"
 )
-scraped_table_load_data = tabop.load_table(scraped_table_path)
-history_table_load_data = tabop.load_table(history_table_path)
+history_table_load_data = tabop.load_table(
+    standard_storage_folder_path, "history_table"
+)
 
 layout_tab_group = layout.create_layout(
     scraped_table_load_data, history_table_load_data
@@ -108,6 +114,8 @@ history_table_data = history_table_load_data
 # TODO: make executable, desktop app or
 # TODO: create docker image and run with a docker container
 # TODO: fix sg.table right_click_menu Delete option
+# TODO: update load_table() to use same param/func as export and relative path
+# TODO: use relative path for csv storage so exe can use and export table data
 
 
 if __name__ == "__main__":
@@ -116,9 +124,6 @@ if __name__ == "__main__":
         event, values = window.read(timeout=1000)
         if event == sg.WINDOW_CLOSED or event == "exit_button":
             # export last history and scraped table data to csv storage when exit
-            standard_storage_folder_path = (
-                "D:\VisualStudioProjects\SyosetsuScraper\src\storage"
-            )
             tabop.export_table_data(
                 window, "scraped_table", standard_storage_folder_path
             )

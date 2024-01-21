@@ -4,7 +4,7 @@ import csv
 import os
 
 
-def load_table(filepath):
+def load_table(folder_path, tablename):
     """
     Read a CSV file at the given file path and return its data as a list of lists, excluding the header.
     Args:
@@ -13,6 +13,11 @@ def load_table(filepath):
         list: The list of lists containing the CSV data, excluding the header.
     """
     data = []
+
+    filepath = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "storage", f"{tablename}.csv")
+    )
+
     if not os.path.exists(filepath):
         # Create the file if it doesn't exist
         with open(filepath, "w", newline="") as file:
@@ -40,18 +45,19 @@ def export_table_csv(table: list, tablename, folder_path):
         tablename (str): The name of the CSV file.
     """
 
-    # file_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage\{}.csv".format(tablename)
-    file_path = f"{folder_path}\{tablename}.csv"
+    filepath = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "storage", f"{tablename}.csv")
+    )
     header = [["Name", "URL", "Range", "Latest"]]
 
     try:
-        with open(file_path, mode="w", newline="", encoding="utf-8") as csv_file:
+        with open(filepath, mode="w", newline="", encoding="utf-8") as csv_file:
             # csv_writer = csv.writer(csv_file, quotechar='"', quoting=csv.QUOTE_ALL)
             csv_writer = csv.writer(csv_file)
             csv_writer.writerows(header)
             csv_writer.writerows(table)
     except IOError:
-        print("Error writing to CSV file: {}".format(file_path))
+        print("Error writing to CSV file: {}".format(filepath))
 
 
 def export_table_data(window, table_key, folder_path):
