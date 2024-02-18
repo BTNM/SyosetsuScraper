@@ -1,3 +1,4 @@
+import os
 import scrapy
 from scrapy.crawler import CrawlerProcess
 from multiprocessing import Process
@@ -6,12 +7,16 @@ import logging
 from ..custom_logging_handler import CustomLoggingHandler
 import time
 
+
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
 # Need to move inside the project directory where scrapy.cfg file exists to run the spider
 # cd SyosetsuScraper/src/scraper , cd scraper
 # scrapy crawl syosetsu -o test2.json
 # scrapy crawl syosetsu -o testjl.jl
+
+# pyinstaller --onefile --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" --add-data "src\GUI\syosetsu_icon.ico;SyosetsuScraper" --add-data "src\storage;storage" main.py
+# pyinstaller --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" main.py
 
 
 class SyosetsuSpider(scrapy.Spider):
@@ -138,9 +143,11 @@ def run_spider_crawl(novelname: str, url: str, log_queue, start_chapter=None):
         DEBUG: The most detailed level, providing extensive information useful for debugging and development.
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
+    # Construct the relative path for the output file
+    jl_output_file_path = os.path.join("src", "storage", f"{novelname}.jl")
     settings = {
         "FEEDS": {
-            novelname + ".jl": {"format": "jsonlines", "encoding": "utf8"},
+            jl_output_file_path: {"format": "jsonlines", "encoding": "utf8"},
         },
         # reduce the amount of logging output
         # "LOG_LEVEL": "INFO",

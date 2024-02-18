@@ -246,10 +246,54 @@ def create_layout(scraped_table_load_data, history_table_load_data):
         ],
     ]
 
+    unpacking_layout = [
+        [
+            # Left scraped novel table column layout
+            sg.Column(
+                [
+                    [
+                        sg.Listbox(
+                            values=["Listbox 1", "Listbox 2", "Listbox 3"],
+                            key="unpack_listbox",
+                            size=(90, 20),
+                        ),
+                    ],
+                ]
+            ),
+            # right scraped novel table column layout
+            sg.Column(
+                [
+                    [
+                        sg.Text(
+                            "Select Jsonline Novel File To Unpack From List",
+                            key="unpack_text",
+                        ),
+                    ],
+                    [
+                        sg.Input(
+                            default_text="D:/VisualStudioProjects/SyosetsuScraper/src/storage",
+                            key="unpack_output_folder_path",
+                            size=(55, 1),
+                        ),
+                        sg.FolderBrowse(
+                            button_text="Find unpack folder path",
+                            initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage",
+                        ),
+                    ],
+                    [
+                        sg.Button("Start Unpack", key="unpack_start_btn"),
+                        sg.Button("Remove jl file", key="unpack_remove_btn"),
+                    ],
+                ],
+            ),  # end column
+        ],
+    ]
+
     tab1 = sg.Tab("Novel Scrape", scrape_layout)
     tab2 = sg.Tab("Novel History", historical_layout)
+    tab3 = sg.Tab("Text Unpacking", unpacking_layout)
     layout_tab_group = [
-        [sg.TabGroup([[tab1, tab2]], key="tab_group")],
+        [sg.TabGroup([[tab1, tab2, tab3]], key="tab_group")],
         [sg.Button("Exit", key="exit_button")],
     ]
 
