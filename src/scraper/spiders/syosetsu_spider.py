@@ -5,6 +5,7 @@ from ..items import NovelItem
 import logging
 from ..custom_logging_handler import CustomLoggingHandler
 import time
+import os
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -138,9 +139,11 @@ def run_spider_crawl(novelname: str, url: str, log_queue, start_chapter=None):
         DEBUG: The most detailed level, providing extensive information useful for debugging and development.
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
+    # Construct the relative path for the output file
+    jl_output_file_path = os.path.join("src", "storage", f"{novelname}.jl")
     settings = {
         "FEEDS": {
-            novelname + ".jl": {"format": "jsonlines", "encoding": "utf8"},
+            jl_output_file_path: {"format": "jsonlines", "encoding": "utf8"},
         },
         # reduce the amount of logging output
         # "LOG_LEVEL": "INFO",

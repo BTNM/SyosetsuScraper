@@ -45,7 +45,7 @@ def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
         #     "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
         # )
         novel_jsonlines_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", f"{novel_name}.jl")
+            os.path.join(os.path.dirname(__file__), "..", "storage", f"{novel_name}.jl")
         )
 
         try:
@@ -72,7 +72,8 @@ def remove_jl_file(novel_name: str):
     """
     Deletes a .jl file with the given name if it exists in the current directory.
     """
-    novel = "{}.jl".format(novel_name)
+    # novel = "{}.jl".format(novel_name)
+    novel = os.path.join("src", "storage", f"{novel_name}.jl")
     # checks if file with this name exists and deletes it
     if os.path.exists(novel):
         os.remove(novel)
