@@ -3,6 +3,10 @@ import requests
 import csv
 import os
 
+# pyinstaller --onefile --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" --add-data "src\GUI\syosetsu_icon.ico;SyosetsuScraper" --add-data "src\storage;storage" main.py
+# pyinstaller --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" main.py
+#
+
 
 def load_table(folder_path, tablename):
     """

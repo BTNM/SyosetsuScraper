@@ -12,8 +12,11 @@ def novel_crawler_from_script(novels_urls: list):
     directory_output_path = os.path.normpath("D:\LN Raw Text Files")
     for novel_name, url, output_chapter_range, latest in novels_urls:
         # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
-        novel_jsonlines_path = os.path.normpath(
-            "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
+        # novel_jsonlines_path = os.path.normpath(
+        #     "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
+        # )
+        novel_jsonlines_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "storage", f"{novel_name}.jl")
         )
         try:
             print("Run read jsonline file and output txt files")

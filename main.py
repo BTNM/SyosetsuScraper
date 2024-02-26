@@ -8,9 +8,6 @@ import threading
 import re
 import os
 
-# Determine CSV file path
-# csv_file_path = os.path.join(os.path.dirname(__file__), 'data.csv')
-
 # load data from storage file for persistent data
 # standard_storage_folder_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage"
 standard_storage_folder_path = os.path.abspath(
@@ -32,7 +29,10 @@ layout_tab_group = layout.create_layout(
 window = sg.Window(
     "Scrape Tab Group",
     layout_tab_group,
-    icon="D:\VisualStudioProjects\SyosetsuScraper\src\GUI\syosetsu_icon.ico",
+    # icon="D:\VisualStudioProjects\SyosetsuScraper\src\GUI\syosetsu_icon.ico",
+    icon=os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "src", "GUI", "syosetsu_icon.ico")
+    ),
     # resizable=True,
 )  # , size=(1200, 700))
 
