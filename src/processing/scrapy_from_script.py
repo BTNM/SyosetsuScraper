@@ -1,8 +1,18 @@
 from ..scraper.spiders.syosetsu_spider import *
 from .text_files_packing import *
 import os
+import sys
+
+# Dynamically get the path to the temporary directory
+if getattr(sys, "frozen", False):
+    # If the script is run as a bundled executable
+    tmp_dir = sys._MEIPASS
+else:
+    # If the script is run as a regular Python script
+    tmp_dir = ""
 
 
+# currently unused
 def novel_crawler_from_script(novels_urls: list):
     check_illegal_char(novels_urls)
 
@@ -48,7 +58,9 @@ def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
         #     "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
         # )
         novel_jsonlines_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "storage", f"{novel_name}.jl")
+            os.path.join(
+                tmp_dir, os.path.dirname(__file__), "..", "storage", f"{novel_name}.jl"
+            )
         )
 
         try:
@@ -76,6 +88,7 @@ def remove_jl_file(novel_name: str):
     Deletes a .jl file with the given name if it exists in the current directory.
     """
     # novel = "{}.jl".format(novel_name)
+    # novel = os.path.join(tmp_dir ,"src", "storage", f"{novel_name}.jl")
     novel = os.path.join("src", "storage", f"{novel_name}.jl")
     # checks if file with this name exists and deletes it
     if os.path.exists(novel):
@@ -128,4 +141,4 @@ if __name__ == "__main__":
         # ("Saving 80,000 Gold in an Another World for Retirement", "https://ncode.syosetu.com/n5529cy/", output_chapter_range()),
     ]
 
-    novel_crawler_from_script(test_novels)
+    # novel_crawler_from_script(test_novels)

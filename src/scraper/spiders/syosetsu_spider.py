@@ -6,6 +6,7 @@ import logging
 from ..custom_logging_handler import CustomLoggingHandler
 import time
 import os
+import sys
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -13,6 +14,14 @@ import os
 # cd SyosetsuScraper/src/scraper , cd scraper
 # scrapy crawl syosetsu -o test2.json
 # scrapy crawl syosetsu -o testjl.jl
+
+# Dynamically get the path to the temporary directory
+if getattr(sys, "frozen", False):
+    # If the script is run as a bundled executable
+    tmp_dir = sys._MEIPASS
+else:
+    # If the script is run as a regular Python script
+    tmp_dir = ""
 
 
 class SyosetsuSpider(scrapy.Spider):
@@ -126,7 +135,12 @@ class SyosetsuSpider(scrapy.Spider):
             )
 
 
-def run_spider_crawl(novelname: str, url: str, log_queue, start_chapter=None):
+def run_spider_crawl(
+    novelname: str,
+    url: str,
+    log_queue,
+    start_chapter=None,
+):
     """
     Runs the SyosetsuSpider crawler to scrape data from the provided `url` and saves the output to a JSON Lines file
     named `novelname`.jl.
@@ -140,13 +154,39 @@ def run_spider_crawl(novelname: str, url: str, log_queue, start_chapter=None):
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
     # Construct the relative path for the output file
-    jl_output_file_path = os.path.join("src", "storage", f"{novelname}.jl")
+
+    # jl_folder_path = os.path.join("src", "storage", f"{novelname}.jl")
+
+    logging.debug(f"scrapy_from_script - tmp_dir: {tmp_dir}")
+    logging.debug(
+        f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}"
+    )
+    testpath2 = os.path.join(tmp_dir, os.path.dirname(__file__), "..", "..", "storage")
+    logging.debug(f"scrapy_from_script - testpath2: {testpath2}")
+    #'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'
+
+    if tmp_dir == "":
+        jl_folder_path = os.path.join("src", "storage", f"{novelname}.jl")
+    else:
+        jl_folder_path = os.path.join(
+            tmp_dir,
+            "src",
+            "storage",
+            f"{novelname}.jl",
+        )
+
+    # jl_output_file_path = os.path.abspath(
+    #     os.path.join(jl_folder_path, "storage", f"{novelname}.jl")
+    # )
+    logging.debug(f"jl_folder_path: {jl_folder_path}")
+    # DEBUG - jl_output_file_path2: D:\VisualStudioProjects\SyosetsuScraper\src\storage\Ascendance of a Bookworm - Extra Story2.jl
+
     settings = {
         "FEEDS": {
-            jl_output_file_path: {"format": "jsonlines", "encoding": "utf8"},
+            jl_folder_path: {"format": "jsonlines", "encoding": "utf8"},
         },
         # reduce the amount of logging output
-        # "LOG_LEVEL": "INFO",
+        "LOG_LEVEL": "INFO",
     }
     # Create the custom logging handler
     custom_handler = CustomLoggingHandler(log_queue)

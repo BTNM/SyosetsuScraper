@@ -7,11 +7,26 @@ import multiprocessing
 import threading
 import re
 import os
+import sys
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+# Dynamically get the path to the temporary directory
+if getattr(sys, "frozen", False):
+    # If the script is run as a bundled executable
+    tmp_dir = sys._MEIPASS
+else:
+    # If the script is run as a regular Python script
+    tmp_dir = ""
+
 
 # load data from storage file for persistent data
 # standard_storage_folder_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage"
 standard_storage_folder_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "storage")
+    os.path.join(tmp_dir, os.path.dirname(__file__), "storage")
 )
 
 scraped_table_load_data = tabop.load_table(
@@ -25,20 +40,31 @@ layout_tab_group = layout.create_layout(
     scraped_table_load_data, history_table_load_data
 )
 
+# give the dist internal system path to crawler to output at correct location
+standard_folder_path_jl = os.path.abspath(
+    os.path.join(tmp_dir, os.path.dirname(__file__), "src")
+)
+
 # Create the window
 window = sg.Window(
     "Scrape Tab Group",
     layout_tab_group,
     # icon="D:\VisualStudioProjects\SyosetsuScraper\src\GUI\syosetsu_icon.ico",
     icon=os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "src", "GUI", "syosetsu_icon.ico")
+        os.path.join(
+            tmp_dir, os.path.dirname(__file__), "src", "GUI", "syosetsu_icon.ico"
+        )
     ),
     # resizable=True,
 )  # , size=(1200, 700))
 
 
 def run_multiprocess_crawl(
-    novel_list, log_queue, window, start_chapter=None, folder_path=None
+    novel_list,
+    log_queue,
+    window,
+    start_chapter=None,
+    folder_path=None,
 ):
     # run scrapy separate process for each crawl, if given start crawl at start_chapter else start from beginning
     for novelname, url, output_range, latest in novel_list:
@@ -119,6 +145,9 @@ history_table_data = history_table_load_data
 
 
 if __name__ == "__main__":
+    # Pyinstaller multiprocessing fix
+    multiprocessing.freeze_support()
+
     # Event loop
     while True:
         event, values = window.read(timeout=1000)
@@ -204,6 +233,10 @@ if __name__ == "__main__":
                 # Create multiprocessing processes for each novel web scraping in the background
                 start_chapter = values["input_starting_chapter"]
                 output_folder = values["input_folder_path"]
+
+                logging.info(
+                    f"selected_scraper_button standard_folder_path_jl: {standard_folder_path_jl}"
+                )
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
                     target=run_multiprocess_crawl,
@@ -231,7 +264,13 @@ if __name__ == "__main__":
             # Run the crawling process in a separate thread
             crawling_thread = threading.Thread(
                 target=run_multiprocess_crawl,
-                args=(novel_list, log_queue, window, None, output_folder),
+                args=(
+                    novel_list,
+                    log_queue,
+                    window,
+                    None,
+                    output_folder,
+                ),
             )
             crawling_thread.start()
 

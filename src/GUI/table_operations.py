@@ -7,6 +7,12 @@ import os
 # pyinstaller --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" main.py
 #
 
+# Something went wrong with the Ascendance of a Bookworm - Extra Story2 read_jsonLines_file
+# An exception occurred: [Errno 2] No such file or directory: 'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'
+# web scraping all novels in table finished
+# ModuleNotFoundError: No module named 'src'
+# [15780] Failed to execute script 'main' due to unhandled exception!
+
 
 def load_table(folder_path, tablename):
     """
