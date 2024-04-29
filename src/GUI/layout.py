@@ -111,7 +111,6 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                 pad=(10, 0),
             ),
             sg.Input(
-                default_text="D:\LN Raw Text Files",
                 key="input_folder_path",
                 size=(40, 1),
             ),

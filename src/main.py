@@ -1,8 +1,8 @@
-import src.processing.scrapy_from_script as sfs
-import src.scraper.spiders.syosetsu_spider as spider
 import PySimpleGUI as sg
-import src.GUI.layout as layout
-import src.GUI.table_operations as tabop
+import processing.scrapy_from_script as sfs
+import scraper.spiders.syosetsu_spider as spider
+import GUI.layout as layout
+import GUI.table_operations as tabop
 import multiprocessing
 import threading
 import re

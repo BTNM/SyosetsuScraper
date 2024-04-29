@@ -4,8 +4,9 @@ import csv
 import os
 
 # pyinstaller --onefile --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" --add-data "src\GUI\syosetsu_icon.ico;SyosetsuScraper" --add-data "src\storage;storage" main.py
-# pyinstaller --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" main.py
-#
+# pyinstaller --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" --noconfirm main.py
+
+# pyinstaller main.py --noconfirm --add-data=processing:processing --add-data=scraper:scraper --add-data=GUI:GUI --add-data=storage:storage --hidden-import=scrapy --hidden-import=jsonlines
 
 # Something went wrong with the Ascendance of a Bookworm - Extra Story2 read_jsonLines_file
 # An exception occurred: [Errno 2] No such file or directory: 'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'

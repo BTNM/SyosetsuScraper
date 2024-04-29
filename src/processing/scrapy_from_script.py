@@ -1,7 +1,8 @@
-from ..scraper.spiders.syosetsu_spider import *
+from scraper.spiders.syosetsu_spider import *
 from .text_files_packing import *
 import os
 import sys
+import logging
 
 # Dynamically get the path to the temporary directory
 if getattr(sys, "frozen", False):
@@ -19,7 +20,9 @@ def novel_crawler_from_script(novels_urls: list):
     # crawl the given syosetsu webpages
     run_multi_process_crawler(novels_urls)
 
-    directory_output_path = os.path.normpath("D:\LN Raw Text Files")
+    # directory_output_path = os.path.normpath("D:\LN Raw Text Files")
+    directory_output_path = os.path.join(tmp_dir, "storage")
+
     for novel_name, url, output_chapter_range, latest in novels_urls:
         # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
         # novel_jsonlines_path = os.path.normpath(
@@ -51,7 +54,7 @@ def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
     if folder_path:
         directory_output_path = folder_path
     else:
-        directory_output_path = os.path.normpath("D:\LN Raw Text Files")
+        directory_output_path = os.path.join(tmp_dir, "storage")
 
     for novel_name, url, output_chapter_range, latest in novels_urls:
         # novel_jsonlines_path = os.path.normpath(
@@ -75,11 +78,13 @@ def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
                 start_chapter,
             )
         except Exception as error:
-            print(f"Something went wrong with the {novel_name} read_jsonLines_file")
-            print("An exception occurred:", error)
+            logging.error(
+                f"Something went wrong with the {novel_name} read_jsonLines_file"
+            )
+            logging.error("An exception occurred:", error)
         else:
             # remove the jl file after finished reading the jl file
-            print(f"Remove jsonlines file {novel_name}")
+            logging.error(f"Remove jsonlines file {novel_name}")
             remove_jl_file(novel_name)
 
 
@@ -89,7 +94,7 @@ def remove_jl_file(novel_name: str):
     """
     # novel = "{}.jl".format(novel_name)
     # novel = os.path.join(tmp_dir ,"src", "storage", f"{novel_name}.jl")
-    novel = os.path.join("src", "storage", f"{novel_name}.jl")
+    novel = os.path.join("storage", f"{novel_name}.jl")
     # checks if file with this name exists and deletes it
     if os.path.exists(novel):
         os.remove(novel)

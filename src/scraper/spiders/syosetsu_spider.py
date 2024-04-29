@@ -153,34 +153,21 @@ def run_spider_crawl(
         DEBUG: The most detailed level, providing extensive information useful for debugging and development.
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
-    # Construct the relative path for the output file
-
     # jl_folder_path = os.path.join("src", "storage", f"{novelname}.jl")
-
-    logging.debug(f"scrapy_from_script - tmp_dir: {tmp_dir}")
     logging.debug(
         f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}"
     )
-    testpath2 = os.path.join(tmp_dir, os.path.dirname(__file__), "..", "..", "storage")
-    logging.debug(f"scrapy_from_script - testpath2: {testpath2}")
     #'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'
-
     if tmp_dir == "":
-        jl_folder_path = os.path.join("src", "storage", f"{novelname}.jl")
+        jl_folder_path = os.path.join("storage", f"{novelname}.jl")
     else:
         jl_folder_path = os.path.join(
-            tmp_dir,
-            "src",
+            # get last part of path "_internal"
+            os.path.split(tmp_dir)[1],
             "storage",
             f"{novelname}.jl",
         )
-
-    # jl_output_file_path = os.path.abspath(
-    #     os.path.join(jl_folder_path, "storage", f"{novelname}.jl")
-    # )
-    logging.debug(f"jl_folder_path: {jl_folder_path}")
-    # DEBUG - jl_output_file_path2: D:\VisualStudioProjects\SyosetsuScraper\src\storage\Ascendance of a Bookworm - Extra Story2.jl
-
+    logging.debug(f"scrapy_from_script - jl_folder_path: {jl_folder_path}")
     settings = {
         "FEEDS": {
             jl_folder_path: {"format": "jsonlines", "encoding": "utf8"},
