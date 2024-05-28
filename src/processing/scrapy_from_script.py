@@ -61,10 +61,10 @@ def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
         #     "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
         # )
         novel_jsonlines_path = os.path.abspath(
-            os.path.join(
-                tmp_dir, os.path.dirname(__file__), "..", "storage", f"{novel_name}.jl"
-            )
+            os.path.join(tmp_dir, "storage", f"{novel_name}.jl")
         )
+        # D:\VisualStudioProjects\SyosetsuScraper\src\storage\Ascendance of a Bookworm - Extra Story2.jl
+        logging.info(f"check novel_jsonlines_path - {novel_jsonlines_path}")
 
         try:
             # print(
