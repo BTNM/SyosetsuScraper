@@ -40,10 +40,14 @@ layout_tab_group = layout.create_layout(
     scraped_table_load_data, history_table_load_data
 )
 
-# give the dist internal system path to crawler to output at correct location
-standard_folder_path_jl = os.path.abspath(
-    os.path.join(tmp_dir, os.path.dirname(__file__), "src")
-)
+# if tmp_dir:
+#     # give the dist internal system path to crawler to output at correct location
+#     standard_folder_path_jl = os.path.abspath(
+#         os.path.join(tmp_dir, os.path.dirname(__file__), "src")
+#     )
+# else:
+#     standard_folder_path_jl = os.path.join(os.path.dirname(__file__), "storage")
+#     #standard_folder_path_jl = os.path.abspath(os.path.join(os.path.dirname(__file__), "storage"))
 
 # Create the window
 window = sg.Window(
@@ -234,9 +238,10 @@ if __name__ == "__main__":
                 start_chapter = values["input_starting_chapter"]
                 output_folder = values["input_folder_path"]
 
-                logging.info(
-                    f"selected_scraper_button standard_folder_path_jl: {standard_folder_path_jl}"
-                )
+                logging.info(f"selected_scraper_button output_folder: {output_folder}")
+                # logging.info(
+                #     f"selected_scraper_button standard_folder_path_jl: {standard_folder_path_jl}"
+                # )
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
                     target=run_multiprocess_crawl,

@@ -7,6 +7,19 @@ from ..custom_logging_handler import CustomLoggingHandler
 import time
 import os
 import sys
+import asyncio
+from twisted.internet import asyncioreactor, reactor
+
+# Set the SelectorEventLoop as the default event loop on Windows
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+# Check if reactor is already installed
+try:
+    # Set the reactor to AsyncioSelectorReactor
+    asyncioreactor.install()
+except Exception:
+    pass
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -154,9 +167,8 @@ def run_spider_crawl(
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
     # jl_folder_path = os.path.join("src", "storage", f"{novelname}.jl")
-    logging.debug(
-        f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}"
-    )
+    
+    #logging.debug(f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}")
     #'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'
     if tmp_dir == "":
         jl_folder_path = os.path.join("storage", f"{novelname}.jl")
@@ -167,7 +179,7 @@ def run_spider_crawl(
             "storage",
             f"{novelname}.jl",
         )
-    logging.debug(f"scrapy_from_script - jl_folder_path: {jl_folder_path}")
+    #logging.debug(f"scrapy_from_script - jl_folder_path: {jl_folder_path}")
     settings = {
         "FEEDS": {
             jl_folder_path: {"format": "jsonlines", "encoding": "utf8"},
@@ -186,9 +198,14 @@ def run_spider_crawl(
 
     process = CrawlerProcess(settings=settings)
     # Run the spider with the current URL and output file settings
-    process.crawl(SyosetsuSpider, start_urls=[url], start_chapter=start_chapter)
+    process.crawl(SyosetsuSpider, start_urls=[url], start_chapter=start_chapter) #temp disable crawl
     # Start the process and wait for it to finish
-    process.start()  # (stop_after_crawl=False)
+    # TODO try to continue to text unpack after crawl
+    #process.start()  
+    
+    # Start the reactor without installing signal handlers
+    reactor.run(installSignalHandlers=False)
+
 
 
 def run_multi_process_crawler(novels_urls):
