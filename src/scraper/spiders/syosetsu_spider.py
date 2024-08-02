@@ -4,9 +4,12 @@ from multiprocessing import Process
 from ..items import NovelItem
 import logging
 from ..custom_logging_handler import CustomLoggingHandler
+from scrapy.utils.log import configure_logging
 import time
 import os
 import sys
+from twisted.internet import reactor
+
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -154,9 +157,8 @@ def run_spider_crawl(
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
     # jl_folder_path = os.path.join("src", "storage", f"{novelname}.jl")
-    logging.debug(
-        f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}"
-    )
+    #logging.debug(f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}")
+
     #'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'
     if tmp_dir == "":
         jl_folder_path = os.path.join("storage", f"{novelname}.jl")
@@ -167,11 +169,13 @@ def run_spider_crawl(
             "storage",
             f"{novelname}.jl",
         )
-    logging.debug(f"scrapy_from_script - jl_folder_path: {jl_folder_path}")
+    #logging.debug(f"scrapy_from_script - jl_folder_path: {jl_folder_path}")
+
     settings = {
         "FEEDS": {
             jl_folder_path: {"format": "jsonlines", "encoding": "utf8"},
         },
+        'TELNETCONSOLE_ENABLED': False,
         # reduce the amount of logging output
         "LOG_LEVEL": "INFO",
     }
@@ -184,12 +188,16 @@ def run_spider_crawl(
     # Configure logging to ignore warnings
     logging.getLogger("py.warnings").setLevel(logging.ERROR)
 
+
     process = CrawlerProcess(settings=settings)
     # Run the spider with the current URL and output file settings
     process.crawl(SyosetsuSpider, start_urls=[url], start_chapter=start_chapter)
+    
+    reactor.run()
     # Start the process and wait for it to finish
-    process.start()  # (stop_after_crawl=False)
+    process.start()
 
+    #TODO: crawl/reactor not finish properly, so next text unpack wont starts 
 
 def run_multi_process_crawler(novels_urls):
     """
