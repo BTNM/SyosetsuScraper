@@ -70,7 +70,10 @@ class SyosetsuSpider(scrapy.Spider):
             yield scrapy.Request(
                 starting_page,
                 callback=self.parse_chapters,
-                meta={"novel_description": novel_description},
+                meta={
+                    "novel_description": novel_description,
+                    "start_time": time.perf_counter(),
+                },
             )
 
     def parse_chapters(self, response):
@@ -81,7 +84,9 @@ class SyosetsuSpider(scrapy.Spider):
         Returns:
             A NovelItem object containing the extracted information from the chapter.
         """
-        time_start = time.perf_counter()
+        # Calculate the time taken to crawl the chapter from request to end of processing
+        time_start = response.meta.get("start_time")
+
         # novel_description retrieved from meta dictionary, and passed to next parse_chapters
         novel_description = response.meta.get("novel_description")
 
@@ -119,11 +124,9 @@ class SyosetsuSpider(scrapy.Spider):
         )
         yield novel_item
 
-        # Calculate the time taken to crawl the chapter
+        # Log the time taken to crawl the chapter
         time_end = time.perf_counter()
         crawl_time = time_end - time_start
-
-        # Log the time taken to crawl the chapter
         self.logger.info(
             f"Crawled chapter {novel_item['chapter_number']} in {crawl_time:.2f} seconds"
         )
@@ -134,7 +137,10 @@ class SyosetsuSpider(scrapy.Spider):
             yield scrapy.Request(
                 next_page,
                 callback=self.parse_chapters,
-                meta={"novel_description": novel_description},
+                meta={
+                    "novel_description": novel_description,
+                    "start_time": time.perf_counter(),
+                },
             )
 
 
@@ -157,7 +163,7 @@ def run_spider_crawl(
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
     # jl_folder_path = os.path.join("src", "storage", f"{novelname}.jl")
-    #logging.debug(f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}")
+    # logging.debug(f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}")
 
     #'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'
     if tmp_dir == "":
@@ -169,15 +175,17 @@ def run_spider_crawl(
             "storage",
             f"{novelname}.jl",
         )
-    #logging.debug(f"scrapy_from_script - jl_folder_path: {jl_folder_path}")
+    # logging.debug(f"scrapy_from_script - jl_folder_path: {jl_folder_path}")
 
     settings = {
         "FEEDS": {
             jl_folder_path: {"format": "jsonlines", "encoding": "utf8"},
         },
-        'TELNETCONSOLE_ENABLED': False,
+        "TELNETCONSOLE_ENABLED": False,
         # reduce the amount of logging output
         "LOG_LEVEL": "INFO",
+        # "CLOSESPIDER_TIMEOUT": 10,
+        # "CLOSESPIDER_TIMEOUT_NO_ITEM": 10,
     }
     # Create the custom logging handler
     custom_handler = CustomLoggingHandler(log_queue)
@@ -188,16 +196,16 @@ def run_spider_crawl(
     # Configure logging to ignore warnings
     logging.getLogger("py.warnings").setLevel(logging.ERROR)
 
-
     process = CrawlerProcess(settings=settings)
     # Run the spider with the current URL and output file settings
     process.crawl(SyosetsuSpider, start_urls=[url], start_chapter=start_chapter)
-    
+
     reactor.run()
     # Start the process and wait for it to finish
     process.start()
 
-    #TODO: crawl/reactor not finish properly, so next text unpack wont starts 
+    # TODO: crawl/reactor not finish properly, so next text unpack wont starts
+
 
 def run_multi_process_crawler(novels_urls):
     """

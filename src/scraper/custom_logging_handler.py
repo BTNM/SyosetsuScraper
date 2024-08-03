@@ -1,5 +1,6 @@
 import logging
 
+
 class CustomLoggingHandler(logging.Handler):
     def __init__(self, log_queue):
         super().__init__()
