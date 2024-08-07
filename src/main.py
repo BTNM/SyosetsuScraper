@@ -178,11 +178,12 @@ if __name__ == "__main__":
         if event == "add_button":
             name = values["name"]
             url = values["url"]
-            if not url.startswith("https://ncode.syosetu.com/"):
+            logging.info(f"url input: {url}")
+            if "ncode.syosetu.com" not in url and "novel18.syosetu" not in url:
                 window["output_terminal"].write(
-                    f"Only novels from syosetsu starting with 'https://ncode.syosetu.com/' allowed in URL field, Invalid URL: {url}\n"
+                    f"Only novels from syosetsu starting with 'https://ncode.syosetu.com/' or 'https://novel18.syosetu.com/' allowed in URL field, Invalid URL: {url}\n"
                 )
-                window["url"].update("")
+                window["url"].update("https://")
                 continue
             range_val = values["range"]
             if not range_val.isdigit():
