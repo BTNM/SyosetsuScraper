@@ -13,38 +13,38 @@ else:
     tmp_dir = ""
 
 
-# currently unused
-def novel_crawler_from_script(novels_urls: list):
-    check_illegal_char(novels_urls)
+# # currently unused
+# def novel_crawler_from_script(novels_urls: list):
+#     check_illegal_char(novels_urls)
 
-    # crawl the given syosetsu webpages
-    run_multi_process_crawler(novels_urls)
+#     # crawl the given syosetsu webpages
+#     run_multi_process_crawler(novels_urls)
 
-    # directory_output_path = os.path.normpath("D:\LN Raw Text Files")
-    directory_output_path = os.path.join(tmp_dir, "storage")
+#     # directory_output_path = os.path.normpath("D:\LN Raw Text Files")
+#     directory_output_path = os.path.join(tmp_dir, "storage")
 
-    for novel_name, url, output_chapter_range, latest in novels_urls:
-        # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
-        # novel_jsonlines_path = os.path.normpath(
-        #     "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
-        # )
-        novel_jsonlines_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "storage", f"{novel_name}.jl")
-        )
-        try:
-            print("Run read jsonline file and output txt files")
-            read_jsonlines_file(
-                novel_jsonlines_path,
-                directory_output_path,
-                novel_name,
-                output_chapter_range,
-            )
-        except:
-            print("Something went wrong with the read_jsonLines_file")
-        else:
-            # remove the jl file after finished reading the jl file
-            print("Remove jsonlines files")
-            remove_jl_file(novel_name)
+#     for novel_name, url, output_chapter_range, latest in novels_urls:
+#         # novel_name_jsonlines_path = os.path.normpath("C:\\Users\\Bao Thien\\PycharmProjects\\SyosetsuScraper\\{}.jl".format(novel_name))
+#         # novel_jsonlines_path = os.path.normpath(
+#         #     "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
+#         # )
+#         novel_jsonlines_path = os.path.abspath(
+#             os.path.join(os.path.dirname(__file__), "..", "storage", f"{novel_name}.jl")
+#         )
+#         try:
+#             print("Run read jsonline file and output txt files")
+#             read_jsonlines_file(
+#                 novel_jsonlines_path,
+#                 directory_output_path,
+#                 novel_name,
+#                 output_chapter_range,
+#             )
+#         except:
+#             print("Something went wrong with the read_jsonLines_file")
+#         else:
+#             # remove the jl file after finished reading the jl file
+#             print("Remove jsonlines files")
+#             remove_jl_file(novel_name)
 
 
 def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
@@ -54,6 +54,7 @@ def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
     if folder_path:
         directory_output_path = folder_path
     else:
+        # directory_output_path = DEFAULT_FILE_PATH
         directory_output_path = os.path.join(tmp_dir, "storage")
 
     for novel_name, url, output_chapter_range, latest in novels_urls:

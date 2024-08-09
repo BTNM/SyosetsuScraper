@@ -10,6 +10,7 @@ import os
 import sys
 from twisted.internet import reactor
 
+# from pathlib import Path
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
@@ -25,6 +26,10 @@ if getattr(sys, "frozen", False):
 else:
     # If the script is run as a regular Python script
     tmp_dir = ""
+
+
+# C:\Users\Bao Thien\.Bao Thien_todo.jl
+# DEFAULT_FILE_PATH = Path.home().joinpath("." + Path.home().stem + "novelname.jl")
 
 
 class SyosetsuSpider(scrapy.Spider):
