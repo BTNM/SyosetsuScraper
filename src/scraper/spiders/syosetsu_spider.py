@@ -14,6 +14,7 @@ from twisted.internet import reactor
 
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
+# scrapy shell 'https://novel18.syosetu.com/n4913gc/'
 # Need to move inside the project directory where scrapy.cfg file exists to run the spider
 # cd SyosetsuScraper/src/scraper , cd scraper
 # scrapy crawl syosetsu -o test2.json
@@ -52,6 +53,7 @@ class SyosetsuSpider(scrapy.Spider):
         Returns:
             None. Sends a request to the first chapter's page.
         """
+        logging.info("Start spider parse main_page crawl")
         # print("Start crawl main page: {}".format(default_timer()))
         main_page = response.xpath('//div[@class="index_box"]')
         if main_page is not None:
@@ -201,6 +203,7 @@ def run_spider_crawl(
     # Configure logging to ignore warnings
     logging.getLogger("py.warnings").setLevel(logging.ERROR)
 
+    # TODO: if 'https://novel18.syosetu.com/n4913gc/' nocturne novel start selenium chromedriver to handle age verification
     process = CrawlerProcess(settings=settings)
     # Run the spider with the current URL and output file settings
     process.crawl(SyosetsuSpider, start_urls=[url], start_chapter=start_chapter)

@@ -7,7 +7,7 @@ __pycache__/
 
 #ignore storage table csv files
 #*.csv
-#storage/
+storage/
 
 # Ignore any IDE or editor-specific files
 .vscode/
