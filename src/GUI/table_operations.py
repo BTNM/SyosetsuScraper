@@ -263,9 +263,8 @@ def get_novel_latest_chapter_nocturne(url: str) -> int:
 
         # Get the page source and parse it with BeautifulSoup
         soup = BeautifulSoup(driver.page_source, "html.parser")
-
         # Find the container with class "novelview_pager-last" to paginate to the latest chapter
-        last_pager = soup.find("a", {"class": "novelview_pager-last"})
+        last_pager = soup.find("a", {"class": "c-pager__item c-pager__item--last"})
         logging.info(f"last_pager: {last_pager}")
 
         last_pager_href = None
@@ -282,7 +281,7 @@ def get_novel_latest_chapter_nocturne(url: str) -> int:
             soup_last_page = BeautifulSoup(driver.page_source, "html.parser")
 
             novel_view_stats = soup_last_page.find(
-                "div", class_="novelview_result-stats"
+                "div", class_="c-pager__result-stats"
             ).get_text()
             stats_split = str.replace(novel_view_stats, "\xa0", " ").split(" ")
             return int(stats_split[3])
@@ -325,8 +324,8 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Find container with class "novelview_pager-last" to paginate to latest chapter
-    last_pager = soup.find("a", {"class": "novelview_pager-last"})
-    logging.info(f"last_pager: {last_pager}")
+    last_pager = soup.find("a", {"class": "c-pager__item c-pager__item--last"})
+    # logging.info(f"last_pager: {last_pager}")
 
     last_pager_href = None
     if last_pager:
@@ -345,8 +344,9 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
         soup_last_page = BeautifulSoup(responst_last_page.content, "html.parser")
 
         novel_view_stats = soup_last_page.find(
-            "div", class_="novelview_result-stats"
+            "div", class_="c-pager__result-stats"
         ).get_text()
+        # logging.info(f"novel_view_stats: {novel_view_stats}")
         # logging.debug(f"table_operations - novel_view_stats - {novel_view_stats}")
         stats_split = str.replace(novel_view_stats, "\xa0", " ").split(" ")
         # logging.debug(f"table_operations - stats_split - {stats_split}")
