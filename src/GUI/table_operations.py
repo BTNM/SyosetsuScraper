@@ -332,7 +332,8 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
         last_pager_href = last_pager.get("href")
 
     # Find container with class "index_box" if without paginate div
-    index_box = soup.find("div", class_="index_box")
+    # index_box = soup.find("div", class_="index_box")
+    index_box = soup.find("div", class_="p-eplist")
     logging.info(f"last_pager_href: {last_pager_href}")
 
     if last_pager_href:
@@ -354,6 +355,8 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
 
     # If there is no pagination, check the index box
     if index_box:
+        # TODO: Update new way to get last chapter
+
         # Find all dl elements with class "novel_sublist2" inside the "index_box"
         chapter_list = index_box.find_all("dl", class_="novel_sublist2")
 

@@ -1,13 +1,14 @@
 import scrapy
-from scrapy.crawler import CrawlerProcess
-from multiprocessing import Process
-from ..items import NovelItem
-import logging
-from ..custom_logging_handler import CustomLoggingHandler
-from scrapy.utils.log import configure_logging
 import time
 import os
 import sys
+import logging
+from bs4 import BeautifulSoup
+from scrapy.crawler import CrawlerProcess
+from multiprocessing import Process
+from ..items import NovelItem
+from ..custom_logging_handler import CustomLoggingHandler
+from scrapy.utils.log import configure_logging
 from twisted.internet import reactor
 
 # from pathlib import Path
@@ -54,21 +55,25 @@ class SyosetsuSpider(scrapy.Spider):
             None. Sends a request to the first chapter's page.
         """
         logging.info("Start spider parse main_page crawl")
+        # logging.info(f"Response: {response}")
+        # INFO:root:Response: <200 https://ncode.syosetu.com/n4750dy/>
+
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        main_page = soup.select_one("div#novel_ex.p-novel__summary").text
+        # logging.info(f"Extracted main page summary: {main_page}")
+
         # print("Start crawl main page: {}".format(default_timer()))
-        main_page = response.xpath('//div[@class="index_box"]')
+        # main_page = response.xpath('//div[@class="p-novel__summary"]')
         if main_page is not None:
-            novel_description = "\n".join(
-                response.xpath('//div[@id="novel_ex"]/text()').getall()
-            )
+            novel_description = soup.select_one("div#novel_ex.p-novel__summary").text
             # first chapter link example '/n1313ff/74/'
-            first_chapter_link = response.xpath(
-                '//dl[@class="novel_sublist2"]/dd[@class="subtitle"]/a/@href'
-            )[0].get()
+            first_chapter_link = soup.select_one("div.p-eplist__sublist > a")["href"]
             # "https://ncode.syosetu.com / n1313ff / 74 /"
-            split_chapter_link = first_chapter_link.split("/")
+            novel_code = first_chapter_link.split("/")[1]
             # start_chapter = "55"
             if self.start_chapter:
-                chapter_link = f"/{split_chapter_link[1]}/{self.start_chapter}/"
+                chapter_link: str = f"/{novel_code}/{self.start_chapter}/"
             else:
                 chapter_link = first_chapter_link
 
@@ -91,6 +96,7 @@ class SyosetsuSpider(scrapy.Spider):
         Returns:
             A NovelItem object containing the extracted information from the chapter.
         """
+        soup = BeautifulSoup(response.text, "html.parser")
         # Calculate the time taken to crawl the chapter from request to end of processing
         time_start = response.meta.get("start_time")
 
@@ -98,36 +104,36 @@ class SyosetsuSpider(scrapy.Spider):
         novel_description = response.meta.get("novel_description")
 
         novel_item = NovelItem()
-        novel_item["novel_title"] = response.xpath(
-            '//div[@class="contents1"]/a[@class="margin_r20"]/text()'
-        ).get()
+        novel_item["novel_title"] = soup.select("div.c-announce-box div.c-announce a")[
+            1
+        ].text
         novel_item["novel_description"] = novel_description
-        novel_item["volume_title"] = response.xpath(
-            '//p[@class="chapter_title"]/text()'
-        ).get()
-        novel_item["chapter_start_end"] = response.xpath(
-            '//div[@id="novel_no"]/text()'
-        ).get()
-        novel_item["chapter_number"] = (
-            response.xpath('//div[@id="novel_no"]/text()').get().split("/")[0]
-        )
-        novel_item["chapter_title"] = response.xpath(
-            '//p[@class="novel_subtitle"]/text()'
-        ).get()
+        volume_title = soup.select_one("div.c-announce-box span")
+        novel_item["volume_title"] = volume_title.text if volume_title else ""
+
+        chapter_start_end = soup.select_one("div.p-novel__number").text
+        novel_item["chapter_start_end"] = chapter_start_end
+        novel_item["chapter_number"] = chapter_start_end.split("/")[0]
+        novel_item["chapter_title"] = soup.select_one(
+            "h1.p-novel__title.p-novel__title--rensai"
+        ).text
         novel_item["chapter_foreword"] = "\n".join(
-            response.xpath(
-                '//div[@id="novel_color"]/div[@id="novel_p"]/p/text()'
-            ).getall()
+            p.text
+            for p in soup.select(
+                "div.p-novel__body div.js-novel-text.p-novel__text--preface p"
+            )
         )
         novel_item["chapter_text"] = "\n".join(
-            response.xpath(
-                '//div[@id="novel_color"]/div[@id="novel_honbun"]/p/text()'
-            ).getall()
+            p.text
+            for p in soup.select("div.p-novel__body div.js-novel-text.p-novel__text")[
+                1
+            ].select("p")
         )
         novel_item["chapter_afterword"] = "\n".join(
-            response.xpath(
-                '//div[@id="novel_color"]/div[@id="novel_a"]/p/text()'
-            ).getall()
+            p.text
+            for p in soup.select(
+                "div.p-novel__body div.js-novel-text.p-novel__text--afterword p"
+            )
         )
         yield novel_item
 
@@ -138,9 +144,10 @@ class SyosetsuSpider(scrapy.Spider):
             f"Crawled chapter {novel_item['chapter_number']} in {crawl_time:.2f} seconds"
         )
 
-        next_page = response.xpath('//div[@class="novel_bn"]/a/@href')[1].get()
-        if next_page is not None:
-            next_page = response.urljoin(next_page)
+        next_page_element = soup.select_one("div.c-pager a.c-pager__item--next")
+        if next_page_element is not None:
+            next_page_href = next_page_element["href"]
+            next_page = response.urljoin(next_page_href)
             yield scrapy.Request(
                 next_page,
                 callback=self.parse_chapters,
