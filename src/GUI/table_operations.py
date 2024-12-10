@@ -4,6 +4,7 @@ import csv
 import os
 import logging
 import time
+from urllib.parse import urljoin
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -316,31 +317,26 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110"
     }
-
     # Send an HTTP GET request to the URL with header
     response = requests.get(url, headers=headers)
-
     # Parse the HTML content of the page
     soup = BeautifulSoup(response.content, "html.parser")
 
-    # Find container with class "novelview_pager-last" to paginate to latest chapter
-    last_pager = soup.find("a", {"class": "c-pager__item c-pager__item--last"})
+    # Find if page paginater exists
+    last_pager = soup.select_one("a.c-pager__item--last")
     # logging.info(f"last_pager: {last_pager}")
-
     last_pager_href = None
     if last_pager:
         last_pager_href = last_pager.get("href")
+    # logging.info(f"last_pager_href: {last_pager_href}")
 
-    # Find container with class "index_box" if without paginate div
-    # index_box = soup.find("div", class_="index_box")
-    index_box = soup.find("div", class_="p-eplist")
-    logging.info(f"last_pager_href: {last_pager_href}")
-
+    # If paginater found, get the last page number and extract the last chapter number
     if last_pager_href:
         # https://ncode.syosetu.com/n4913gc/
         # https://novel18.syosetu.com/n4913gc/
-        # ncode = url.split("/")[2] = "ncode.syosetu.com"
-        baseurl = f"https://ncode.syosetu.com{last_pager_href}"
+
+        # baseurl = f"https://ncode.syosetu.com{last_pager_href}"
+        baseurl = urljoin(url, last_pager_href)
         responst_last_page = requests.get(baseurl, headers=headers)
         soup_last_page = BeautifulSoup(responst_last_page.content, "html.parser")
 
@@ -353,31 +349,19 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
         # logging.debug(f"table_operations - stats_split - {stats_split}")
         return int(stats_split[3])
 
-    # If there is no pagination, check the index box
-    if index_box:
-        # TODO: Update new way to get last chapter
+    # If there is no pagination, chapter element list
+    else:
+        # Find all chapter elements on main novel page
+        chapter_element_list = soup.find_all("div", class_="p-eplist__sublist")
 
-        # Find all dl elements with class "novel_sublist2" inside the "index_box"
-        chapter_list = index_box.find_all("dl", class_="novel_sublist2")
-
-        if chapter_list:
-            # Find the last "dl" element in the list
-            last_chapter = chapter_list[-1]
+        if chapter_element_list:
             # Extract the chapter title
-            chapter_title = last_chapter.find("dd", class_="subtitle").a.text.strip()
+            chapter_title = chapter_element_list[-1].a.text.strip()
             # Extract the chapter number from the "a" element's href attribute
-            latest_chapter = int(
-                last_chapter.find("dd", class_="subtitle").a["href"].split("/")[-2]
-            )
-            # Print the last chapter number and title
+            latest_chapter = int(chapter_element_list[-1].a["href"].split("/")[2])
             # print(f"Last Chapter Number: {latest_chapter}")
             # print(f"Last Chapter Title: {chapter_title}")
 
             return latest_chapter
         else:
             print("No chapters found in the list")
-    else:
-        print(
-            "Container with class 'novelview_pager-last' or 'index_box' not found in this novel web page"
-        )
-        return None
