@@ -55,16 +55,10 @@ class SyosetsuSpider(scrapy.Spider):
             None. Sends a request to the first chapter's page.
         """
         logging.info("Start spider parse main_page crawl")
-        # logging.info(f"Response: {response}")
-        # INFO:root:Response: <200 https://ncode.syosetu.com/n4750dy/>
-
         soup = BeautifulSoup(response.text, "html.parser")
 
         main_page = soup.select_one("div#novel_ex.p-novel__summary").text
-        # logging.info(f"Extracted main page summary: {main_page}")
 
-        # print("Start crawl main page: {}".format(default_timer()))
-        # main_page = response.xpath('//div[@class="p-novel__summary"]')
         if main_page is not None:
             novel_description = soup.select_one("div#novel_ex.p-novel__summary").text
             # first chapter link example '/n1313ff/74/'
@@ -101,12 +95,12 @@ class SyosetsuSpider(scrapy.Spider):
         time_start = response.meta.get("start_time")
 
         # novel_description retrieved from meta dictionary, and passed to next parse_chapters
-        novel_description = response.meta.get("novel_description")
-
         novel_item = NovelItem()
         novel_item["novel_title"] = soup.select("div.c-announce-box div.c-announce a")[
             1
         ].text
+
+        novel_description = response.meta.get("novel_description")
         novel_item["novel_description"] = novel_description
         volume_title = soup.select_one("div.c-announce-box span")
         novel_item["volume_title"] = volume_title.text if volume_title else ""
@@ -117,24 +111,28 @@ class SyosetsuSpider(scrapy.Spider):
         novel_item["chapter_title"] = soup.select_one(
             "h1.p-novel__title.p-novel__title--rensai"
         ).text
-        novel_item["chapter_foreword"] = "\n".join(
-            p.text
-            for p in soup.select(
-                "div.p-novel__body div.js-novel-text.p-novel__text--preface p"
-            )
+
+        foreword = soup.select_one(
+            "div.p-novel__body div.js-novel-text.p-novel__text--preface"
         )
+        if foreword:
+            novel_item["chapter_preface"] = "\n".join(
+                p.text for p in foreword.select("p")
+            )
         novel_item["chapter_text"] = "\n".join(
             p.text
-            for p in soup.select("div.p-novel__body div.js-novel-text.p-novel__text")[
-                1
-            ].select("p")
+            for p in soup.select_one(
+                "div.p-novel__body div.js-novel-text.p-novel__text"
+            ).select("p[id^='L']")
         )
-        novel_item["chapter_afterword"] = "\n".join(
-            p.text
-            for p in soup.select(
-                "div.p-novel__body div.js-novel-text.p-novel__text--afterword p"
+        afterword = soup.select_one(
+            "div.p-novel__body div.js-novel-text.p-novel__text--afterword"
+        )
+        if afterword:
+            novel_item["chapter_afterword"] = "\n".join(
+                p.text for p in afterword.select("p")
             )
-        )
+
         yield novel_item
 
         # Log the time taken to crawl the chapter

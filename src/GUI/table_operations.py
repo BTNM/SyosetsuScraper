@@ -222,95 +222,95 @@ def get_novel_latest_chapter(url: str):
     latest_chapter = None
     if "ncode.syosetu.com" in url:
         return get_novel_latest_chapter_ncode(url)
-    elif "novel18.syosetu.com" in url:
-        return get_novel_latest_chapter_nocturne(url)
+    # elif "novel18.syosetu.com" in url:
+    #     return get_novel_latest_chapter_nocturne(url)
     else:
         print(f"Get Novel Lastest Chapter didn't run with url={url}")
         return latest_chapter
 
 
-def get_novel_latest_chapter_nocturne(url: str) -> int:
-    # Set up Selenium WebDriver with headless option and logging preferences
-    options = Options()
-    options.add_argument("--headless")  # Run in headless mode
-    options.add_argument("--disable-gpu")  # Applicable to Windows OS only
-    options.add_argument("--no-sandbox")  # Bypass OS security model
-    options.add_argument(
-        "--disable-dev-shm-usage"
-    )  # Overcome limited resource problems
-    options.add_argument("--log-level=3")  # Suppress logs
-    options.add_argument("--silent")  # Additional option to suppress logs
+# def get_novel_latest_chapter_nocturne(url: str) -> int:
+#     # Set up Selenium WebDriver with headless option and logging preferences
+#     options = Options()
+#     options.add_argument("--headless")  # Run in headless mode
+#     options.add_argument("--disable-gpu")  # Applicable to Windows OS only
+#     options.add_argument("--no-sandbox")  # Bypass OS security model
+#     options.add_argument(
+#         "--disable-dev-shm-usage"
+#     )  # Overcome limited resource problems
+#     options.add_argument("--log-level=3")  # Suppress logs
+#     options.add_argument("--silent")  # Additional option to suppress logs
 
-    # Suppress DevTools logs
-    options.set_capability(
-        "goog:loggingPrefs", {"performance": "OFF", "browser": "OFF"}
-    )
+#     # Suppress DevTools logs
+#     options.set_capability(
+#         "goog:loggingPrefs", {"performance": "OFF", "browser": "OFF"}
+#     )
 
-    driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()), options=options
-    )
-    try:
-        # Navigate to the URL
-        driver.get(url)
+#     driver = webdriver.Chrome(
+#         service=ChromeService(ChromeDriverManager().install()), options=options
+#     )
+#     try:
+#         # Navigate to the URL
+#         driver.get(url)
 
-        # Handle the age verification page
-        if "novel18.syosetu.com" in url:
-            time.sleep(2)  # Wait for the page to load
-            enter_button = driver.find_element(By.ID, "yes18")
-            enter_button.click()
+#         # Handle the age verification page
+#         if "novel18.syosetu.com" in url:
+#             time.sleep(2)  # Wait for the page to load
+#             enter_button = driver.find_element(By.ID, "yes18")
+#             enter_button.click()
 
-        # Wait for the redirect to complete
-        # driver.implicitly_wait(2)
+#         # Wait for the redirect to complete
+#         # driver.implicitly_wait(2)
 
-        # Get the page source and parse it with BeautifulSoup
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        # Find the container with class "novelview_pager-last" to paginate to the latest chapter
-        last_pager = soup.find("a", {"class": "c-pager__item c-pager__item--last"})
-        logging.info(f"last_pager: {last_pager}")
+#         # Get the page source and parse it with BeautifulSoup
+#         soup = BeautifulSoup(driver.page_source, "html.parser")
+#         # Find the container with class "novelview_pager-last" to paginate to the latest chapter
+#         last_pager = soup.find("a", {"class": "c-pager__item c-pager__item--last"})
+#         logging.info(f"last_pager: {last_pager}")
 
-        last_pager_href = None
-        if last_pager:
-            last_pager_href = last_pager.get("href")
+#         last_pager_href = None
+#         if last_pager:
+#             last_pager_href = last_pager.get("href")
 
-        # Find container with class "index_box" if without paginate div
-        index_box = soup.find("div", class_="index_box")
-        # logging.info(f"last_pager_href: {last_pager_href}")
+#         # Find container with class "index_box" if without paginate div
+#         index_box = soup.find("div", class_="index_box")
+#         # logging.info(f"last_pager_href: {last_pager_href}")
 
-        if last_pager_href:
-            driver.get(f"https://ncode.syosetu.com/{last_pager_href}")
-            # driver.implicitly_wait(2)  # Wait for the page to load
-            soup_last_page = BeautifulSoup(driver.page_source, "html.parser")
+#         if last_pager_href:
+#             driver.get(f"https://ncode.syosetu.com/{last_pager_href}")
+#             # driver.implicitly_wait(2)  # Wait for the page to load
+#             soup_last_page = BeautifulSoup(driver.page_source, "html.parser")
 
-            novel_view_stats = soup_last_page.find(
-                "div", class_="c-pager__result-stats"
-            ).get_text()
-            stats_split = str.replace(novel_view_stats, "\xa0", " ").split(" ")
-            return int(stats_split[3])
-        # If there is no pagination, check the index box
-        elif index_box:
-            # Find all dl elements with class "novel_sublist2" inside the "index_box"
-            chapter_list = index_box.find_all("dl", class_="novel_sublist2")
+#             novel_view_stats = soup_last_page.find(
+#                 "div", class_="c-pager__result-stats"
+#             ).get_text()
+#             stats_split = str.replace(novel_view_stats, "\xa0", " ").split(" ")
+#             return int(stats_split[3])
+#         # If there is no pagination, check the index box
+#         elif index_box:
+#             # Find all dl elements with class "novel_sublist2" inside the "index_box"
+#             chapter_list = index_box.find_all("dl", class_="novel_sublist2")
 
-            if chapter_list:
-                # Find the last "dl" element in the list
-                last_chapter = chapter_list[-1]
-                # Extract the chapter title
-                chapter_title = last_chapter.find(
-                    "dd", class_="subtitle"
-                ).a.text.strip()
-                # Extract the chapter number from the "a" element's href attribute
-                latest_chapter = int(
-                    last_chapter.find("dd", class_="subtitle").a["href"].split("/")[-2]
-                )
-                # Print the last chapter number and title
-                # print(f"Last Chapter Number: {latest_chapter}")
-                # print(f"Last Chapter Title: {chapter_title}")
+#             if chapter_list:
+#                 # Find the last "dl" element in the list
+#                 last_chapter = chapter_list[-1]
+#                 # Extract the chapter title
+#                 chapter_title = last_chapter.find(
+#                     "dd", class_="subtitle"
+#                 ).a.text.strip()
+#                 # Extract the chapter number from the "a" element's href attribute
+#                 latest_chapter = int(
+#                     last_chapter.find("dd", class_="subtitle").a["href"].split("/")[-2]
+#                 )
+#                 # Print the last chapter number and title
+#                 # print(f"Last Chapter Number: {latest_chapter}")
+#                 # print(f"Last Chapter Title: {chapter_title}")
 
-                return latest_chapter
-            else:
-                print("No chapters found in the list")
-    finally:
-        driver.quit()
+#                 return latest_chapter
+#             else:
+#                 print("No chapters found in the list")
+#     finally:
+#         driver.quit()
 
 
 def get_novel_latest_chapter_ncode(url: str) -> int:
@@ -323,9 +323,9 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Find if page paginater exists
-    last_pager = soup.select_one("a.c-pager__item--last")
-    # logging.info(f"last_pager: {last_pager}")
     last_pager_href = None
+    last_pager = soup.select_one("a.c-pager__item--last")
+
     if last_pager:
         last_pager_href = last_pager.get("href")
     # logging.info(f"last_pager_href: {last_pager_href}")
@@ -335,15 +335,14 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
         # https://ncode.syosetu.com/n4913gc/
         # https://novel18.syosetu.com/n4913gc/
 
-        # baseurl = f"https://ncode.syosetu.com{last_pager_href}"
-        baseurl = urljoin(url, last_pager_href)
-        responst_last_page = requests.get(baseurl, headers=headers)
-        soup_last_page = BeautifulSoup(responst_last_page.content, "html.parser")
+        # base_url = f"https://ncode.syosetu.com{last_pager_href}"
+        base_url = urljoin(url, last_pager_href)
+        response_last_page = requests.get(base_url, headers=headers)
+        soup_last_page = BeautifulSoup(response_last_page.content, "html.parser")
 
         novel_view_stats = soup_last_page.find(
             "div", class_="c-pager__result-stats"
         ).get_text()
-        # logging.info(f"novel_view_stats: {novel_view_stats}")
         # logging.debug(f"table_operations - novel_view_stats - {novel_view_stats}")
         stats_split = str.replace(novel_view_stats, "\xa0", " ").split(" ")
         # logging.debug(f"table_operations - stats_split - {stats_split}")
