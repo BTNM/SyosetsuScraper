@@ -3,31 +3,21 @@ import requests
 import csv
 import os
 import logging
-import time
 from urllib.parse import urljoin
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+from processing.processing_constants import STORAGE_PATH, PROJECT_ROOT_PATH
 
-# Reduce the verbosity of the logs
-logging.basicConfig(level=logging.INFO)
-logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("selenium").setLevel(logging.WARNING)
-logging.getLogger("WDM").setLevel(logging.WARNING)
+# import time
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.chrome.service import Service as ChromeService
+# from selenium.webdriver.chrome.options import Options
+# from webdriver_manager.chrome import ChromeDriverManager
 
-
-# pyinstaller --onefile --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" --add-data "src\GUI\syosetsu_icon.ico;SyosetsuScraper" --add-data "src\storage;storage" main.py
-# pyinstaller --hidden-import=scrapy --hidden-import=jsonlines --add-data "src;src" --noconfirm main.py
-
-# pyinstaller main.py --noconfirm --add-data=processing:processing --add-data=scraper:scraper --add-data=GUI:GUI --add-data=storage:storage --hidden-import=scrapy --hidden-import=jsonlines
-
-# Something went wrong with the Ascendance of a Bookworm - Extra Story2 read_jsonLines_file
-# An exception occurred: [Errno 2] No such file or directory: 'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'
-# web scraping all novels in table finished
-# ModuleNotFoundError: No module named 'src'
-# [15780] Failed to execute script 'main' due to unhandled exception!
+# # Reduce the verbosity of the logs
+# logging.basicConfig(level=logging.INFO)
+# logging.getLogger("urllib3").setLevel(logging.WARNING)
+# logging.getLogger("selenium").setLevel(logging.WARNING)
+# logging.getLogger("WDM").setLevel(logging.WARNING)
 
 
 def load_table(folder_path, tablename):
@@ -39,10 +29,10 @@ def load_table(folder_path, tablename):
         list: The list of lists containing the CSV data, excluding the header.
     """
     data = []
-
-    filepath = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "storage", f"{tablename}.csv")
-    )
+    # filepath = os.path.abspath(
+    #     os.path.join(os.path.dirname(__file__), "..", "storage", f"{tablename}.csv")
+    # )
+    filepath = os.path.join(PROJECT_ROOT_PATH, "storage", f"{tablename}.csv")
 
     if not os.path.exists(filepath):
         # Create the file if it doesn't exist
@@ -71,9 +61,10 @@ def export_table_csv(table: list, tablename, folder_path):
         tablename (str): The name of the CSV file.
     """
 
-    filepath = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "storage", f"{tablename}.csv")
-    )
+    # filepath = os.path.abspath(
+    #     os.path.join(os.path.dirname(__file__), "..", "storage", f"{tablename}.csv")
+    # )
+    filepath = os.path.join(PROJECT_ROOT_PATH, "storage", f"{tablename}.csv")
     header = [["Name", "URL", "Range", "Latest"]]
 
     try:
@@ -89,7 +80,6 @@ def export_table_csv(table: list, tablename, folder_path):
 def export_table_data(window, table_key, folder_path):
     table_values = window[table_key].get()
     novel_list = [row for row in table_values]
-    # window["tab2_output_text"].update(f"table_data:{novel_list}")
     print(f"Export {table_key} novel list:")
     for novel in novel_list:
         print(novel)
@@ -358,8 +348,6 @@ def get_novel_latest_chapter_ncode(url: str) -> int:
             chapter_title = chapter_element_list[-1].a.text.strip()
             # Extract the chapter number from the "a" element's href attribute
             latest_chapter = int(chapter_element_list[-1].a["href"].split("/")[2])
-            # print(f"Last Chapter Number: {latest_chapter}")
-            # print(f"Last Chapter Title: {chapter_title}")
 
             return latest_chapter
         else:

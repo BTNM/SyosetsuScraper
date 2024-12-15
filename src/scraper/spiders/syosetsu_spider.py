@@ -11,27 +11,11 @@ from ..custom_logging_handler import CustomLoggingHandler
 from scrapy.utils.log import configure_logging
 from twisted.internet import reactor
 
-# from pathlib import Path
-
 # run scrapy shell to test scrapy extract which content
 # scrapy shell 'https://ncode.syosetu.com/n1313ff/1/'
-# scrapy shell 'https://novel18.syosetu.com/n4913gc/'
 # Need to move inside the project directory where scrapy.cfg file exists to run the spider
 # cd SyosetsuScraper/src/scraper , cd scraper
-# scrapy crawl syosetsu -o test2.json
 # scrapy crawl syosetsu -o testjl.jl
-
-# Dynamically get the path to the temporary directory
-if getattr(sys, "frozen", False):
-    # If the script is run as a bundled executable
-    tmp_dir = sys._MEIPASS
-else:
-    # If the script is run as a regular Python script
-    tmp_dir = ""
-
-
-# C:\Users\Bao Thien\.Bao Thien_todo.jl
-# DEFAULT_FILE_PATH = Path.home().joinpath("." + Path.home().stem + "novelname.jl")
 
 
 class SyosetsuSpider(scrapy.Spider):
@@ -174,24 +158,9 @@ def run_spider_crawl(
         DEBUG: The most detailed level, providing extensive information useful for debugging and development.
     """
     # Create a new CrawlerProcess object with project settings and the desired output file settings
-    # jl_folder_path = os.path.join("src", "storage", f"{novelname}.jl")
-    # logging.debug(f"scrapy_from_script - os.path.dirname(__file__): {os.path.dirname(__file__)}")
-
-    #'D:\\VisualStudioProjects\\SyosetsuScraper\\dist\\main\\_internal\\src\\storage\\Ascendance of a Bookworm - Extra Story2.jl'
-    if tmp_dir == "":
-        jl_folder_path = os.path.join("storage", f"{novelname}.jl")
-    else:
-        jl_folder_path = os.path.join(
-            # get last part of path "_internal"
-            os.path.split(tmp_dir)[1],
-            "storage",
-            f"{novelname}.jl",
-        )
-    # logging.debug(f"scrapy_from_script - jl_folder_path: {jl_folder_path}")
-
     settings = {
         "FEEDS": {
-            jl_folder_path: {"format": "jsonlines", "encoding": "utf8"},
+            f"storage/{novelname}.jl": {"format": "jsonlines", "encoding": "utf8"},
         },
         "TELNETCONSOLE_ENABLED": False,
         # reduce the amount of logging output
@@ -202,6 +171,7 @@ def run_spider_crawl(
     # Create the custom logging handler
     custom_handler = CustomLoggingHandler(log_queue)
     # custom_handler.setLevel(logging.INFO)
+
     # Configure logging to use the custom logging handler
     logger = logging.getLogger()
     logger.addHandler(custom_handler)

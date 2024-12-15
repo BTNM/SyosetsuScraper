@@ -1,42 +1,25 @@
-from scraper.spiders.syosetsu_spider import *
-from .text_files_packing import *
 import os
 import sys
 import logging
-
-# Dynamically get the path to the temporary directory
-if getattr(sys, "frozen", False):
-    # If the script is run as a bundled executable
-    tmp_dir = sys._MEIPASS
-else:
-    # If the script is run as a regular Python script
-    tmp_dir = ""
+from .text_files_packing import *
+from processing.processing_constants import STORAGE_PATH
+from scraper.spiders.syosetsu_spider import *
 
 
 def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
     check_illegal_char(novels_urls)
 
-    # TODO: make output_path to variable to decide where to output novel text files
     if folder_path:
         directory_output_path = folder_path
     else:
-        # directory_output_path = DEFAULT_FILE_PATH
-        directory_output_path = os.path.join(tmp_dir, "storage")
+        directory_output_path = os.path.join(os.path.basename(STORAGE_PATH))
 
     for novel_name, url, output_chapter_range, latest in novels_urls:
-        # novel_jsonlines_path = os.path.normpath(
-        #     "D:\VisualStudioProjects\SyosetsuScraper\{}.jl".format(novel_name)
-        # )
         novel_jsonlines_path = os.path.abspath(
-            os.path.join(tmp_dir, "storage", f"{novel_name}.jl")
+            os.path.join(os.path.basename(STORAGE_PATH), f"{novel_name}.jl")
         )
-        # D:\VisualStudioProjects\SyosetsuScraper\src\storage\Ascendance of a Bookworm - Extra Story2.jl
-        logging.info(f"check novel_jsonlines_path - {novel_jsonlines_path}")
 
         try:
-            # print(
-            #   f"novel_jsonlines_path: {novel_jsonlines_path} ,directory_output_path: {directory_output_path}, novel_name: {novel_name}, output_chapter_range: {output_chapter_range}"
-            # )
             read_jsonlines_file(
                 novel_jsonlines_path,
                 directory_output_path,
@@ -51,7 +34,7 @@ def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
             logging.error("An exception occurred:", error)
         else:
             # remove the jl file after finished reading the jl file
-            logging.error(f"Remove jsonlines file {novel_name}")
+            logging.info(f"Remove jsonlines file {novel_name}")
             remove_jl_file(novel_name)
 
 
@@ -59,9 +42,7 @@ def remove_jl_file(novel_name: str):
     """
     Deletes a .jl file with the given name if it exists in the current directory.
     """
-    # novel = "{}.jl".format(novel_name)
-    # novel = os.path.join(tmp_dir ,"src", "storage", f"{novel_name}.jl")
-    novel = os.path.join("storage", f"{novel_name}.jl")
+    novel = os.path.join(os.path.basename(STORAGE_PATH), f"{novel_name}.jl")
     # checks if file with this name exists and deletes it
     if os.path.exists(novel):
         os.remove(novel)
@@ -71,7 +52,7 @@ def illegal_char_in_name(foldername):
     """
     Checks if a folder name contains any invalid characters.
     """
-    invalid = '<>:"/\|?*'
+    invalid = '<>:"/\\|?*'
     # iterates through each character in the list of invalid characters and returns the found invalid chars
     for char in invalid:
         if char in foldername:
@@ -83,8 +64,9 @@ def check_illegal_char(novels_urls):
     for novel_name, url, output_range, latest in novels_urls:
         check = illegal_char_in_name(novel_name)
         if check:
-            print(f"Illegal character in {novel_name}: {check}")
-            exit()
+            # print(f"Illegal character in {novel_name}: {check}")
+            raise ValueError(f"Illegal character in {novel_name}: {check}")
+            # exit()
 
 
 def output_chapter_range(range: int = 10):

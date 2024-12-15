@@ -1,10 +1,13 @@
 import PySimpleGUI as sg
 import os
+from pathlib import Path
+from processing.processing_constants import STORAGE_PATH, PROJECT_ROOT_PATH
 
 # Initialize a list to store print output
 print_output = []
 # Set relative path
-src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# PROJECT_ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# PROJECT_ROOT_PATH = Path("SyosetsuScraper").resolve()
 
 
 def create_layout(scraped_table_load_data, history_table_load_data):
@@ -165,7 +168,7 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                         sg.FileBrowse(
                             button_text="Find Scraped Table",
                             # initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage",
-                            initial_folder=os.path.join(src_path, "storage"),
+                            initial_folder=STORAGE_PATH,
                         ),
                         sg.Button("Load Scraped Table", key="load_scraped_btn"),
                     ],
@@ -174,7 +177,7 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                         sg.FolderBrowse(
                             button_text="Browse Folder Export Scraped Table",
                             # initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src",
-                            initial_folder=src_path,
+                            initial_folder=PROJECT_ROOT_PATH,
                         ),
                         sg.Button("Export Scraped Table", key="export_scraped_btn"),
                     ],
@@ -230,7 +233,7 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                         sg.FileBrowse(
                             button_text="Find History Table",
                             # initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src\storage",
-                            initial_folder=os.path.join(src_path, "storage"),
+                            initial_folder=STORAGE_PATH,
                         ),
                         sg.Button("Load History Table", key="load_history_btn"),
                     ],
@@ -239,7 +242,7 @@ def create_layout(scraped_table_load_data, history_table_load_data):
                         sg.FolderBrowse(
                             button_text="Browse Folder Export History Table",
                             # initial_folder="D:\VisualStudioProjects\SyosetsuScraper\src",
-                            initial_folder=src_path,
+                            initial_folder=PROJECT_ROOT_PATH,
                         ),
                         sg.Button("Export History Table", key="export_history_btn"),
                     ],

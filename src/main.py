@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from processing.processing_constants import STORAGE_PATH, PROJECT_ROOT_PATH
 import processing.scrapy_from_script as sfs
 import scraper.spiders.syosetsu_spider as spider
 import GUI.layout as layout
@@ -7,42 +8,19 @@ import multiprocessing
 import threading
 import re
 import os
-import sys
 import logging
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
-# Dynamically get the path to the temporary directory
-if getattr(sys, "frozen", False):
-    # If the script is run as a bundled executable
-    tmp_dir = sys._MEIPASS
-else:
-    # If the script is run as a regular Python script
-    tmp_dir = ""
-
 
 # load data from storage file for persistent data
-# standard_storage_folder_path = "D:\VisualStudioProjects\SyosetsuScraper\src\storage"
-standard_storage_folder_path = os.path.abspath(
-    os.path.join(tmp_dir, os.path.dirname(__file__), "storage")
-)
-
-scraped_table_load_data = tabop.load_table(
-    standard_storage_folder_path, "scraped_table"
-)
-history_table_load_data = tabop.load_table(
-    standard_storage_folder_path, "history_table"
-)
+scraped_table_load_data = tabop.load_table(STORAGE_PATH, "scraped_table")
+history_table_load_data = tabop.load_table(STORAGE_PATH, "history_table")
 
 layout_tab_group = layout.create_layout(
     scraped_table_load_data, history_table_load_data
-)
-
-# give the dist internal system path to crawler to output at correct location
-standard_folder_path_jl = os.path.abspath(
-    os.path.join(tmp_dir, os.path.dirname(__file__), "src")
 )
 
 # Create the window
@@ -51,9 +29,7 @@ window = sg.Window(
     layout_tab_group,
     # icon="D:\VisualStudioProjects\SyosetsuScraper\src\GUI\syosetsu_icon.ico",
     icon=os.path.abspath(
-        os.path.join(
-            tmp_dir, os.path.dirname(__file__), "src", "GUI", "syosetsu_icon.ico"
-        )
+        os.path.join(os.path.dirname(__file__), "src", "GUI", "syosetsu_icon.ico")
     ),
     # resizable=True,
 )  # , size=(1200, 700))
@@ -137,11 +113,8 @@ log_queue = multiprocessing.Queue()
 # Initialize the data list and table data from storage
 scraped_table_data = scraped_table_load_data
 history_table_data = history_table_load_data
-# TODO: make executable, desktop app or
 # TODO: create docker image and run with a docker container
 # TODO: fix sg.table right_click_menu Delete option
-# TODO: update load_table() to use same param/func as export and relative path
-# TODO: use relative path for csv storage so exe can use and export table data
 
 
 if __name__ == "__main__":
@@ -153,12 +126,8 @@ if __name__ == "__main__":
         event, values = window.read(timeout=1000)
         if event == sg.WINDOW_CLOSED or event == "exit_button":
             # export last history and scraped table data to csv storage when exit
-            tabop.export_table_data(
-                window, "scraped_table", standard_storage_folder_path
-            )
-            tabop.export_table_data(
-                window, "history_table", standard_storage_folder_path
-            )
+            tabop.export_table_data(window, "scraped_table", STORAGE_PATH)
+            tabop.export_table_data(window, "history_table", STORAGE_PATH)
             break
         if event == "range":
             # Check if field input is integer
@@ -235,9 +204,6 @@ if __name__ == "__main__":
                 start_chapter = values["input_starting_chapter"]
                 output_folder = values["input_folder_path"]
 
-                logging.info(
-                    f"selected_scraper_button standard_folder_path_jl: {standard_folder_path_jl}"
-                )
                 # Run the crawling process in a separate thread
                 crawling_thread = threading.Thread(
                     target=run_multiprocess_crawl,
