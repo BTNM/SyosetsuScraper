@@ -1,9 +1,15 @@
 import os
 import sys
 import logging
-from .text_files_packing import *
-from processing.processing_constants import STORAGE_PATH
-from scraper.spiders.syosetsu_spider import *
+import os
+import sys
+
+# Add the parent directory of 'src' to the system path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
+from src.processing.text_files_packing import *
+from src.processing.processing_constants import STORAGE_PATH
+from src.scraper.spiders.syosetsu_spider import *
 
 
 def text_output_files(novels_urls: list, start_chapter=None, folder_path=None):
@@ -74,6 +80,35 @@ def output_chapter_range(range: int = 10):
     Returns the input range, which defaults to 10 if no argument is given
     """
     return range
+
+
+# def novel_crawler_from_script(novels_urls: list):
+#     check_illegal_char(novels_urls)
+
+#     # crawl the given syosetsu webpages
+#     run_multi_process_crawler(novels_urls)
+
+# directory_output_path = os.path.join(os.path.basename(STORAGE_PATH))
+
+# for novel_name, url, output_chapter_range, latest in novels_urls:
+#     novel_jsonlines_path = os.path.abspath(
+#         os.path.join(os.path.basename(STORAGE_PATH), f"{novel_name}.jl")
+#     )
+#     try:
+#         read_jsonlines_file(
+#             novel_jsonlines_path,
+#             directory_output_path,
+#             novel_name,
+#             output_chapter_range,
+#         )
+#     except Exception as error:
+#         logging.error(
+#             f"Something went wrong with the {novel_name} read_jsonLines_file"
+#         )
+#     else:
+#         # remove the jl file after finished reading the jl file
+#         logging.info(f"Remove jsonlines file {novel_name}")
+#         # remove_jl_file(novel_name)
 
 
 if __name__ == "__main__":
