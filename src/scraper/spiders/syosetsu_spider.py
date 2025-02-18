@@ -37,7 +37,7 @@ class SyosetsuSpider(scrapy.Spider):
         Returns:
             None. Sends a request to the first chapter's page.
         """
-        logging.info("Start syosetsu spider parse main_page crawl")
+        logging.info("Start syosetsu spider parse main_page crawl\n")
         soup_parser = BeautifulSoup(response.text, "html.parser")
 
         main_page = soup_parser.select_one("div#novel_ex.p-novel__summary").text
@@ -103,7 +103,7 @@ class SyosetsuSpider(scrapy.Spider):
             "div.p-novel__body div.js-novel-text.p-novel__text--preface"
         )
         if foreword:
-            novel_item["chapter_preface"] = "\n".join(
+            novel_item["chapter_foreword"] = "\n".join(
                 p.text for p in foreword.select("p")
             )
         novel_item["chapter_text"] = "\n".join(
